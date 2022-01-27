@@ -1,7 +1,10 @@
+<p align="center"><img width=50% src="https://raw.githubusercontent.com/DataCloud-project/toolbox/master/docs/img/datacloud_logo.png"></p>&nbsp;
+
+[![GitHub Issues](https://img.shields.io/github/issues/DataCloud-project/DEF-PIPE-frontend.svg)](https://github.com/DataCloud-project/DEF-PIPE-frontend/issues)
+
 # DataCloud.PipelineDesigner
 
 Graphic tool for designing data pipelines and tranforming them to DSL.
-
 
 ## Toolings
 
