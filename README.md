@@ -2,7 +2,7 @@
 
 [![GitHub Issues](https://img.shields.io/github/issues/DataCloud-project/DEF-PIPE-frontend.svg)](https://github.com/DataCloud-project/DEF-PIPE-frontend/issues)
 
-# DEF-PIPE: Frontend
+# DEF-PIPE Frontend
 
 Graphic tool for designing data pipelines and tranforming them to DSL.
 
