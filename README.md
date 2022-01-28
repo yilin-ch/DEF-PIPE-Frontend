@@ -1,7 +1,20 @@
-<p align="center"><img width=50% src="https://raw.githubusercontent.com/DataCloud-project/toolbox/master/docs/img/datacloud_logo.png"></p>&nbsp;
-
+- Graphic tool for designing data pipelines and tranforming them to DSL.
 [![GitHub Issues](https://img.shields.io/github/issues/DataCloud-project/DEF-PIPE-frontend.svg)](https://github.com/DataCloud-project/DEF-PIPE-frontend/issues)
 
+## Web Application
+- Because of several benefits such as ease of use, compability, and reusability, the web application approach was chosen to implement Pipeline Designer.
+# DEF-PIPE Frontend
+
+## Front-End
+- The main part of the application is the interface for designing big data pipelines.This interface is implemented as a single page application using ReactJS. the popularity and stability of ReactJS make it potentially more friendly with developers to continue with the project later on.
+The project also use Bootstrap, a framework providing basic UI components building blocks which are easy to customize.
+
+## Back-End
+- The back-end is implemented in CSharp using Dor Net (.NET) framework from Microsoft. In particular, ASP.NET Core, which is the part of the >NET framework for web application, is being used.
+
+## Database
+- The database in Pipeline Designer is mainly used to persist pipelines and templates created by users. As such, there was no need for any kind of complex query capabilities. Based on this assesment Entity Framework which is an object-relational mapping (ORM) framework for .NET is used.
+Graphic tool for designing data pipelines and tranforming them to DSL.
 # DEF-PIPE Frontend
 
 Graphic tool for designing data pipelines and tranforming them to DSL.
@@ -28,16 +41,16 @@ For both Windows and MacOS, install the following:
 Right-click on the project **DataCloud.PipelineDesigner.WebClient** and set it as the startup project, then press F5 to start the application.
 
 ## Working with the codebase
-- The codebase consists of other 6 projects. except from the project **DataCloud.PipelineDesigner.WebClient** , the orher projects are Class Library type. The output of each Class Library project will be a compiled DLL which can be re-used by other systems.
+- The codebase consists of other 6 projects. Except from the project **DataCloud.PipelineDesigner.WebClient** , the other projects are Class Library type. The output of each Class Library project will be a compiled DLL which can be re-used by other systems.
 
 - The main part of the project is the client-side application. This is a standard ReactJS single-page-application. The source code for this client-side app is located at **DataCloud.PipelineDesigner.WebClient/ClientApp/src**.
 
-- The backend web api is located at **DataCloud.PipelineDesigner.WebClient/Controllers**. From here, you can follow the reference to navigate to lower levels implementation.
+- The backend Web API is located at **DataCloud.PipelineDesigner.WebClient/Controllers**. From here, you can follow the reference to navigate to lower levels implementation.
 
 - The classes and data structure in the Canvas Model is located at **DataCloud.PipelineDesigner.CanvasModel**.
 
 - The data access layer including the Entity Framework code and interface for data access is located at **DataCloud.PipelineDesigner.Repositories**. The abstraction of data storage technology allowing the system to switch from one type of storage to another without the need to change other upper layers of the code.
 
-- The business logic layer containing the interface and implementation of the Workflow Transformer and DSL Transformer components is located at **DataCloud.PipelineDesigner.Services**.
+- The business logic layer containing the interface and implementation of the Workflow transformer and DSL transformer components is located at **DataCloud.PipelineDesigner.Services**.
 
 - **DataCloud.PipelineDesigner.Core** is a class library to hold all code that needs to be shared between all layers.
