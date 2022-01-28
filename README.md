@@ -1,19 +1,10 @@
-# DataCloud.PipelineDesigner
+<p align="center"><img width=50% src="https://raw.githubusercontent.com/DataCloud-project/toolbox/master/docs/img/datacloud_logo.png"></p>&nbsp;
 
-- Graphic tool for designing data pipelines and tranforming them to DSL.
+[![GitHub Issues](https://img.shields.io/github/issues/DataCloud-project/DEF-PIPE-frontend.svg)](https://github.com/DataCloud-project/DEF-PIPE-frontend/issues)
 
-## Web Application
-- Because of several benefits such as ease of use, compability, and reusability, the web application approach was chosen to implement Pipeline Designer.
+# DEF-PIPE Frontend
 
-## Front-End
-- The main part of the application is the interface for designing big data pipelines.This interface is implemented as a single page application using ReactJS. the popularity and stability of ReactJS make it potentially more friendly with developers to continue with the project later on.
-The project also use Bootstrap, a framework providing basic UI components building blocks which are easy to customize.
-
-## Back-End
-- The back-end is implemented in CSharp using Dor Net (.NET) framework from Microsoft. In particular, ASP.NET Core, which is the part of the >NET framework for web application, is being used.
-
-## Database
-- The database in Pipeline Designer is mainly used to persist pipelines and templates created by users. As such, there was no need for any kind of complex query capabilities. Based on this assesment Entity Framework which is an object-relational mapping (ORM) framework for .NET is used.
+Graphic tool for designing data pipelines and tranforming them to DSL.
 
 ## Toolings
 
