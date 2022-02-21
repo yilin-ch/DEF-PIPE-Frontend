@@ -18,7 +18,7 @@ The project also use Bootstrap, a framework providing basic UI components buildi
 - The database in Pipeline Designer is mainly used to persist pipelines and templates created by users. As such, there was no need for any kind of complex query capabilities. Based on this assesment Entity Framework which is an object-relational mapping (ORM) framework for .NET is used.
 Graphic tool for designing data pipelines and tranforming them to DSL.
 
-# Installation instructions
+# Installation
 
 ## Toolings
 
@@ -41,6 +41,8 @@ For both Windows and MacOS, install the following:
 
 - To the build the project, open the file *DataCloud.PipelineDesigner.sln* using Visual Studio for your platform press **`Ctrl+Shift+B` (Windows)** or **`⌘B, F6` (MacOS)** to build the entire solution.
 Right-click on the project **DataCloud.PipelineDesigner.WebClient** and set it as the startup project, then press F5 to start the application.
+
+# Usage
 
 ## Main Components
 
