@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-Apache2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # DEF-PIPE Frontend
-
+The pipeline designer is deployed and accessible at https://pipelinedesign.azurewebsites.net/
 Graphic tool for designing data pipelines and tranforming them to DSL. Because of several benefits such as ease of use, compability, and reusability, the web application approach was chosen to implement a pipeline designer. It consists of the following components:
 
 ## Front-End
