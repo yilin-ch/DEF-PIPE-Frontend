@@ -4,19 +4,22 @@
 [![License](https://img.shields.io/badge/license-Apache2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # DEF-PIPE Frontend
-The pipeline designer is deployed and accessible at https://pipelinedesign.azurewebsites.net/
-Graphic tool for designing data pipelines and tranforming them to DSL. Because of several benefits such as ease of use, compability, and reusability, the web application approach was chosen to implement a pipeline designer. It consists of the following components:
+
+The DEF-PIPE Frontend is a graphic pipeline designer tool for defining Big Data pipelines and tranforming them to DSL. The pipeline designer is deployed and accessible at https://pipelinedesign.azurewebsites.net/
+
+Because of several benefits such as ease of use, compability, and reusability, the web application approach was chosen to implement a pipeline designer. From a high-level view, the system consists of the following three components:
+
+![Architecture of the DEF-PIPE tool.](https://github.com/DataCloud-project/DEF-PIPE/blob/main/docs/high-level-components.png)
 
 ## Front-End
 - The main part of the application is the interface for designing big data pipelines.This interface is implemented as a single page application using ReactJS. the popularity and stability of ReactJS make it potentially more friendly with developers to continue with the project later on.
 The project also use Bootstrap, a framework providing basic UI components building blocks which are easy to customize.
 
 ## Back-End
-- The back-end is implemented in CSharp using Dor Net (.NET) framework from Microsoft. In particular, ASP.NET Core, which is the part of the >NET framework for web application, is being used.
+- The back-end is implemented in CSharp using Dor Net (.NET) framework from Microsoft. In particular, ASP.NET Core, which is the part of the >NET framework for web application, is being used. It implements a web API providing a central interface for operations such as managing pipelines and templates data, transforming pipelines into DSL.
 
 ## Database
 - The database in Pipeline Designer is mainly used to persist pipelines and templates created by users. As such, there was no need for any kind of complex query capabilities. Based on this assesment Entity Framework which is an object-relational mapping (ORM) framework for .NET is used.
-Graphic tool for designing data pipelines and tranforming them to DSL.
 
 # Installation
 
