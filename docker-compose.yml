@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  def-pipe:
+    build: .
+    ports:
+      - "80:80"
+    environment:
+        CONNECTION_STRING: YOUR_CONNECTION_STRING

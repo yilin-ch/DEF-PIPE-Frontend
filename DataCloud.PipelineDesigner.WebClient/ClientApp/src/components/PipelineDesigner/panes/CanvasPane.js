@@ -59,7 +59,7 @@ var CanvasPane = /** @class */ (function (_super) {
     };
     CanvasPane.prototype.saveAsTemplate = function () {
         this.props.addTemplate({
-            id: uuid_1.v4(),
+            id: (0, uuid_1.v4)(),
             name: this.saveAsTemplateName,
             description: "",
             category: this.saveAsTemplateCategory,
@@ -152,10 +152,10 @@ var CanvasPane = /** @class */ (function (_super) {
         var template = this.props.draggedTemplate;
         var canvasContainer = document.getElementById('canvas-container');
         var dropPosition = this.canvasService.snapToGrid({
-            x: e.clientX - canvasContainer.getBoundingClientRect().x,
-            y: e.clientY - canvasContainer.getBoundingClientRect().y
+            x: e.clientX - canvasContainer.getBoundingClientRect().left,
+            y: e.clientY - canvasContainer.getBoundingClientRect().top
         });
-        var newShape = __assign(__assign({}, template), { properties: template.properties.map(function (p) { return (__assign({}, p)); }), id: uuid_1.v4(), type: models_1.ICanvasElementType.Shape, width: template.width, height: template.height, shape: template.shape, position: dropPosition });
+        var newShape = __assign(__assign({}, template), { properties: template.properties.map(function (p) { return (__assign({}, p)); }), id: (0, uuid_1.v4)(), type: models_1.ICanvasElementType.Shape, width: template.width, height: template.height, shape: template.shape, position: dropPosition });
         this.props.addElement(newShape);
         this.props.dropTemplate();
     };
@@ -321,5 +321,5 @@ var CanvasPane = /** @class */ (function (_super) {
     return CanvasPane;
 }(React.PureComponent));
 ;
-exports.default = react_redux_1.connect(function (state) { return state.canvas; }, CanvasStore.actionCreators)(CanvasPane);
+exports.default = (0, react_redux_1.connect)(function (state) { return state.canvas; }, CanvasStore.actionCreators)(CanvasPane);
 //# sourceMappingURL=CanvasPane.js.map

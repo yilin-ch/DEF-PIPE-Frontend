@@ -49,10 +49,9 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
 
                 return dslService.TransformWorkflowToDSL(workflow);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                //TODO: logging
-                throw;
+                return e.Message;
             }
         }
     }

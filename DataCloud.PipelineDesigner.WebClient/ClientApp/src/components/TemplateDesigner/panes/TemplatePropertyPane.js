@@ -113,7 +113,7 @@ var TemplatePropertyPane = /** @class */ (function (_super) {
     TemplatePropertyPane.prototype.addConnectionPoint = function () {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
         updatedTemplate.connectionPoints.push({
-            id: uuid_1.v4(),
+            id: (0, uuid_1.v4)(),
             type: models_1.ICanvasConnectionPointType.input,
             position: {
                 x: 10,
@@ -199,11 +199,14 @@ var TemplatePropertyPane = /** @class */ (function (_super) {
                             React.createElement(reactstrap_1.Button, { onClick: function (e) { return _this.addProperty(); } }, "Add Property")),
                         React.createElement(reactstrap_1.TabPane, { tabId: "3" },
                             this.props.selectedTemplate.connectionPoints.map(function (point) { return _this.renderConnectionPoint(point); }),
-                            React.createElement(reactstrap_1.Button, { onClick: function (e) { return _this.addConnectionPoint(); } }, "Add Connection Point")))))
+                            React.createElement(reactstrap_1.Button, { onClick: function (e) { return _this.addConnectionPoint(); } }, "Add Connection Point"))),
+                    React.createElement("p", { className: "btn btn-danger removeButton", onClick: function (e) {
+                            _this.props.removeTemplate(_this.props.selectedTemplate);
+                        } }, "Delete")))
             : null));
     };
     return TemplatePropertyPane;
 }(React.PureComponent));
 ;
-exports.default = react_redux_1.connect(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplatePropertyPane);
+exports.default = (0, react_redux_1.connect)(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplatePropertyPane);
 //# sourceMappingURL=TemplatePropertyPane.js.map

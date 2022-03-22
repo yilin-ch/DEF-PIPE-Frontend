@@ -8,7 +8,7 @@ var TemplateService = /** @class */ (function () {
     }
     TemplateService.prototype.createNewRootShape = function () {
         var rootShape = {
-            id: uuid_1.v4(),
+            id: (0, uuid_1.v4)(),
             name: "Root",
             type: models_1.ICanvasElementType.Shape,
             canHaveChildren: true,
@@ -33,9 +33,6 @@ var TemplateService = /** @class */ (function () {
         return templateGroups;
     };
     TemplateService.prototype.saveTemplate = function (template) {
-        if (TemplateService.saveTemplateTimeoutHandle) {
-            clearTimeout(TemplateService.saveTemplateTimeoutHandle);
-        }
         TemplateService.saveTemplateTimeoutHandle = setTimeout(function () {
             TemplateService.saveTemplateTimeoutHandle = null;
             fetch("/api/templates", {
@@ -47,8 +44,16 @@ var TemplateService = /** @class */ (function () {
             });
         }, 500);
     };
+    TemplateService.prototype.deleteTemplate = function (templateId) {
+        TemplateService.saveTemplateTimeoutHandle = setTimeout(function () {
+            TemplateService.saveTemplateTimeoutHandle = null;
+            fetch("/api/templates/" + templateId, {
+                method: "DELETE",
+            });
+        }, 500);
+    };
     TemplateService.prototype.persistTemplate = function (templates) {
-        localStorage.setItem("datacloud-templates", JSON.stringify(templates));
+        // localStorage.setItem("datacloud-templates", JSON.stringify(templates));
     };
     TemplateService.saveTemplateTimeoutHandle = null;
     return TemplateService;

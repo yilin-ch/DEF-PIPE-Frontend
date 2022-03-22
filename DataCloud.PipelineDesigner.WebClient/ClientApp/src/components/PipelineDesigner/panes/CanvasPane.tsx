@@ -88,7 +88,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
     onConnectorClick(e: KonvaEventObject<MouseEvent>, connector: ICanvasConnector) {
         e.cancelBubble = true;
 
-        if (!this.props.selectedElement || this.props.selectedElement.id !== connector.id) {            
+        if (!this.props.selectedElement || this.props.selectedElement.id !== connector.id) {
             this.props.selectElement(connector);
         }
         else
@@ -117,7 +117,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
 
         let newShape: ICanvasShape = {
             ...shape,
-            position: newPosition            
+            position: newPosition
         };
 
         this.props.updateElement(newShape);
@@ -132,7 +132,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
         this.props.collapseContainer(shape);
     }
 
-    
+
 
     onMouseMove(e: React.MouseEvent) {
         let canvasContainer = document.getElementById('canvas-container').getBoundingClientRect();
@@ -155,13 +155,13 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
             this.onJsonDrop(e);
         }
     }
-    
+
     onTemplateDrop(e: React.DragEvent) {
         let template = this.props.draggedTemplate;
         let canvasContainer = document.getElementById('canvas-container');
         let dropPosition = this.canvasService.snapToGrid({
-            x: e.clientX - canvasContainer.getBoundingClientRect().x,
-            y: e.clientY - canvasContainer.getBoundingClientRect().y
+            x: e.clientX - canvasContainer.getBoundingClientRect().left,
+            y: e.clientY - canvasContainer.getBoundingClientRect().top
         });
 
         let newShape: ICanvasShape = {
@@ -289,7 +289,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
                     isSelectedConnectionPoint = true;
                 }
 
-                return CanvasRenderer.renderConnectionPoint(p, shape, isSelectedConnectionPoint, (e, shape, point) => this.onConnectionPointClick(e, shape, point));  
+                return CanvasRenderer.renderConnectionPoint(p, shape, isSelectedConnectionPoint, (e, shape, point) => this.onConnectionPointClick(e, shape, point));
             })}
         </Group>
     }
@@ -339,7 +339,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
                                 <BreadcrumbItem onClick={() => this.onCollapseContainer(shape)}>{shape.name}</BreadcrumbItem>
                         )}
                         <BreadcrumbItem active>{this.props.currentRootShape.name}</BreadcrumbItem>
-                    </Breadcrumb>    
+                    </Breadcrumb>
 
                     <Modal isOpen={this.saveAsTemplateModal} toggle={(e) => this.toggleSaveAsTemplateModal()}>
                         <ModalHeader toggle={(e) => this.toggleSaveAsTemplateModal()}>Save pipeline as template</ModalHeader>

@@ -11,5 +11,6 @@ namespace DataCloud.PipelineDesigner.Services.Interfaces
     {
         Task AddOrUpdateTemplateAsync(CanvasShapeTemplate template);
         Task<List<CanvasShapeTemplate>> GetTemplatesAsync();
+        Task<bool> DeleteTemplate(String id);
     }
 }

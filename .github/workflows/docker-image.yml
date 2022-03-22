@@ -1,0 +1,26 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ main ]
+    
+env:
+  REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+  IMAGE_NAME: def-pipe-designer
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Login to Docker Hub
+      run: docker login -u ${{ env.REGISTRY }} -p  ${{ secrets.DOCKER_PASSWORD }}
+
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.head_commit.message }}
+      
+    - name: Push the Docker image to the Hub
+      run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.head_commit.message }}

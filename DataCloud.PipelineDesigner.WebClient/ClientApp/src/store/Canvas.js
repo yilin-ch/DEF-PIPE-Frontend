@@ -10,10 +10,14 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.reducer = exports.actionCreators = void 0;
@@ -83,6 +87,7 @@ var reducer = function (state, incomingAction) {
         };
     }
     var action = incomingAction;
+    console.log(action.type);
     switch (action.type) {
         case 'REQUEST_DSL':
             return __assign(__assign({}, state), { availableDSLs: action.dsl });
@@ -127,7 +132,7 @@ var reducer = function (state, incomingAction) {
                 }
                 else if (action.point.type === models_1.ICanvasConnectionPointType.input) {
                     var newConnector = {
-                        id: uuid_1.v4(),
+                        id: (0, uuid_1.v4)(),
                         sourceShapeId: state.selectedElement.id,
                         sourceConnectionPointId: state.selectedConnectionPoint.id,
                         destShapeId: action.element.id,
@@ -164,18 +169,17 @@ var reducer = function (state, incomingAction) {
                     items: [action.template]
                 };
             }
-            var newTemplateGroups = state.templateGroups.filter(function (group) { return group.name !== templateGroup_1.name; }).concat(templateGroup_1);
-            var templates_1 = [];
-            newTemplateGroups.forEach(function (grp) { return templates_1 = templates_1.concat(grp.items); });
+            var groupIndex = state.templateGroups.findIndex(function (group) { return group.name === templateGroup_1.name; });
+            state.templateGroups[groupIndex] = templateGroup_1;
             templateService.saveTemplate(action.template);
-            return __assign(__assign({}, state), { templateGroups: newTemplateGroups, selectedTemplate: action.template });
+            return __assign(__assign({}, state), { templateGroups: state.templateGroups, selectedTemplate: action.template });
         case 'UPDATE_TEMPLATE':
             var templateGroupToBeUpdated = state.templateGroups.filter(function (group) { return group.name === action.template.category; })[0];
             if (templateGroupToBeUpdated) {
                 var templateToBeUpdated = templateGroupToBeUpdated.items.filter(function (template) { return template.id === action.template.id; })[0];
                 var indexOfExistingTemplate = templateGroupToBeUpdated.items.indexOf(templateToBeUpdated);
                 templateToBeUpdated = __assign({}, action.template);
-                templateGroupToBeUpdated.items = __spreadArray(__spreadArray(__spreadArray([], templateGroupToBeUpdated.items.slice(0, indexOfExistingTemplate)), templateGroupToBeUpdated.items.slice(indexOfExistingTemplate + 1)), [action.template]);
+                templateGroupToBeUpdated.items = __spreadArray(__spreadArray(__spreadArray([], templateGroupToBeUpdated.items.slice(0, indexOfExistingTemplate), true), templateGroupToBeUpdated.items.slice(indexOfExistingTemplate + 1), true), [action.template], false);
                 templateService.saveTemplate(templateToBeUpdated);
                 return __assign(__assign({}, state), { selectedTemplate: templateToBeUpdated });
             }
@@ -194,7 +198,14 @@ var reducer = function (state, incomingAction) {
                 return __assign(__assign({}, state), { templateGroups: templateGroups, selectedTemplate: action.template });
             }
         case 'REMOVE_TEMPLATE':
-            return __assign({}, state);
+            templateGroup_1 = state.templateGroups.filter(function (group) { return group.name === action.template.category; })[0];
+            console.log(templateGroup_1.items.length);
+            templateGroup_1.items = templateGroup_1.items.filter(function (obj) { return obj !== action.template; });
+            var index = state.templateGroups.findIndex(function (group) { return group.name === templateGroup_1.name; });
+            state.templateGroups[index] = templateGroup_1;
+            templateService.deleteTemplate(action.template.id);
+            console.log(state.templateGroups[index].items.length);
+            return __assign(__assign({}, state), { templateGroups: state.templateGroups, selectedTemplate: null, selectedElement: null });
         case 'EXPAND_CONTAINER':
             state.shapeExpandStack.push(state.currentRootShape);
             return __assign(__assign({}, state), { currentRootShape: action.shape, shapeExpandStack: state.shapeExpandStack, selectedConnectionPoint: null, selectedElement: null });

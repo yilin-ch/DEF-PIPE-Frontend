@@ -31,9 +31,12 @@ var TemplatePalettePane = /** @class */ (function (_super) {
     TemplatePalettePane.prototype.onTemplateClicked = function (template) {
         this.props.selectTemplate(template);
     };
+    TemplatePalettePane.prototype.onTemplateDeleted = function (template) {
+        this.props.removeTemplate(template);
+    };
     TemplatePalettePane.prototype.onAddNewTemplate = function (group) {
         var template = {
-            id: uuid_1.v4(),
+            id: (0, uuid_1.v4)(),
             name: "New template",
             description: "",
             width: 300,
@@ -63,5 +66,5 @@ var TemplatePalettePane = /** @class */ (function (_super) {
     return TemplatePalettePane;
 }(React.PureComponent));
 ;
-exports.default = react_redux_1.connect(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplatePalettePane);
+exports.default = (0, react_redux_1.connect)(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplatePalettePane);
 //# sourceMappingURL=TemplatePalettePane.js.map

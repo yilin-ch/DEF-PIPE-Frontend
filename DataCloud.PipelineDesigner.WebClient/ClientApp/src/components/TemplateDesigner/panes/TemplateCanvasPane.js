@@ -95,5 +95,5 @@ var TemplateCanvasPane = /** @class */ (function (_super) {
     return TemplateCanvasPane;
 }(React.PureComponent));
 ;
-exports.default = react_redux_1.connect(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplateCanvasPane);
+exports.default = (0, react_redux_1.connect)(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplateCanvasPane);
 //# sourceMappingURL=TemplateCanvasPane.js.map

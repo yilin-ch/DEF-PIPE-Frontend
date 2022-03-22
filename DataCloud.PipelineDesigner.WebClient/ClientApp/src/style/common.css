@@ -95,10 +95,21 @@
     float: right;
 }
 
+.removeButton {
+    float: right;
+    fill: darkred
+}
+
 .nav-tabs li {
     cursor: pointer
 }
 
 .global-nav-link:active {
     border-bottom: solid 2px green;
+}
+
+.column {
+    float: left;
+    width: 50%;
+    margin: 0px;
 }

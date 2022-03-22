@@ -99,6 +99,8 @@ export const actionCreators = {
 
      requestTemplates: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
          const appState = getState();
+         console.log("appState");
+         console.log(appState);
          if (appState && appState.canvas && !appState.canvas.templates) {
             fetch(`/api/templates`)
                 .then(response => response.json() as Promise<ApiResult<Array<ICanvasShapeTemplate>>>)
@@ -131,6 +133,7 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
     }
     
     const action = incomingAction as KnownAction;
+    console.log(action.type);
     switch (action.type) {
         case 'REQUEST_DSL':
             return {
@@ -269,14 +272,13 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                     items: [action.template]
                 }                
             }
-            let newTemplateGroups = state.templateGroups.filter(group => group.name !== templateGroup.name).concat(templateGroup);
-            let templates: Array<ICanvasShapeTemplate> = [];
-            newTemplateGroups.forEach(grp => templates = templates.concat(grp.items));
+            let groupIndex = state.templateGroups.findIndex((group) => group.name === templateGroup.name);
+            state.templateGroups[groupIndex] = templateGroup;
             templateService.saveTemplate(action.template);
             
             return {
                 ...state,
-                templateGroups: newTemplateGroups,
+                templateGroups: state.templateGroups,
                 selectedTemplate: action.template
             };
         case 'UPDATE_TEMPLATE':
@@ -313,10 +315,20 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                     selectedTemplate: action.template
                 };
             }
-        case 'REMOVE_TEMPLATE':
-            
+        case 'REMOVE_TEMPLATE':    
+            templateGroup = state.templateGroups.filter(group => group.name === action.template.category)[0];
+            console.log(templateGroup.items.length)
+            templateGroup.items = templateGroup.items.filter(obj => obj !== action.template);
+            let index = state.templateGroups.findIndex((group) => group.name === templateGroup.name);
+
+            state.templateGroups[index] = templateGroup;
+            templateService.deleteTemplate(action.template.id);
+            console.log(state.templateGroups[index].items.length);
             return {
-                ...state
+                ...state,
+                templateGroups: state.templateGroups,
+                selectedTemplate: null,
+                selectedElement: null                
             };
         case 'EXPAND_CONTAINER':
             state.shapeExpandStack.push(state.currentRootShape);

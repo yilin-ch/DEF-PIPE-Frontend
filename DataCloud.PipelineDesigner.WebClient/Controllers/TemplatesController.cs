@@ -50,5 +50,21 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
                 return ApiHelper.CreateFailedResult<List<CanvasShapeTemplate>>(e.Message);
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<ApiResult<bool>> DeleteTemplate(String id)
+        {
+            try
+            {
+
+                await templateService.DeleteTemplate(id);
+
+                return ApiHelper.CreateSuccessResult(true);
+            }
+            catch (Exception e)
+            {
+                return ApiHelper.CreateFailedResult<bool>(e.Message);
+            }
+        }
     }
 }

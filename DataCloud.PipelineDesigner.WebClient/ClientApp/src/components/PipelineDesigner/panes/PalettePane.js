@@ -41,7 +41,7 @@ var PalettePane = /** @class */ (function (_super) {
         this.props.filterTemplates(e.target.value);
     };
     PalettePane.prototype.onTemplateClicked = function (template) {
-        var newShape = __assign(__assign({}, template), { properties: template.properties.map(function (p) { return (__assign({}, p)); }), id: uuid_1.v4(), templateId: template.id, type: models_1.ICanvasElementType.Shape, width: template.width, height: template.height, shape: template.shape, position: { x: 500, y: 500 }, canHaveChildren: template.isContainer, elements: template.elements || [] });
+        var newShape = __assign(__assign({}, template), { properties: template.properties.map(function (p) { return (__assign({}, p)); }), id: (0, uuid_1.v4)(), templateId: template.id, type: models_1.ICanvasElementType.Shape, width: template.width, height: template.height, shape: template.shape, position: { x: 500, y: 500 }, canHaveChildren: template.isContainer, elements: template.elements || [] });
         this.props.addElement(newShape);
     };
     PalettePane.prototype.onTemplateDragStarted = function (template) {
@@ -64,5 +64,5 @@ var PalettePane = /** @class */ (function (_super) {
     return PalettePane;
 }(React.PureComponent));
 ;
-exports.default = react_redux_1.connect(function (state) { return state.canvas; }, CanvasStore.actionCreators)(PalettePane);
+exports.default = (0, react_redux_1.connect)(function (state) { return state.canvas; }, CanvasStore.actionCreators)(PalettePane);
 //# sourceMappingURL=PalettePane.js.map

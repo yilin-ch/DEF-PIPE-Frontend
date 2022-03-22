@@ -9,6 +9,7 @@ var CanvasService = /** @class */ (function () {
     CanvasService.prototype.exportAsJson = function (rootShape, fileName) {
         if (fileName === void 0) { fileName = "pipeline.json"; }
         var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(rootShape));
+        console.log(rootShape);
         var downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", dataStr);
         downloadAnchorNode.setAttribute("download", fileName);

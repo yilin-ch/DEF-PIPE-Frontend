@@ -37,9 +37,6 @@ export class TemplateService {
     }
 
     public saveTemplate(template: ICanvasShapeTemplate) {
-        if (TemplateService.saveTemplateTimeoutHandle) {
-            clearTimeout(TemplateService.saveTemplateTimeoutHandle)
-        }
         TemplateService.saveTemplateTimeoutHandle = setTimeout(() => {
             TemplateService.saveTemplateTimeoutHandle = null;
             fetch("/api/templates", {
@@ -51,9 +48,18 @@ export class TemplateService {
             })
         }, 500);
     }
+
+    public deleteTemplate(templateId: string) {
+        TemplateService.saveTemplateTimeoutHandle = setTimeout(() => {
+            TemplateService.saveTemplateTimeoutHandle = null;
+            fetch("/api/templates/" + templateId, {
+                method: "DELETE",
+            })
+        }, 500);
+    }
    
     public persistTemplate(templates: Array<ICanvasShapeTemplate>) {
         
-        localStorage.setItem("datacloud-templates", JSON.stringify(templates));
+       // localStorage.setItem("datacloud-templates", JSON.stringify(templates));
     }
 }

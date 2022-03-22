@@ -76,5 +76,5 @@ var PropertyPane = /** @class */ (function (_super) {
     return PropertyPane;
 }(React.PureComponent));
 ;
-exports.default = react_redux_1.connect(function (state) { return state.canvas; }, CanvasStore.actionCreators)(PropertyPane);
+exports.default = (0, react_redux_1.connect)(function (state) { return state.canvas; }, CanvasStore.actionCreators)(PropertyPane);
 //# sourceMappingURL=PropertyPane.js.map

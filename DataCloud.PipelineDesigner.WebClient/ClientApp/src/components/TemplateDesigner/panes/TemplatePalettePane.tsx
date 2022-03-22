@@ -22,6 +22,10 @@ class TemplatePalettePane extends React.PureComponent<TemplatePaletteProps> {
         this.props.selectTemplate(template);
     }
 
+    onTemplateDeleted(template: ICanvasShapeTemplate) {
+        this.props.removeTemplate(template);
+    }
+
     onAddNewTemplate(group: string) {
         let template: ICanvasShapeTemplate = {
             id: uuidv4(),
@@ -47,7 +51,7 @@ class TemplatePalettePane extends React.PureComponent<TemplatePaletteProps> {
                         <p className="palette-group-header">{group.name} <Button className="addButton" onClick={(e) => this.onAddNewTemplate(group.name)}>Add</Button></p>
                         {group.items.map(item =>
                             <p className="palette-group-item" onClick={() => this.onTemplateClicked(item)}>
-                                {item.name}                                
+                                {item.name}
                             </p>
                         )}
                     </React.Fragment>      
