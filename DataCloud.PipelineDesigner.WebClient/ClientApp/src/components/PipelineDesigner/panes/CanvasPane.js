@@ -3,12 +3,10 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -59,26 +57,28 @@ var CanvasPane = /** @class */ (function (_super) {
     };
     CanvasPane.prototype.saveAsTemplate = function () {
         this.props.addTemplate({
-            id: (0, uuid_1.v4)(),
+            id: uuid_1.v4(),
             name: this.saveAsTemplateName,
             description: "",
             category: this.saveAsTemplateCategory,
-            shape: "Container",
-            isContainer: true,
-            elements: (this.props.shapeExpandStack[0] || this.props.currentRootShape).elements,
-            connectionPoints: [{
-                    id: '1',
-                    position: { x: 0, y: 50 },
-                    type: models_1.ICanvasConnectionPointType.input
-                },
-                {
-                    id: '2',
-                    position: { x: 200, y: 50 },
-                    type: models_1.ICanvasConnectionPointType.output
-                }],
-            properties: [],
-            width: 200,
-            height: 100
+            canvasTemplate: {
+                shape: "Container",
+                isContainer: true,
+                elements: (this.props.shapeExpandStack[0] || this.props.currentRootShape).elements,
+                connectionPoints: [{
+                        id: '1',
+                        position: { x: 0, y: 50 },
+                        type: models_1.ICanvasConnectionPointType.input
+                    },
+                    {
+                        id: '2',
+                        position: { x: 200, y: 50 },
+                        type: models_1.ICanvasConnectionPointType.output
+                    }],
+                properties: [],
+                width: 200,
+                height: 100
+            }
         });
         this.saveAsTemplateName = "";
         this.saveAsTemplateDescription = "";
@@ -155,7 +155,7 @@ var CanvasPane = /** @class */ (function (_super) {
             x: e.clientX - canvasContainer.getBoundingClientRect().left,
             y: e.clientY - canvasContainer.getBoundingClientRect().top
         });
-        var newShape = __assign(__assign({}, template), { properties: template.properties.map(function (p) { return (__assign({}, p)); }), id: (0, uuid_1.v4)(), type: models_1.ICanvasElementType.Shape, width: template.width, height: template.height, shape: template.shape, position: dropPosition });
+        var newShape = __assign(__assign({}, template.canvasTemplate), { properties: template.canvasTemplate.properties.map(function (p) { return (__assign({}, p)); }), id: uuid_1.v4(), type: models_1.ICanvasElementType.Shape, width: template.canvasTemplate.width, height: template.canvasTemplate.height, shape: template.canvasTemplate.shape, position: dropPosition });
         this.props.addElement(newShape);
         this.props.dropTemplate();
     };
@@ -321,5 +321,5 @@ var CanvasPane = /** @class */ (function (_super) {
     return CanvasPane;
 }(React.PureComponent));
 ;
-exports.default = (0, react_redux_1.connect)(function (state) { return state.canvas; }, CanvasStore.actionCreators)(CanvasPane);
+exports.default = react_redux_1.connect(function (state) { return state.canvas; }, CanvasStore.actionCreators)(CanvasPane);
 //# sourceMappingURL=CanvasPane.js.map

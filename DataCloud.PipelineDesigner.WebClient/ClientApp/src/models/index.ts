@@ -16,9 +16,9 @@ export interface ICanvasPosition {
 
 export interface ICanvasShape extends ICanvasElement {
     type: ICanvasElementType.Shape;
-    name: string;
+    name?: string;
     icon?: string;
-    width: number; 
+    width: number;
     height: number;
     shape?: string;
     templateId?: string;
@@ -43,11 +43,15 @@ export interface ICanvasConnector extends ICanvasElement {
     destConnectionPointId: string;
 }
 
-export interface ICanvasShapeTemplate {
+export interface IAPiTemplate {
     id: string;
     name: string;
     description: string;
     category: string;
+    canvasTemplate: ICanvasShapeTemplate;
+}
+
+export interface ICanvasShapeTemplate {
     width: number;
     height: number;
     shape?: string;
@@ -59,7 +63,7 @@ export interface ICanvasShapeTemplate {
 
 export interface ICanvasShapeTemplateGroup {
     name: string;
-    items: Array<ICanvasShapeTemplate>;
+    items: Array<IAPiTemplate>;
 }
 
 export interface ICanvasElementProperty {

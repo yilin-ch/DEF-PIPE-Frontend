@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Button, Input } from 'reactstrap';
 import * as CanvasStore from '../../../store/Canvas';
 import { ApplicationState } from '../../../store';
-import { ICanvasElementType, ICanvasShapeTemplate, ICanvasShape } from '../../../models';
+import { ICanvasElementType, ICanvasShapeTemplate, ICanvasShape, IAPiTemplate } from '../../../models';
 import { v4 as uuidv4 } from 'uuid';
 
 type TemplatePaletteProps =
@@ -18,25 +18,27 @@ class TemplatePalettePane extends React.PureComponent<TemplatePaletteProps> {
         this.props.filterTemplates(e.target.value);
     }
 
-    onTemplateClicked(template: ICanvasShapeTemplate) {
+    onTemplateClicked(template: IAPiTemplate) {
         this.props.selectTemplate(template);
     }
 
-    onTemplateDeleted(template: ICanvasShapeTemplate) {
+    onTemplateDeleted(template: IAPiTemplate) {
         this.props.removeTemplate(template);
     }
 
     onAddNewTemplate(group: string) {
-        let template: ICanvasShapeTemplate = {
+        let template: IAPiTemplate = {
             id: uuidv4(),
             name: "New template",
             description: "",
-            width: 300,
-            height: 200,
             category: group,
-            shape: "Rectangle",
-            properties: [],
-            connectionPoints: []
+            canvasTemplate: {
+                width: 300,
+                height: 200,
+                shape: "Rectangle",
+                properties: [],
+                connectionPoints: []
+            }
         };
         this.props.addTemplate(template);
     }
@@ -45,8 +47,8 @@ class TemplatePalettePane extends React.PureComponent<TemplatePaletteProps> {
         return (
             <React.Fragment>
                 <Input className="palette-searchbox" type="text" placeholder="Search components..." onChange={this.onFilterChanged.bind(this)} />
-                
-                { this.props.templateGroups ? this.props.templateGroups.map(group =>
+
+                {this.props.templateGroups ? this.props.templateGroups.map(group =>
                     <React.Fragment>
                         <p className="palette-group-header">{group.name} <Button className="addButton" onClick={(e) => this.onAddNewTemplate(group.name)}>Add</Button></p>
                         {group.items.map(item =>
@@ -54,7 +56,7 @@ class TemplatePalettePane extends React.PureComponent<TemplatePaletteProps> {
                                 {item.name}
                             </p>
                         )}
-                    </React.Fragment>      
+                    </React.Fragment>
                 ) : null}
             </React.Fragment>
         );

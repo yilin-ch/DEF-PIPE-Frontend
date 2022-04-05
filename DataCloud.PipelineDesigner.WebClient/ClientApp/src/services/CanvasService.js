@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CanvasService = void 0;
 var models_1 = require("../models");
 var constants_1 = require("../constants");
 var CanvasService = /** @class */ (function () {

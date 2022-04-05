@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TemplateService = void 0;
 var models_1 = require("../models");
 var uuid_1 = require("uuid");
 var TemplateService = /** @class */ (function () {
@@ -8,7 +7,7 @@ var TemplateService = /** @class */ (function () {
     }
     TemplateService.prototype.createNewRootShape = function () {
         var rootShape = {
-            id: (0, uuid_1.v4)(),
+            id: uuid_1.v4(),
             name: "Root",
             type: models_1.ICanvasElementType.Shape,
             canHaveChildren: true,
@@ -33,6 +32,7 @@ var TemplateService = /** @class */ (function () {
         return templateGroups;
     };
     TemplateService.prototype.saveTemplate = function (template) {
+        console.log(template);
         TemplateService.saveTemplateTimeoutHandle = setTimeout(function () {
             TemplateService.saveTemplateTimeoutHandle = null;
             fetch("/api/templates", {

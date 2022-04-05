@@ -3,12 +3,10 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -58,11 +56,11 @@ var TemplateCanvasPane = /** @class */ (function (_super) {
             id: '',
             name: template.name,
             type: models_1.ICanvasElementType.Shape,
-            connectionPoints: template.connectionPoints,
-            properties: template.properties,
-            width: template.width,
-            height: template.height,
-            shape: template.shape,
+            connectionPoints: template.canvasTemplate.connectionPoints,
+            properties: template.canvasTemplate.properties,
+            width: template.canvasTemplate.width,
+            height: template.canvasTemplate.height,
+            shape: template.canvasTemplate.shape,
             position: { x: 700, y: 500 }
         };
         return this.renderCanvasShape(shape);
@@ -95,5 +93,5 @@ var TemplateCanvasPane = /** @class */ (function (_super) {
     return TemplateCanvasPane;
 }(React.PureComponent));
 ;
-exports.default = (0, react_redux_1.connect)(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplateCanvasPane);
+exports.default = react_redux_1.connect(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplateCanvasPane);
 //# sourceMappingURL=TemplateCanvasPane.js.map

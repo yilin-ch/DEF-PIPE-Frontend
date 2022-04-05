@@ -9,7 +9,10 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
 using DataCloud.PipelineDesigner.Repositories;
-
+using Microsoft.Extensions.Options;
+using DataCloud.PipelineDesigner.Services.Interfaces;
+using DataCloud.PipelineDesigner.Repositories.Services;
+using DataCloud.PipelineDesigner.Services;
 
 namespace DataCloud.PipelineDesigner.WebClient
 {
@@ -27,10 +30,17 @@ namespace DataCloud.PipelineDesigner.WebClient
         {
             services.AddControllersWithViews().AddNewtonsoftJson();
 
-          // services.AddDbContext<EntitiesContext>(options =>
-          //  options.UseSqlServer("Data Source=tcp:pipelinedesign.database.windows.net,1433;Initial Catalog=designer;User Id=databigboss@pipelinedesign;Password=W4WeD83KhhvaCsRPb6YV")
-          // );
-           // options.UseSqlServer(Configuration.GetConnectionString("MyCoString")));
+            services.Configure<DatabaseSettings>(
+                Configuration.GetSection(nameof(DatabaseSettings)));
+
+            services.AddSingleton<IDatabaseSettings>(sp =>
+                sp.GetRequiredService<IOptions<DatabaseSettings>>().Value);
+
+            services.AddSingleton<MongoService>();
+
+            services.AddScoped<ITemplateService, TemplateService>();
+            services.AddScoped<IUserService, UserService>();
+
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

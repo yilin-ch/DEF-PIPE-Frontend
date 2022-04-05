@@ -3,12 +3,10 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -41,7 +39,8 @@ var PalettePane = /** @class */ (function (_super) {
         this.props.filterTemplates(e.target.value);
     };
     PalettePane.prototype.onTemplateClicked = function (template) {
-        var newShape = __assign(__assign({}, template), { properties: template.properties.map(function (p) { return (__assign({}, p)); }), id: (0, uuid_1.v4)(), templateId: template.id, type: models_1.ICanvasElementType.Shape, width: template.width, height: template.height, shape: template.shape, position: { x: 500, y: 500 }, canHaveChildren: template.isContainer, elements: template.elements || [] });
+        console.log(template.canvasTemplate);
+        var newShape = __assign(__assign({}, template.canvasTemplate), { name: template.name, properties: template.canvasTemplate.properties.map(function (p) { return (__assign({}, p)); }), id: uuid_1.v4(), templateId: template.id, type: models_1.ICanvasElementType.Shape, width: template.canvasTemplate.width, height: template.canvasTemplate.height, shape: template.canvasTemplate.shape, position: { x: 500, y: 500 }, canHaveChildren: template.canvasTemplate.isContainer, elements: template.canvasTemplate.elements || [] });
         this.props.addElement(newShape);
     };
     PalettePane.prototype.onTemplateDragStarted = function (template) {
@@ -64,5 +63,5 @@ var PalettePane = /** @class */ (function (_super) {
     return PalettePane;
 }(React.PureComponent));
 ;
-exports.default = (0, react_redux_1.connect)(function (state) { return state.canvas; }, CanvasStore.actionCreators)(PalettePane);
+exports.default = react_redux_1.connect(function (state) { return state.canvas; }, CanvasStore.actionCreators)(PalettePane);
 //# sourceMappingURL=PalettePane.js.map

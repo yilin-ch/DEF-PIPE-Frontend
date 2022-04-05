@@ -1,4 +1,4 @@
-import { ICanvasShapeTemplateGroup, ICanvasShapeTemplate, ICanvasShape, ICanvasElementType } from '../models';
+import { ICanvasShapeTemplateGroup, ICanvasShapeTemplate, ICanvasShape, ICanvasElementType, IAPiTemplate } from '../models';
 import { v4 as uuidv4 } from 'uuid';
 
 export class TemplateService {
@@ -21,7 +21,7 @@ export class TemplateService {
         return rootShape;
     }
 
-    public getTemplateGroups(templates: Array<ICanvasShapeTemplate>, filterText?: string)  {
+    public getTemplateGroups(templates: Array<IAPiTemplate>, filterText?: string) {
         filterText = (filterText || '').toLowerCase();
         templates = templates.filter(template => !filterText || template.name.toLowerCase().indexOf(filterText) > -1);
 
@@ -36,7 +36,8 @@ export class TemplateService {
         return templateGroups;
     }
 
-    public saveTemplate(template: ICanvasShapeTemplate) {
+    public saveTemplate(template: IAPiTemplate) {
+        console.log(template);
         TemplateService.saveTemplateTimeoutHandle = setTimeout(() => {
             TemplateService.saveTemplateTimeoutHandle = null;
             fetch("/api/templates", {
@@ -57,9 +58,9 @@ export class TemplateService {
             })
         }, 500);
     }
-   
+
     public persistTemplate(templates: Array<ICanvasShapeTemplate>) {
-        
-       // localStorage.setItem("datacloud-templates", JSON.stringify(templates));
+
+        // localStorage.setItem("datacloud-templates", JSON.stringify(templates));
     }
 }

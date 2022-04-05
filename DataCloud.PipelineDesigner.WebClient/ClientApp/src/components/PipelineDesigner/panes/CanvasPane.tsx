@@ -46,22 +46,24 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
             name: this.saveAsTemplateName,
             description: "",
             category: this.saveAsTemplateCategory,
-            shape: "Container",
-            isContainer: true,
-            elements: (this.props.shapeExpandStack[0] || this.props.currentRootShape).elements,
-            connectionPoints: [{
-                id: '1',
-                position: { x: 0, y: 50 },
-                type: ICanvasConnectionPointType.input
-            },
-            {
-                id: '2',
-                position: { x: 200, y: 50 },
-                type: ICanvasConnectionPointType.output
-            }],
-            properties: [],
-            width: 200,
-            height: 100
+            canvasTemplate: {
+                shape: "Container",
+                isContainer: true,
+                elements: (this.props.shapeExpandStack[0] || this.props.currentRootShape).elements,
+                connectionPoints: [{
+                    id: '1',
+                    position: { x: 0, y: 50 },
+                    type: ICanvasConnectionPointType.input
+                },
+                {
+                    id: '2',
+                    position: { x: 200, y: 50 },
+                    type: ICanvasConnectionPointType.output
+                }],
+                properties: [],
+                width: 200,
+                height: 100
+            }
         });
 
         this.saveAsTemplateName = "";
@@ -165,13 +167,13 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
         });
 
         let newShape: ICanvasShape = {
-            ...template,
-            properties: template.properties.map(p => ({ ...p })),
+            ...template.canvasTemplate,
+            properties: template.canvasTemplate.properties.map(p => ({ ...p })),
             id: uuidv4(),
             type: ICanvasElementType.Shape,
-            width: template.width,
-            height: template.height,
-            shape: template.shape,
+            width: template.canvasTemplate.width,
+            height: template.canvasTemplate.height,
+            shape: template.canvasTemplate.shape,
             position: dropPosition
         };
 
@@ -336,7 +338,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
 
                     <Breadcrumb className="canvas-breadcrumb">
                         {this.props.shapeExpandStack.map(shape =>
-                                <BreadcrumbItem onClick={() => this.onCollapseContainer(shape)}>{shape.name}</BreadcrumbItem>
+                            <BreadcrumbItem onClick={() => this.onCollapseContainer(shape)}>{shape.name}</BreadcrumbItem>
                         )}
                         <BreadcrumbItem active>{this.props.currentRootShape.name}</BreadcrumbItem>
                     </Breadcrumb>
@@ -354,7 +356,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
                             </FormGroup>
                             <FormGroup>
                                 <Label for={"txt-template-description"}>Description</Label>
-                                <Input type="textarea" name={"txt-template-description"} id={"txt-template-description"} onChange={(e) => { this.saveAsTemplateDescription= e.target.value }} ></Input>
+                                <Input type="textarea" name={"txt-template-description"} id={"txt-template-description"} onChange={(e) => { this.saveAsTemplateDescription = e.target.value }} ></Input>
                             </FormGroup>
                         </ModalBody>
                         <ModalFooter>

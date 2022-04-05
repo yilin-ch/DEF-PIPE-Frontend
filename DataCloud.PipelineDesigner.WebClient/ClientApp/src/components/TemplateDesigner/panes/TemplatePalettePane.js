@@ -3,12 +3,10 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -36,15 +34,17 @@ var TemplatePalettePane = /** @class */ (function (_super) {
     };
     TemplatePalettePane.prototype.onAddNewTemplate = function (group) {
         var template = {
-            id: (0, uuid_1.v4)(),
+            id: uuid_1.v4(),
             name: "New template",
             description: "",
-            width: 300,
-            height: 200,
             category: group,
-            shape: "Rectangle",
-            properties: [],
-            connectionPoints: []
+            canvasTemplate: {
+                width: 300,
+                height: 200,
+                shape: "Rectangle",
+                properties: [],
+                connectionPoints: []
+            }
         };
         this.props.addTemplate(template);
     };
@@ -66,5 +66,5 @@ var TemplatePalettePane = /** @class */ (function (_super) {
     return TemplatePalettePane;
 }(React.PureComponent));
 ;
-exports.default = (0, react_redux_1.connect)(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplatePalettePane);
+exports.default = react_redux_1.connect(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplatePalettePane);
 //# sourceMappingURL=TemplatePalettePane.js.map

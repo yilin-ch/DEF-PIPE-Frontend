@@ -3,12 +3,10 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -54,66 +52,66 @@ var TemplatePropertyPane = /** @class */ (function (_super) {
     };
     TemplatePropertyPane.prototype.onWidthChange = function (e) {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
-        updatedTemplate.width = parseInt(e.target.value);
+        updatedTemplate.canvasTemplate.width = parseInt(e.target.value);
         this.props.updateTemplate(updatedTemplate);
     };
     TemplatePropertyPane.prototype.onHeightChange = function (e) {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
-        updatedTemplate.height = parseInt(e.target.value);
+        updatedTemplate.canvasTemplate.height = parseInt(e.target.value);
         this.props.updateTemplate(updatedTemplate);
     };
     TemplatePropertyPane.prototype.onShapeChange = function (e) {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
-        updatedTemplate.shape = e.target.value;
+        updatedTemplate.canvasTemplate.shape = e.target.value;
         this.props.updateTemplate(updatedTemplate);
     };
     TemplatePropertyPane.prototype.onPropertyNameChange = function (e, prop) {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
-        updatedTemplate.properties.filter(function (x) { return x.name === prop.name; })[0].name = e.target.value;
+        updatedTemplate.canvasTemplate.properties.filter(function (x) { return x.name === prop.name; })[0].name = e.target.value;
         this.props.updateTemplate(updatedTemplate);
     };
     TemplatePropertyPane.prototype.onPropertyTypeChange = function (e, prop) {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
-        updatedTemplate.properties.filter(function (x) { return x.name === prop.name; })[0].type = parseInt(e.target.value);
+        updatedTemplate.canvasTemplate.properties.filter(function (x) { return x.name === prop.name; })[0].type = parseInt(e.target.value);
         this.props.updateTemplate(updatedTemplate);
     };
     TemplatePropertyPane.prototype.onPropertyValueChange = function (e, prop) {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
-        updatedTemplate.properties.filter(function (x) { return x.name === prop.name; })[0].value = e.target.value;
+        updatedTemplate.canvasTemplate.properties.filter(function (x) { return x.name === prop.name; })[0].value = e.target.value;
         this.props.updateTemplate(updatedTemplate);
     };
     TemplatePropertyPane.prototype.onPropertAllowEditChange = function (e, prop) {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
-        updatedTemplate.properties.filter(function (x) { return x.name === prop.name; })[0].allowEditing = e.target.checked;
+        updatedTemplate.canvasTemplate.properties.filter(function (x) { return x.name === prop.name; })[0].allowEditing = e.target.checked;
         this.props.updateTemplate(updatedTemplate);
     };
     TemplatePropertyPane.prototype.onConnectionPointChangeX = function (e, point) {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
-        var pointToBeUpdated = updatedTemplate.connectionPoints.filter(function (x) { return x.id === point.id; })[0];
+        var pointToBeUpdated = updatedTemplate.canvasTemplate.connectionPoints.filter(function (x) { return x.id === point.id; })[0];
         pointToBeUpdated.position.x = parseInt(e.target.value);
         this.props.updateTemplate(updatedTemplate);
     };
     TemplatePropertyPane.prototype.onConnectionPointChangeY = function (e, point) {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
-        var pointToBeUpdated = updatedTemplate.connectionPoints.filter(function (x) { return x.id === point.id; })[0];
+        var pointToBeUpdated = updatedTemplate.canvasTemplate.connectionPoints.filter(function (x) { return x.id === point.id; })[0];
         pointToBeUpdated.position.y = parseInt(e.target.value);
         this.props.updateTemplate(updatedTemplate);
     };
     TemplatePropertyPane.prototype.onConnectionPointChangeType = function (e, point) {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
-        var pointToBeUpdated = updatedTemplate.connectionPoints.filter(function (x) { return x.id === point.id; })[0];
+        var pointToBeUpdated = updatedTemplate.canvasTemplate.connectionPoints.filter(function (x) { return x.id === point.id; })[0];
         pointToBeUpdated.type = parseInt(e.target.value);
         this.props.updateTemplate(updatedTemplate);
     };
     TemplatePropertyPane.prototype.addProperty = function () {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
-        updatedTemplate.properties.push({ name: 'New property', type: models_1.ICanvasElementPropertyType.singleLineText });
+        updatedTemplate.canvasTemplate.properties.push({ name: 'New property', type: models_1.ICanvasElementPropertyType.singleLineText });
         this.props.updateTemplate(updatedTemplate);
     };
     TemplatePropertyPane.prototype.addConnectionPoint = function () {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
-        updatedTemplate.connectionPoints.push({
-            id: (0, uuid_1.v4)(),
+        updatedTemplate.canvasTemplate.connectionPoints.push({
+            id: uuid_1.v4(),
             type: models_1.ICanvasConnectionPointType.input,
             position: {
                 x: 10,
@@ -184,21 +182,21 @@ var TemplatePropertyPane = /** @class */ (function (_super) {
                                 React.createElement(reactstrap_1.Label, { for: this.props.selectedTemplate.id + '_type' }, "Category"),
                                 React.createElement(reactstrap_1.Input, { type: "text", name: this.props.selectedTemplate.id + '_type', id: this.props.selectedTemplate.id + '_type', value: this.props.selectedTemplate.category, onChange: function (e) { return _this.onCategoryChange(e); } }),
                                 React.createElement(reactstrap_1.Label, { for: this.props.selectedTemplate.id + '_shape' }, "Shape"),
-                                React.createElement(reactstrap_1.Input, { type: "select", name: this.props.selectedTemplate.id + '_shape', id: this.props.selectedTemplate.id + '_shape', value: this.props.selectedTemplate.shape, onChange: function (e) { return _this.onShapeChange(e); } },
+                                React.createElement(reactstrap_1.Input, { type: "select", name: this.props.selectedTemplate.id + '_shape', id: this.props.selectedTemplate.id + '_shape', value: this.props.selectedTemplate.canvasTemplate.shape, onChange: function (e) { return _this.onShapeChange(e); } },
                                     React.createElement("option", null, "Rectangle"),
                                     React.createElement("option", null, "Ellipse"),
                                     React.createElement("option", null, "Diamond"),
                                     React.createElement("option", null, "Database"),
                                     React.createElement("option", null, "Custom")),
                                 React.createElement(reactstrap_1.Label, { for: this.props.selectedTemplate.id + '_width' }, "Width"),
-                                React.createElement(reactstrap_1.Input, { type: "number", name: this.props.selectedTemplate.id + '_width', id: this.props.selectedTemplate.id + '_width', value: this.props.selectedTemplate.width, onChange: function (e) { return _this.onWidthChange(e); } }),
+                                React.createElement(reactstrap_1.Input, { type: "number", name: this.props.selectedTemplate.id + '_width', id: this.props.selectedTemplate.id + '_width', value: this.props.selectedTemplate.canvasTemplate.width, onChange: function (e) { return _this.onWidthChange(e); } }),
                                 React.createElement(reactstrap_1.Label, { for: this.props.selectedTemplate.id + '_height' }, "Height"),
-                                React.createElement(reactstrap_1.Input, { type: "number", name: this.props.selectedTemplate.id + '_height', id: this.props.selectedTemplate.id + '_height', value: this.props.selectedTemplate.height, onChange: function (e) { return _this.onHeightChange(e); } }))),
+                                React.createElement(reactstrap_1.Input, { type: "number", name: this.props.selectedTemplate.id + '_height', id: this.props.selectedTemplate.id + '_height', value: this.props.selectedTemplate.canvasTemplate.height, onChange: function (e) { return _this.onHeightChange(e); } }))),
                         React.createElement(reactstrap_1.TabPane, { tabId: "2" },
-                            this.props.selectedTemplate.properties.map(function (prop) { return _this.renderProperty(prop); }),
+                            this.props.selectedTemplate.canvasTemplate.properties.map(function (prop) { return _this.renderProperty(prop); }),
                             React.createElement(reactstrap_1.Button, { onClick: function (e) { return _this.addProperty(); } }, "Add Property")),
                         React.createElement(reactstrap_1.TabPane, { tabId: "3" },
-                            this.props.selectedTemplate.connectionPoints.map(function (point) { return _this.renderConnectionPoint(point); }),
+                            this.props.selectedTemplate.canvasTemplate.connectionPoints.map(function (point) { return _this.renderConnectionPoint(point); }),
                             React.createElement(reactstrap_1.Button, { onClick: function (e) { return _this.addConnectionPoint(); } }, "Add Connection Point"))),
                     React.createElement("p", { className: "btn btn-danger removeButton", onClick: function (e) {
                             _this.props.removeTemplate(_this.props.selectedTemplate);
@@ -208,5 +206,5 @@ var TemplatePropertyPane = /** @class */ (function (_super) {
     return TemplatePropertyPane;
 }(React.PureComponent));
 ;
-exports.default = (0, react_redux_1.connect)(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplatePropertyPane);
+exports.default = react_redux_1.connect(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplatePropertyPane);
 //# sourceMappingURL=TemplatePropertyPane.js.map

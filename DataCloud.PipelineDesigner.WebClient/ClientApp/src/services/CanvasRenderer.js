@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CanvasRenderer = void 0;
 var React = require("react");
 var models_1 = require("../models");
 var react_konva_1 = require("react-konva");
