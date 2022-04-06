@@ -1,4 +1,5 @@
 [{
+  "_id": "66420510-2d39-4d72-9a2b-7670faa17134",
   "id": "66420510-2d39-4d72-9a2b-7670faa17134",
   "Name": "DIS-PIPE",
   "Description": "",
@@ -15,10 +16,15 @@
    "height":100,
    "elements":[
       {
-         
-         "shape":"Rectangle",
-         "shapeImageBase64":null,
-         "connectionPoints":[
+		"type":0,
+        "id":"186ffb07-ff8e-4530-a8aa-97f40edf6d26",
+        "name":"Start",
+        "description":"",
+        "width":50,
+        "height":50,
+        "shape":"Rectangle",
+        "shapeImageBase64":null,
+        "connectionPoints":[
             {
                "id":"1",
                "position":{

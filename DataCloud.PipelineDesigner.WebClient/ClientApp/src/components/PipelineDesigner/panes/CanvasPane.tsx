@@ -263,6 +263,9 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
     }
 
     renderCanvasElement(element: ICanvasElement) {
+        console.log("Element")
+        console.log(element.id)
+        console.log(element.type)
         if (element.type === ICanvasElementType.Shape) {
             return this.renderCanvasShape(element as ICanvasShape);
         }
@@ -317,7 +320,8 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
     public render() {
         this.props.requestDSLs();
         this.props.requestTemplates();
-
+        console.log("this.props.currentRootShape");
+        console.log(this.props.currentRootShape);
         return (
             <React.Fragment>
                 <div id="canvas-container" className="canvas-container" tabIndex={1} onKeyDown={(e: React.KeyboardEvent) => this.onKeyDown(e)} onDrop={(e) => this.onDrop(e)} onDragOver={(e) => e.preventDefault()} onMouseMove={(e) => this.onMouseMove(e)}>

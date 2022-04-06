@@ -41,6 +41,8 @@
     <None Remove="ClientApp\src\components\TemplateDesigner\panes\TemplatePalettePane.tsx" />
     <None Remove="ClientApp\src\components\TemplateDesigner\panes\TemplatePropertyPane.tsx" />
     <None Remove="ClientApp\src\models\index.ts" />
+    <None Remove="ClientApp\src\store\Canvas.js" />
+    <None Remove="ClientApp\src\store\Canvas.js.map" />
   </ItemGroup>
 
   <ItemGroup>

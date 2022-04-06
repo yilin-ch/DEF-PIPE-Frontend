@@ -44,6 +44,7 @@ export interface ICanvasConnector extends ICanvasElement {
 }
 
 export interface IAPiTemplate {
+    _id?: string;
     id: string;
     name: string;
     description: string;

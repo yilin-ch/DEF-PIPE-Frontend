@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 using DataCloud.PipelineDesigner.CanvasModel;
-
+using DataCloud.PipelineDesigner.Repositories.Utils;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
@@ -16,6 +15,7 @@ namespace DataCloud.PipelineDesigner.Repositories.Models
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
+        [JsonConverter(typeof(StringToObjectId))]
         public MongoDB.Bson.ObjectId _id { get; set; }
         [JsonProperty("id")]
         [BsonElement("id")]

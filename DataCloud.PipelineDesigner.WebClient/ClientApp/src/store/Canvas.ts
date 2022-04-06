@@ -44,6 +44,7 @@ export interface DragTemplateAction { type: 'DRAG_TEMPLATE', template: IAPiTempl
 export interface DropTemplateAction { type: 'DROP_TEMPLATE' }
 export interface AddTemplateAction { type: 'ADD_TEMPLATE', template: IAPiTemplate }
 export interface UpdateTemplateAction { type: 'UPDATE_TEMPLATE', template: IAPiTemplate }
+export interface SaveTemplateAction { type: 'SAVE_TEMPLATE', template: IAPiTemplate }
 export interface RemoveTemplateAction { type: 'REMOVE_TEMPLATE', template: IAPiTemplate }
 export interface FilterTemplatesAction { type: 'FILTER_TEMPLATES', value: string }
 export interface ExpandContainer { type: 'EXPAND_CONTAINER', shape: ICanvasShape }
@@ -55,7 +56,7 @@ export interface RequestTemplates { type: 'REQUEST_TEMPLATES', templates: Array<
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
 export type KnownAction = ImportElementsAction | AddElementAction | RemoveElementAction | SelectElementAction | DeselectElementAction | UpdateElementAction | SelectConnectionPointAction |
-    FilterTemplatesAction | SelectTemplateAction | AddTemplateAction | UpdateTemplateAction | RemoveTemplateAction | DragTemplateAction | DropTemplateAction |
+    FilterTemplatesAction | SelectTemplateAction | AddTemplateAction | UpdateTemplateAction | SaveTemplateAction | RemoveTemplateAction | DragTemplateAction | DropTemplateAction |
     UpdateMousePosition | ExpandContainer | CollapseContainer | SelectTab | RequestDSL | RequestTemplates;
 
 // ----------------
@@ -77,6 +78,7 @@ export const actionCreators = {
     dropTemplate: () => ({ type: 'DROP_TEMPLATE' } as DropTemplateAction),
     addTemplate: (template: IAPiTemplate) => ({ type: 'ADD_TEMPLATE', template: template } as AddTemplateAction),
     updateTemplate: (template: IAPiTemplate) => ({ type: 'UPDATE_TEMPLATE', template: template } as UpdateTemplateAction),
+    saveTemplate: (template: IAPiTemplate) => ({ type: 'SAVE_TEMPLATE', template: template } as SaveTemplateAction),
     removeTemplate: (template: IAPiTemplate) => ({ type: 'REMOVE_TEMPLATE', template: template } as RemoveTemplateAction),
     filterTemplates: (newValue: string) => ({ type: 'FILTER_TEMPLATES', value: newValue } as FilterTemplatesAction),
 
@@ -289,7 +291,7 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
 
                 templateToBeUpdated = { ...action.template };
                 templateGroupToBeUpdated.items = [...templateGroupToBeUpdated.items.slice(0, indexOfExistingTemplate), ...templateGroupToBeUpdated.items.slice(indexOfExistingTemplate + 1), action.template]
-                templateService.saveTemplate(templateToBeUpdated);
+                //templateService.saveTemplate(templateToBeUpdated);
 
                 return {
                     ...state,
@@ -315,6 +317,9 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                     selectedTemplate: action.template
                 };
             }
+        case 'SAVE_TEMPLATE':
+            templateService.saveTemplate(state.selectedTemplate);
+            return state;
         case 'REMOVE_TEMPLATE':
             templateGroup = state.templateGroups.filter(group => group.name === action.template.category)[0];
             console.log(templateGroup.items.length)

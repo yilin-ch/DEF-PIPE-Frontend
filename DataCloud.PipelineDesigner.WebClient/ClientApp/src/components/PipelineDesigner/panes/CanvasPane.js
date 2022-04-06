@@ -234,6 +234,9 @@ var CanvasPane = /** @class */ (function (_super) {
             return null;
     };
     CanvasPane.prototype.renderCanvasElement = function (element) {
+        console.log("Element");
+        console.log(element.id);
+        console.log(element.type);
         if (element.type === models_1.ICanvasElementType.Shape) {
             return this.renderCanvasShape(element);
         }
@@ -277,6 +280,8 @@ var CanvasPane = /** @class */ (function (_super) {
         var _this = this;
         this.props.requestDSLs();
         this.props.requestTemplates();
+        console.log("this.props.currentRootShape");
+        console.log(this.props.currentRootShape);
         return (React.createElement(React.Fragment, null,
             React.createElement("div", { id: "canvas-container", className: "canvas-container", tabIndex: 1, onKeyDown: function (e) { return _this.onKeyDown(e); }, onDrop: function (e) { return _this.onDrop(e); }, onDragOver: function (e) { return e.preventDefault(); }, onMouseMove: function (e) { return _this.onMouseMove(e); } },
                 React.createElement(react_konva_1.Stage, { width: window.innerWidth, height: window.innerHeight, onClick: function (e) { return _this.props.deselectElement(); }, style: this.stageStyle, onMou: true },

@@ -3,10 +3,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -111,7 +113,7 @@ var TemplatePropertyPane = /** @class */ (function (_super) {
     TemplatePropertyPane.prototype.addConnectionPoint = function () {
         var updatedTemplate = __assign({}, this.props.selectedTemplate);
         updatedTemplate.canvasTemplate.connectionPoints.push({
-            id: uuid_1.v4(),
+            id: (0, uuid_1.v4)(),
             type: models_1.ICanvasConnectionPointType.input,
             position: {
                 x: 10,
@@ -198,13 +200,18 @@ var TemplatePropertyPane = /** @class */ (function (_super) {
                         React.createElement(reactstrap_1.TabPane, { tabId: "3" },
                             this.props.selectedTemplate.canvasTemplate.connectionPoints.map(function (point) { return _this.renderConnectionPoint(point); }),
                             React.createElement(reactstrap_1.Button, { onClick: function (e) { return _this.addConnectionPoint(); } }, "Add Connection Point"))),
-                    React.createElement("p", { className: "btn btn-danger removeButton", onClick: function (e) {
-                            _this.props.removeTemplate(_this.props.selectedTemplate);
-                        } }, "Delete")))
+                    React.createElement("td", null,
+                        React.createElement("p", { className: "btn btn-success saveButton", onClick: function (e) {
+                                _this.props.saveTemplate(_this.props.selectedTemplate);
+                            } }, "Save")),
+                    React.createElement("td", null,
+                        React.createElement("p", { className: "btn btn-danger removeButton", onClick: function (e) {
+                                _this.props.removeTemplate(_this.props.selectedTemplate);
+                            } }, "Delete"))))
             : null));
     };
     return TemplatePropertyPane;
 }(React.PureComponent));
 ;
-exports.default = react_redux_1.connect(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplatePropertyPane);
+exports.default = (0, react_redux_1.connect)(function (state) { return state.canvas; }, CanvasStore.actionCreators)(TemplatePropertyPane);
 //# sourceMappingURL=TemplatePropertyPane.js.map

@@ -33,10 +33,15 @@ namespace DataCloud.PipelineDesigner.Repositories.Services
 
             string jsonString = JsonConvert.SerializeObject(template);
 
-            var document = BsonSerializer.Deserialize<BsonDocument>(jsonString);
+            BsonDocument document = BsonSerializer.Deserialize<BsonDocument>(jsonString);
 
+            // This fix the issue when updating
+            document.Remove("_id");
 
-            return _templatePost.InsertOneAsync(document);
+            return _templatePost.ReplaceOneAsync(
+            Builders<BsonDocument>.Filter.Eq("id", template.Id),
+            document,
+            new ReplaceOptions { IsUpsert = true });
         }
 
         public Task AddOrUpdateTemplateAsync(Template template, string user)

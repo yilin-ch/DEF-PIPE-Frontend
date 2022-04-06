@@ -216,11 +216,20 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
                                     <Button onClick={e => this.addConnectionPoint()}>Add Connection Point</Button>
                                 </TabPane>
                             </TabContent>
-                            <p className="btn btn-danger removeButton" onClick={(e) => {
-                                this.props.removeTemplate(this.props.selectedTemplate)
-                            }}>
-                                Delete
-                            </p>
+                            <td>
+                                <p className="btn btn-success saveButton" onClick={(e) => {
+                                    this.props.saveTemplate(this.props.selectedTemplate)
+                                }}>
+                                    Save
+                                </p>
+                            </td>
+                            <td>
+                                <p className="btn btn-danger removeButton" onClick={(e) => {
+                                    this.props.removeTemplate(this.props.selectedTemplate)
+                                }}>
+                                    Delete
+                                </p>
+                            </td>
                         </Form>
                     </React.Fragment>
                     : null}
