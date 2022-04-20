@@ -9,6 +9,7 @@ import './custom.css'
 export default () => (
     <Layout>
         <Route exact path='/' component={PipelineDesigner} />
+        <Route exact path='/repo/:username' component={PipelineDesigner} />
         <Route exact ath='/template-designer' component={TemplateDesigner} />
     </Layout>
 );

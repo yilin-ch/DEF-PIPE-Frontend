@@ -3,10 +3,12 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -42,25 +44,30 @@ var CanvasPane = /** @class */ (function (_super) {
             cursor: 'default'
         };
         _this.saveAsTemplateModal = false;
+        _this.saveAsRepoModal = false;
         _this.exportDSLModal = false;
-        _this.saveAsTemplateName = "";
-        _this.saveAsTemplateDescription = "";
-        _this.saveAsTemplateCategory = "";
+        _this.saveAsName = "";
+        _this.saveAsDescription = "";
+        _this.saveAsCategory = "";
+        _this.saveAsRepoPublic = false;
         _this.selectedDSLToExport = "";
         return _this;
     }
     CanvasPane.prototype.toggleSaveAsTemplateModal = function () {
         this.saveAsTemplateModal = !this.saveAsTemplateModal;
     };
+    CanvasPane.prototype.toggleSaveAsRepoModal = function () {
+        this.saveAsRepoModal = !this.saveAsRepoModal;
+    };
     CanvasPane.prototype.toggleExportDSLModal = function () {
         this.exportDSLModal = !this.exportDSLModal;
     };
     CanvasPane.prototype.saveAsTemplate = function () {
         this.props.addTemplate({
-            id: uuid_1.v4(),
-            name: this.saveAsTemplateName,
+            id: (0, uuid_1.v4)(),
+            name: this.saveAsName,
             description: "",
-            category: this.saveAsTemplateCategory,
+            category: this.saveAsCategory,
             canvasTemplate: {
                 shape: "Container",
                 isContainer: true,
@@ -80,10 +87,43 @@ var CanvasPane = /** @class */ (function (_super) {
                 height: 100
             }
         });
-        this.saveAsTemplateName = "";
-        this.saveAsTemplateDescription = "";
-        this.saveAsTemplateCategory = "";
+        this.saveAsName = "";
+        this.saveAsDescription = "";
+        this.saveAsCategory = "";
         this.saveAsTemplateModal = false;
+    };
+    CanvasPane.prototype.saveAsRepo = function () {
+        console.log(this.saveAsRepoPublic);
+        this.props.addRepo({
+            id: (0, uuid_1.v4)(),
+            name: this.saveAsName,
+            description: "",
+            category: this.saveAsCategory,
+            canvasTemplate: {
+                shape: "Container",
+                isContainer: true,
+                elements: (this.props.shapeExpandStack[0] || this.props.currentRootShape).elements,
+                connectionPoints: [{
+                        id: '1',
+                        position: { x: 0, y: 50 },
+                        type: models_1.ICanvasConnectionPointType.input
+                    },
+                    {
+                        id: '2',
+                        position: { x: 200, y: 50 },
+                        type: models_1.ICanvasConnectionPointType.output
+                    }],
+                properties: [],
+                width: 200,
+                height: 100
+            },
+            public: this.saveAsRepoPublic
+        });
+        this.saveAsName = "";
+        this.saveAsDescription = "";
+        this.saveAsCategory = "";
+        this.saveAsRepoModal = false;
+        this.saveAsRepoPublic = false;
     };
     CanvasPane.prototype.onKeyDown = function (e) {
         if (e.keyCode === 46 && this.props.selectedElement) {
@@ -155,7 +195,7 @@ var CanvasPane = /** @class */ (function (_super) {
             x: e.clientX - canvasContainer.getBoundingClientRect().left,
             y: e.clientY - canvasContainer.getBoundingClientRect().top
         });
-        var newShape = __assign(__assign({}, template.canvasTemplate), { properties: template.canvasTemplate.properties.map(function (p) { return (__assign({}, p)); }), id: uuid_1.v4(), type: models_1.ICanvasElementType.Shape, width: template.canvasTemplate.width, height: template.canvasTemplate.height, shape: template.canvasTemplate.shape, position: dropPosition });
+        var newShape = __assign(__assign({}, template.canvasTemplate), { properties: template.canvasTemplate.properties.map(function (p) { return (__assign({}, p)); }), id: (0, uuid_1.v4)(), type: models_1.ICanvasElementType.Shape, width: template.canvasTemplate.width, height: template.canvasTemplate.height, shape: template.canvasTemplate.shape, position: dropPosition });
         this.props.addElement(newShape);
         this.props.dropTemplate();
     };
@@ -234,9 +274,6 @@ var CanvasPane = /** @class */ (function (_super) {
             return null;
     };
     CanvasPane.prototype.renderCanvasElement = function (element) {
-        console.log("Element");
-        console.log(element.id);
-        console.log(element.type);
         if (element.type === models_1.ICanvasElementType.Shape) {
             return this.renderCanvasShape(element);
         }
@@ -280,8 +317,7 @@ var CanvasPane = /** @class */ (function (_super) {
         var _this = this;
         this.props.requestDSLs();
         this.props.requestTemplates();
-        console.log("this.props.currentRootShape");
-        console.log(this.props.currentRootShape);
+        this.props.requestRepo(this.props.match.params.username);
         return (React.createElement(React.Fragment, null,
             React.createElement("div", { id: "canvas-container", className: "canvas-container", tabIndex: 1, onKeyDown: function (e) { return _this.onKeyDown(e); }, onDrop: function (e) { return _this.onDrop(e); }, onDragOver: function (e) { return e.preventDefault(); }, onMouseMove: function (e) { return _this.onMouseMove(e); } },
                 React.createElement(react_konva_1.Stage, { width: window.innerWidth, height: window.innerHeight, onClick: function (e) { return _this.props.deselectElement(); }, style: this.stageStyle, onMou: true },
@@ -292,7 +328,8 @@ var CanvasPane = /** @class */ (function (_super) {
                 React.createElement(reactstrap_1.ButtonGroup, { className: "canvas-top-toolbar" },
                     React.createElement(reactstrap_1.Button, { onClick: function () { return _this.exportCanvasAsJson(); } }, "Export JSON"),
                     React.createElement(reactstrap_1.Button, { onClick: function () { return _this.toggleExportDSLModal(); } }, "Export DSL"),
-                    React.createElement(reactstrap_1.Button, { onClick: function () { return _this.toggleSaveAsTemplateModal(); } }, "Save as Template")),
+                    React.createElement(reactstrap_1.Button, { onClick: function () { return _this.toggleSaveAsTemplateModal(); } }, "Save as Template"),
+                    this.props.match.params.username && React.createElement(reactstrap_1.Button, { onClick: function () { return _this.toggleSaveAsRepoModal(); } }, "Save in repo")),
                 React.createElement(reactstrap_1.Breadcrumb, { className: "canvas-breadcrumb" },
                     this.props.shapeExpandStack.map(function (shape) {
                         return React.createElement(reactstrap_1.BreadcrumbItem, { onClick: function () { return _this.onCollapseContainer(shape); } }, shape.name);
@@ -303,16 +340,34 @@ var CanvasPane = /** @class */ (function (_super) {
                     React.createElement(reactstrap_1.ModalBody, null,
                         React.createElement(reactstrap_1.FormGroup, null,
                             React.createElement(reactstrap_1.Label, { for: "txt-template-category" }, "Category"),
-                            React.createElement(reactstrap_1.Input, { type: "text", name: "txt-template-category", id: "txt-template-category", onChange: function (e) { _this.saveAsTemplateCategory = e.target.value; } })),
+                            React.createElement(reactstrap_1.Input, { type: "text", name: "txt-template-category", id: "txt-template-category", onChange: function (e) { _this.saveAsCategory = e.target.value; } })),
                         React.createElement(reactstrap_1.FormGroup, null,
                             React.createElement(reactstrap_1.Label, { for: "txt-template-name" }, "Name"),
-                            React.createElement(reactstrap_1.Input, { type: "text", name: "txt-template-name", id: "txt-template-name", onChange: function (e) { _this.saveAsTemplateName = e.target.value; } })),
+                            React.createElement(reactstrap_1.Input, { type: "text", name: "txt-template-name", id: "txt-template-name", onChange: function (e) { _this.saveAsName = e.target.value; } })),
                         React.createElement(reactstrap_1.FormGroup, null,
                             React.createElement(reactstrap_1.Label, { for: "txt-template-description" }, "Description"),
-                            React.createElement(reactstrap_1.Input, { type: "textarea", name: "txt-template-description", id: "txt-template-description", onChange: function (e) { _this.saveAsTemplateDescription = e.target.value; } }))),
+                            React.createElement(reactstrap_1.Input, { type: "textarea", name: "txt-template-description", id: "txt-template-description", onChange: function (e) { _this.saveAsDescription = e.target.value; } }))),
                     React.createElement(reactstrap_1.ModalFooter, null,
                         React.createElement(reactstrap_1.Button, { color: "primary", onClick: function (e) { return _this.saveAsTemplate(); } }, "Save"),
                         React.createElement(reactstrap_1.Button, { color: "secondary", onClick: function (e) { return _this.toggleSaveAsTemplateModal(); } }, "Cancel"))),
+                React.createElement(reactstrap_1.Modal, { isOpen: this.saveAsRepoModal, toggle: function (e) { return _this.toggleSaveAsRepoModal(); } },
+                    React.createElement(reactstrap_1.ModalHeader, { toggle: function (e) { return _this.toggleSaveAsRepoModal(); } }, "Save pipeline in repository"),
+                    React.createElement(reactstrap_1.ModalBody, null,
+                        React.createElement(reactstrap_1.FormGroup, null,
+                            React.createElement(reactstrap_1.Label, { for: "txt-template-category" }, "Category"),
+                            React.createElement(reactstrap_1.Input, { type: "text", name: "txt-template-category", id: "txt-template-category", onChange: function (e) { _this.saveAsCategory = e.target.value; } })),
+                        React.createElement(reactstrap_1.FormGroup, null,
+                            React.createElement(reactstrap_1.Label, { for: "txt-template-name" }, "Name"),
+                            React.createElement(reactstrap_1.Input, { type: "text", name: "txt-template-name", id: "txt-template-name", onChange: function (e) { _this.saveAsName = e.target.value; } })),
+                        React.createElement(reactstrap_1.FormGroup, null,
+                            React.createElement(reactstrap_1.Label, { for: "txt-template-description" }, "Description"),
+                            React.createElement(reactstrap_1.Input, { type: "textarea", name: "txt-template-description", id: "txt-template-description", onChange: function (e) { _this.saveAsDescription = e.target.value; } })),
+                        React.createElement(reactstrap_1.FormGroup, { check: true, inline: true },
+                            React.createElement(reactstrap_1.Input, { type: "checkbox", id: "txt-repo-public", checked: this.saveAsRepoPublic, onChange: function (e) { _this.saveAsRepoPublic = e.target.checked, console.log(_this.saveAsRepoPublic); } }),
+                            React.createElement(reactstrap_1.Label, { check: true }, "Public repository"))),
+                    React.createElement(reactstrap_1.ModalFooter, null,
+                        React.createElement(reactstrap_1.Button, { color: "primary", onClick: function (e) { return _this.saveAsRepo(); } }, "Save"),
+                        React.createElement(reactstrap_1.Button, { color: "secondary", onClick: function (e) { return _this.toggleSaveAsRepoModal(); } }, "Cancel"))),
                 React.createElement(reactstrap_1.Modal, { isOpen: this.exportDSLModal, toggle: function (e) { return _this.toggleExportDSLModal(); } },
                     React.createElement(reactstrap_1.ModalHeader, { toggle: function (e) { return _this.toggleExportDSLModal(); } }, "Export pipeline as DSL"),
                     React.createElement(reactstrap_1.ModalBody, null,
@@ -326,5 +381,5 @@ var CanvasPane = /** @class */ (function (_super) {
     return CanvasPane;
 }(React.PureComponent));
 ;
-exports.default = react_redux_1.connect(function (state) { return state.canvas; }, CanvasStore.actionCreators)(CanvasPane);
+exports.default = (0, react_redux_1.connect)(function (state) { return state.canvas; }, CanvasStore.actionCreators)(CanvasPane);
 //# sourceMappingURL=CanvasPane.js.map

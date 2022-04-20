@@ -3,19 +3,22 @@ import { connect } from 'react-redux';
 import * as CanvasStore from '../../../store/Canvas';
 import { ApplicationState } from '../../../store';
 import { RouteComponentProps } from 'react-router';
+import { useParams } from 'react-router-dom';
 import { Group, Layer, Rect, Stage, Text, Arrow, Circle, RegularPolygon, Ellipse, Line } from 'react-konva';
 import { ICanvasElementPropertyType, ICanvasShape, ICanvasElementType, ICanvasConnector, ICanvasShapeConnectionPoint, ICanvasElement, ICanvasConnectionPointType } from '../../../models';
 import { CanvasService } from '../../../services/CanvasService';
 import { CanvasRenderer } from '../../../services/CanvasRenderer';
 import { CanvasSettings } from '../../../constants';
 import { KonvaEventObject } from 'konva/types/Node';
-import { Breadcrumb, BreadcrumbItem, Button, ButtonGroup, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
+import { Breadcrumb, BreadcrumbItem, Button, ButtonGroup, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Tooltip } from 'reactstrap';
 import { v4 as uuidv4 } from 'uuid';
+
 
 type CanvasProps =
     CanvasStore.CanvasState &
     typeof CanvasStore.actionCreators &
-    RouteComponentProps<{}>;
+    RouteComponentProps<{username: string}>;
+
 
 class CanvasPane extends React.PureComponent<CanvasProps> {
     canvasService: CanvasService = new CanvasService();
@@ -25,16 +28,21 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
     }
 
     saveAsTemplateModal = false;
+    saveAsRepoModal = false;
     exportDSLModal = false;
 
-    saveAsTemplateName = "";
-    saveAsTemplateDescription = "";
-    saveAsTemplateCategory = "";
+    saveAsName = "";
+    saveAsDescription = "";
+    saveAsCategory = "";
+    saveAsRepoPublic = false;
 
     selectedDSLToExport = "";
 
     toggleSaveAsTemplateModal() {
         this.saveAsTemplateModal = !this.saveAsTemplateModal;
+    }
+    toggleSaveAsRepoModal() {
+        this.saveAsRepoModal = !this.saveAsRepoModal;
     }
     toggleExportDSLModal() {
         this.exportDSLModal = !this.exportDSLModal;
@@ -43,9 +51,9 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
     saveAsTemplate() {
         this.props.addTemplate({
             id: uuidv4(),
-            name: this.saveAsTemplateName,
+            name: this.saveAsName,
             description: "",
-            category: this.saveAsTemplateCategory,
+            category: this.saveAsCategory,
             canvasTemplate: {
                 shape: "Container",
                 isContainer: true,
@@ -66,10 +74,45 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
             }
         });
 
-        this.saveAsTemplateName = "";
-        this.saveAsTemplateDescription = "";
-        this.saveAsTemplateCategory = "";
+        this.saveAsName = "";
+        this.saveAsDescription = "";
+        this.saveAsCategory = "";
         this.saveAsTemplateModal = false;
+    }
+
+    saveAsRepo() {
+        console.log(this.saveAsRepoPublic)
+        this.props.addRepo({
+            id: uuidv4(),
+            name: this.saveAsName,
+            description: "",
+            category: this.saveAsCategory,
+            canvasTemplate: {
+                shape: "Container",
+                isContainer: true,
+                elements: (this.props.shapeExpandStack[0] || this.props.currentRootShape).elements,
+                connectionPoints: [{
+                    id: '1',
+                    position: { x: 0, y: 50 },
+                    type: ICanvasConnectionPointType.input
+                },
+                {
+                    id: '2',
+                    position: { x: 200, y: 50 },
+                    type: ICanvasConnectionPointType.output
+                }],
+                properties: [],
+                width: 200,
+                height: 100
+            },
+            public: this.saveAsRepoPublic
+        });
+
+        this.saveAsName = "";
+        this.saveAsDescription = "";
+        this.saveAsCategory = "";
+        this.saveAsRepoModal = false;
+        this.saveAsRepoPublic = false;
     }
 
     onKeyDown(e: React.KeyboardEvent) {
@@ -263,9 +306,6 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
     }
 
     renderCanvasElement(element: ICanvasElement) {
-        console.log("Element")
-        console.log(element.id)
-        console.log(element.type)
         if (element.type === ICanvasElementType.Shape) {
             return this.renderCanvasShape(element as ICanvasShape);
         }
@@ -320,8 +360,8 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
     public render() {
         this.props.requestDSLs();
         this.props.requestTemplates();
-        console.log("this.props.currentRootShape");
-        console.log(this.props.currentRootShape);
+        this.props.requestRepo(this.props.match.params.username);
+
         return (
             <React.Fragment>
                 <div id="canvas-container" className="canvas-container" tabIndex={1} onKeyDown={(e: React.KeyboardEvent) => this.onKeyDown(e)} onDrop={(e) => this.onDrop(e)} onDragOver={(e) => e.preventDefault()} onMouseMove={(e) => this.onMouseMove(e)}>
@@ -338,6 +378,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
                         <Button onClick={() => this.exportCanvasAsJson()}>Export JSON</Button>
                         <Button onClick={() => this.toggleExportDSLModal()}>Export DSL</Button>
                         <Button onClick={() => this.toggleSaveAsTemplateModal()}>Save as Template</Button>
+                        {this.props.match.params.username  && <Button onClick={() => this.toggleSaveAsRepoModal()}>Save in repo</Button> }
                     </ButtonGroup>
 
                     <Breadcrumb className="canvas-breadcrumb">
@@ -352,20 +393,49 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
                         <ModalBody>
                             <FormGroup>
                                 <Label for={"txt-template-category"}>Category</Label>
-                                <Input type="text" name={"txt-template-category"} id={"txt-template-category"} onChange={(e) => { this.saveAsTemplateCategory = e.target.value }} ></Input>
+                                <Input type="text" name={"txt-template-category"} id={"txt-template-category"} onChange={(e) => { this.saveAsCategory = e.target.value }} ></Input>
                             </FormGroup>
                             <FormGroup>
                                 <Label for={"txt-template-name"}>Name</Label>
-                                <Input type="text" name={"txt-template-name"} id={"txt-template-name"} onChange={(e) => { this.saveAsTemplateName = e.target.value }} ></Input>
+                                <Input type="text" name={"txt-template-name"} id={"txt-template-name"} onChange={(e) => { this.saveAsName = e.target.value }} ></Input>
                             </FormGroup>
                             <FormGroup>
                                 <Label for={"txt-template-description"}>Description</Label>
-                                <Input type="textarea" name={"txt-template-description"} id={"txt-template-description"} onChange={(e) => { this.saveAsTemplateDescription = e.target.value }} ></Input>
+                                <Input type="textarea" name={"txt-template-description"} id={"txt-template-description"} onChange={(e) => { this.saveAsDescription = e.target.value }} ></Input>
                             </FormGroup>
                         </ModalBody>
                         <ModalFooter>
                             <Button color="primary" onClick={(e) => this.saveAsTemplate()}>Save</Button>
                             <Button color="secondary" onClick={(e) => this.toggleSaveAsTemplateModal()}>Cancel</Button>
+                        </ModalFooter>
+                    </Modal>
+
+                    <Modal isOpen={this.saveAsRepoModal} toggle={(e) => this.toggleSaveAsRepoModal()}>
+                        <ModalHeader toggle={(e) => this.toggleSaveAsRepoModal()}>Save pipeline in repository</ModalHeader>
+                        <ModalBody>
+                            <FormGroup>
+                                <Label for={"txt-template-category"}>Category</Label>
+                                <Input type="text" name={"txt-template-category"} id={"txt-template-category"} onChange={(e) => { this.saveAsCategory = e.target.value }} ></Input>
+                            </FormGroup>
+                            <FormGroup>
+                                <Label for={"txt-template-name"}>Name</Label>
+                                <Input type="text" name={"txt-template-name"} id={"txt-template-name"} onChange={(e) => { this.saveAsName = e.target.value }} ></Input>
+                            </FormGroup>
+                            <FormGroup>
+                                <Label for={"txt-template-description"}>Description</Label>
+                                <Input type="textarea" name={"txt-template-description"} id={"txt-template-description"} onChange={(e) => { this.saveAsDescription = e.target.value }} ></Input>
+                            </FormGroup>
+                            <FormGroup check inline>
+                                <Input type="checkbox" id={"txt-repo-public"} checked={this.saveAsRepoPublic} onChange={(e) => { this.saveAsRepoPublic = e.target.checked, console.log(this.saveAsRepoPublic) }} ></Input>
+                                <Label check>
+                                    Public repository
+                                </Label>
+
+                            </FormGroup>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="primary" onClick={(e) => this.saveAsRepo()}>Save</Button>
+                            <Button color="secondary" onClick={(e) => this.toggleSaveAsRepoModal()}>Cancel</Button>
                         </ModalFooter>
                     </Modal>
 

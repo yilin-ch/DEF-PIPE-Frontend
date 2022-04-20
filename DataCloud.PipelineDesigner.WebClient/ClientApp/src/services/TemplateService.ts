@@ -37,12 +37,24 @@ export class TemplateService {
     }
 
     public saveTemplate(template: IAPiTemplate) {
-        console.log(template);
         TemplateService.saveTemplateTimeoutHandle = setTimeout(() => {
             TemplateService.saveTemplateTimeoutHandle = null;
-            fetch("/api/templates", {
+            fetch(`/api/templates`, {
                 method: "POST",
                 body: JSON.stringify(template),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+        }, 500);
+    }
+
+    public saveRepo(repo: IAPiTemplate, username : string) {
+        TemplateService.saveTemplateTimeoutHandle = setTimeout(() => {
+            TemplateService.saveTemplateTimeoutHandle = null;
+            fetch(`/api/templates/` + username, {
+                method: "POST",
+                body: JSON.stringify(repo),
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -53,7 +65,7 @@ export class TemplateService {
     public deleteTemplate(templateId: string) {
         TemplateService.saveTemplateTimeoutHandle = setTimeout(() => {
             TemplateService.saveTemplateTimeoutHandle = null;
-            fetch("/api/templates/" + templateId, {
+            fetch(`/api/templates` + "/" + templateId, {
                 method: "DELETE",
             })
         }, 500);

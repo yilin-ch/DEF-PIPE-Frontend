@@ -10,5 +10,6 @@ namespace DataCloud.PipelineDesigner.Services.Interfaces
     public interface IDSLTransformer
     {       
         string Transform(Workflow workflow);
+        Workflow Transform(String dsl);
     }
 }

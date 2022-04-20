@@ -14,12 +14,12 @@ type PaletteProps =
 
 class PalettePane extends React.PureComponent<PaletteProps> {
 
+
     onFilterChanged(e: React.ChangeEvent<HTMLInputElement>) {
         this.props.filterTemplates(e.target.value);
     }
 
     onTemplateClicked(template: IAPiTemplate) {
-        console.log(template.canvasTemplate)
         let newShape: ICanvasShape = {
             ...template.canvasTemplate,
             name: template.name,
@@ -51,6 +51,14 @@ class PalettePane extends React.PureComponent<PaletteProps> {
             <React.Fragment>
                 <Input className="palette-searchbox" type="text" placeholder="Search components..." onChange={this.onFilterChanged.bind(this)} />
                 {this.props.templateGroups ? this.props.templateGroups.map(group =>
+                    <React.Fragment>
+                        <p className="palette-group-header">{group.name}</p>
+                        {group.items.map(item =>
+                            <p className="palette-group-item" onClick={() => this.onTemplateClicked(item)} draggable onDragStart={(e) => this.onTemplateDragStarted(item)} onDragEnd={(e) => this.onTemplateDragEnded(item)}>{item.name}</p>
+                        )}
+                    </React.Fragment>
+                ) : null}
+                {this.props.repoGroups ? this.props.repoGroups.map(group =>
                     <React.Fragment>
                         <p className="palette-group-header">{group.name}</p>
                         {group.items.map(item =>

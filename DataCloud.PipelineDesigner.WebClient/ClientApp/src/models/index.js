@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ICanvasShapeSide = exports.ICanvasConnectionPointType = exports.ICanvasElementPropertyType = exports.ICanvasElementType = void 0;
 var ICanvasElementType;
 (function (ICanvasElementType) {
     ICanvasElementType[ICanvasElementType["Shape"] = 0] = "Shape";

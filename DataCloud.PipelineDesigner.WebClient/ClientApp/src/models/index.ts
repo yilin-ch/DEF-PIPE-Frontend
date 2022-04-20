@@ -50,6 +50,7 @@ export interface IAPiTemplate {
     description: string;
     category: string;
     canvasTemplate: ICanvasShapeTemplate;
+    public?: boolean;
 }
 
 export interface ICanvasShapeTemplate {
