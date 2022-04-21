@@ -58,14 +58,27 @@ class PalettePane extends React.PureComponent<PaletteProps> {
                         )}
                     </React.Fragment>
                 ) : null}
+
+                {this.props.username ?
+                    <React.Fragment>
+                        <p className="palette-group-username">
+                            <i className="bi bi-person-fill" style={{ padding: 5}}></i>
+                            {this.props.username}
+                        </p>
+
+                    </React.Fragment> : null}
                 {this.props.repoGroups ? this.props.repoGroups.map(group =>
                     <React.Fragment>
                         <p className="palette-group-header">{group.name}</p>
                         {group.items.map(item =>
-                            <p className="palette-group-item" onClick={() => this.onTemplateClicked(item)} draggable onDragStart={(e) => this.onTemplateDragStarted(item)} onDragEnd={(e) => this.onTemplateDragEnded(item)}>{item.name}</p>
+                            <p className="palette-group-item" onClick={() => this.onTemplateClicked(item)} draggable onDragStart={(e) => this.onTemplateDragStarted(item)} onDragEnd={(e) => this.onTemplateDragEnded(item)}>
+                                {item.public ? <i className="bi bi-unlock" style={{ padding: 5, color: '#FF0000' }}></i> : <i className="bi bi-lock-fill" style={{ padding: 5}}></i>}
+                                {item.name}
+                            </p>
                         )}
                     </React.Fragment>
                 ) : null}
+
             </React.Fragment>
         );
     }

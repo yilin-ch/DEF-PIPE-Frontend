@@ -5,13 +5,85 @@ import { Form, FormGroup, Input, Label } from 'reactstrap';
 import { ICanvasElementProperty, ICanvasElementPropertyType, ICanvasElementType, ICanvasShape } from '../../../models';
 import { ApplicationState } from '../../../store';
 import * as CanvasStore from '../../../store/Canvas';
+import { JSONEditor, Schema } from "react-schema-based-json-editor";
+
+interface MyState {
+    initialValue: Object,
+    updateValue: Object,
+}
 
 type PropertyPaneProps =
     CanvasStore.CanvasState &
     typeof CanvasStore.actionCreators &
     RouteComponentProps<{}>;
 
-class PropertyPane extends React.PureComponent<PropertyPaneProps> {
+
+
+
+class PropertyPane extends React.PureComponent<PropertyPaneProps, MyState> {
+    constructor(props) {
+        super(props);
+        this.state = {
+            initialValue: {
+                data_source_step: '',
+                implementation: '',
+                image: '',
+                environmentParameters: [],
+        },
+            updateValue: '',
+        }
+    }
+
+
+    schema: Schema = {
+        type: "object",
+        properties: {
+            "data_source_step": {
+                "type": "string"
+            },
+            "implementation": {
+                "type": "string"
+            },
+            "image": {
+                "type": "string"
+            },
+            "environmentParameters": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "key": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "key",
+                        "value"
+                    ]
+                }
+            },
+        "resourceProvider": {
+                "type": "string"
+         },
+        },
+        "required": [
+            "data_source_step",
+            "implementation",
+            "image",
+            "environmentParameters",
+             "resourceProvider"
+        ]
+    }
+
+    private updatePropertyValue = (value: any, isValid: boolean) => {
+        this.setState({
+            updateValue: value
+        })
+    }
+
     onPropertyChange(e: React.ChangeEvent<HTMLInputElement>, prop: ICanvasElementProperty) {
         let updatedElement = { ...this.props.selectedElement } as ICanvasShape;
         updatedElement.properties.filter(x => x.name === prop.name)[0].value = e.target.value;
@@ -54,9 +126,17 @@ class PropertyPane extends React.PureComponent<PropertyPaneProps> {
                         <p className="property-pane-subheader">ID: {selectedShape.id}</p>
                         <Form>
                             {selectedShape.properties.filter(p => p.allowEditing).map(prop => this.renderProperty(prop))}
+                        <div className="from-group">
+                            <JSONEditor schema={this.schema}
+                                initialValue={this.state.initialValue}
+                                updateValue={this.updatePropertyValue}
+                                theme="bootstrap3"
+                                icon="fontawesome4">
+                            </JSONEditor>
+                        </div>
                         </Form>
                     </React.Fragment>
-                : null}
+                    : null}
             </React.Fragment>            
         );
     }

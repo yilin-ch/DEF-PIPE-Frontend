@@ -34,11 +34,12 @@ var models_1 = require("../../../models");
 var CanvasService_1 = require("../../../services/CanvasService");
 var CanvasRenderer_1 = require("../../../services/CanvasRenderer");
 var reactstrap_1 = require("reactstrap");
+var Autosuggest = require("react-autosuggest");
 var uuid_1 = require("uuid");
 var CanvasPane = /** @class */ (function (_super) {
     __extends(CanvasPane, _super);
-    function CanvasPane() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
+    function CanvasPane(props) {
+        var _this = _super.call(this, props) || this;
         _this.canvasService = new CanvasService_1.CanvasService();
         _this.stageStyle = {
             cursor: 'default'
@@ -46,11 +47,52 @@ var CanvasPane = /** @class */ (function (_super) {
         _this.saveAsTemplateModal = false;
         _this.saveAsRepoModal = false;
         _this.exportDSLModal = false;
+        _this.findRepoModal = false;
         _this.saveAsName = "";
         _this.saveAsDescription = "";
         _this.saveAsCategory = "";
         _this.saveAsRepoPublic = false;
         _this.selectedDSLToExport = "";
+        _this.repos = [
+            {
+                user: 'vladom',
+                workflow: "DEF-PIP"
+            },
+            {
+                user: 'user',
+                workflow: 'TELLU'
+            }
+        ];
+        _this.getRepoSuggestions = function (value) {
+            var inputValue = value.trim().toLowerCase();
+            var inputLength = inputValue.length;
+            return inputLength === 0 ? [] : _this.repos.filter(function (repo) {
+                return repo.user.toLowerCase().slice(0, inputLength) === inputValue;
+            });
+        };
+        _this.renderSuggestion = function (suggestion) { return (React.createElement("div", null, suggestion.user + ' - ' + suggestion.workflow)); };
+        _this.onChange = function (event, _a) {
+            var newValue = _a.newValue;
+            _this.setState({
+                value: newValue
+            });
+        };
+        _this.onSuggestionsFetchRequested = function (_a) {
+            var value = _a.value;
+            _this.setState({
+                suggestions: _this.getRepoSuggestions(value)
+            });
+        };
+        _this.onSuggestionsClearRequested = function () {
+            _this.setState({
+                suggestions: []
+            });
+        };
+        _this.getSuggestionValue = function (suggestion) { return suggestion.name; };
+        _this.state = {
+            value: '',
+            suggestions: []
+        };
         return _this;
     }
     CanvasPane.prototype.toggleSaveAsTemplateModal = function () {
@@ -61,6 +103,9 @@ var CanvasPane = /** @class */ (function (_super) {
     };
     CanvasPane.prototype.toggleExportDSLModal = function () {
         this.exportDSLModal = !this.exportDSLModal;
+    };
+    CanvasPane.prototype.toggleFindRepoModal = function () {
+        this.findRepoModal = !this.findRepoModal;
     };
     CanvasPane.prototype.saveAsTemplate = function () {
         this.props.addTemplate({
@@ -318,6 +363,12 @@ var CanvasPane = /** @class */ (function (_super) {
         this.props.requestDSLs();
         this.props.requestTemplates();
         this.props.requestRepo(this.props.match.params.username);
+        var _a = this.state, value = _a.value, suggestions = _a.suggestions;
+        var inputProps = {
+            placeholder: 'Search for a repo, workflow',
+            value: value,
+            onChange: this.onChange
+        };
         return (React.createElement(React.Fragment, null,
             React.createElement("div", { id: "canvas-container", className: "canvas-container", tabIndex: 1, onKeyDown: function (e) { return _this.onKeyDown(e); }, onDrop: function (e) { return _this.onDrop(e); }, onDragOver: function (e) { return e.preventDefault(); }, onMouseMove: function (e) { return _this.onMouseMove(e); } },
                 React.createElement(react_konva_1.Stage, { width: window.innerWidth, height: window.innerHeight, onClick: function (e) { return _this.props.deselectElement(); }, style: this.stageStyle, onMou: true },
@@ -326,6 +377,8 @@ var CanvasPane = /** @class */ (function (_super) {
                         this.renderTemporaryConnector(),
                         this.props.currentRootShape.elements.map(function (x) { return _this.renderCanvasElement(x); }))),
                 React.createElement(reactstrap_1.ButtonGroup, { className: "canvas-top-toolbar" },
+                    React.createElement(reactstrap_1.Button, { onClick: function () { return _this.toggleFindRepoModal(); } },
+                        React.createElement("i", { className: "bi bi-search", style: { padding: 5 } })),
                     React.createElement(reactstrap_1.Button, { onClick: function () { return _this.exportCanvasAsJson(); } }, "Export JSON"),
                     React.createElement(reactstrap_1.Button, { onClick: function () { return _this.toggleExportDSLModal(); } }, "Export DSL"),
                     React.createElement(reactstrap_1.Button, { onClick: function () { return _this.toggleSaveAsTemplateModal(); } }, "Save as Template"),
@@ -335,6 +388,13 @@ var CanvasPane = /** @class */ (function (_super) {
                         return React.createElement(reactstrap_1.BreadcrumbItem, { onClick: function () { return _this.onCollapseContainer(shape); } }, shape.name);
                     }),
                     React.createElement(reactstrap_1.BreadcrumbItem, { active: true }, this.props.currentRootShape.name)),
+                React.createElement(reactstrap_1.Modal, { isOpen: this.findRepoModal, toggle: function (e) { return _this.toggleFindRepoModal(); } },
+                    React.createElement(reactstrap_1.ModalHeader, { toggle: function (e) { return _this.toggleFindRepoModal(); } }, "Find external public repo"),
+                    React.createElement(reactstrap_1.ModalBody, null,
+                        React.createElement(Autosuggest, { suggestions: suggestions, onSuggestionsFetchRequested: this.onSuggestionsFetchRequested, onSuggestionsClearRequested: this.onSuggestionsClearRequested, getSuggestionValue: this.getSuggestionValue, renderSuggestion: this.renderSuggestion, inputProps: inputProps })),
+                    React.createElement(reactstrap_1.ModalFooter, null,
+                        React.createElement(reactstrap_1.Button, { color: "primary", onClick: function (e) { return _this.toggleFindRepoModal(); } }, "Import repo"),
+                        React.createElement(reactstrap_1.Button, { color: "secondary", onClick: function (e) { return _this.toggleFindRepoModal(); } }, "Cancel"))),
                 React.createElement(reactstrap_1.Modal, { isOpen: this.saveAsTemplateModal, toggle: function (e) { return _this.toggleSaveAsTemplateModal(); } },
                     React.createElement(reactstrap_1.ModalHeader, { toggle: function (e) { return _this.toggleSaveAsTemplateModal(); } }, "Save pipeline as template"),
                     React.createElement(reactstrap_1.ModalBody, null,

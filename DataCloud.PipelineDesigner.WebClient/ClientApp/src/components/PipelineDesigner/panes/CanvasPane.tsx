@@ -11,25 +11,40 @@ import { CanvasRenderer } from '../../../services/CanvasRenderer';
 import { CanvasSettings } from '../../../constants';
 import { KonvaEventObject } from 'konva/types/Node';
 import { Breadcrumb, BreadcrumbItem, Button, ButtonGroup, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Tooltip } from 'reactstrap';
+import * as Autosuggest from "react-autosuggest";
 import { v4 as uuidv4 } from 'uuid';
 
+ interface MyState {
+     value: string,
+    suggestions: Array<any>
+}
 
 type CanvasProps =
     CanvasStore.CanvasState &
     typeof CanvasStore.actionCreators &
-    RouteComponentProps<{username: string}>;
+    RouteComponentProps<{ username: string }>;
 
 
-class CanvasPane extends React.PureComponent<CanvasProps> {
+class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: '',
+            suggestions: []
+        }
+    }
     canvasService: CanvasService = new CanvasService();
 
     stageStyle = {
         cursor: 'default'
     }
 
+    
+
     saveAsTemplateModal = false;
     saveAsRepoModal = false;
     exportDSLModal = false;
+    findRepoModal = false;
 
     saveAsName = "";
     saveAsDescription = "";
@@ -47,6 +62,57 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
     toggleExportDSLModal() {
         this.exportDSLModal = !this.exportDSLModal;
     }
+    toggleFindRepoModal() {
+        this.findRepoModal = !this.findRepoModal;
+    }
+
+    testing
+    repos = [
+        {
+            user: 'vladom',
+            workflow: "DEF-PIP"
+        },
+        {
+            user: 'user',
+            workflow: 'TELLU'
+        }
+        ];
+    getRepoSuggestions = value => {
+        const inputValue = value.trim().toLowerCase();
+        const inputLength = inputValue.length;
+
+        return inputLength === 0 ? [] : this.repos.filter(repo =>
+            repo.user.toLowerCase().slice(0, inputLength) === inputValue
+        );
+    };
+    renderSuggestion = suggestion => (
+        <div>
+            {suggestion.user + ' - ' + suggestion.workflow}
+        </div>
+    );
+
+    onChange = (event, { newValue }) => {
+        
+        this.setState({
+            value: newValue
+        });
+    };
+
+    onSuggestionsFetchRequested = ({ value }) => {
+        this.setState({
+            suggestions: this.getRepoSuggestions(value)
+        });
+    };
+
+    onSuggestionsClearRequested = () => {
+        this.setState({
+            suggestions: []
+        });
+    };
+
+
+
+    getSuggestionValue = suggestion => suggestion.name;
 
     saveAsTemplate() {
         this.props.addTemplate({
@@ -362,6 +428,14 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
         this.props.requestTemplates();
         this.props.requestRepo(this.props.match.params.username);
 
+        const { value, suggestions } = this.state;
+
+        const inputProps = {
+            placeholder: 'Search for a repo, workflow',
+            value,
+            onChange: this.onChange
+        };
+
         return (
             <React.Fragment>
                 <div id="canvas-container" className="canvas-container" tabIndex={1} onKeyDown={(e: React.KeyboardEvent) => this.onKeyDown(e)} onDrop={(e) => this.onDrop(e)} onDragOver={(e) => e.preventDefault()} onMouseMove={(e) => this.onMouseMove(e)}>
@@ -375,6 +449,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
                         </Layer>
                     </Stage>
                     <ButtonGroup className="canvas-top-toolbar">
+                        <Button onClick={() => this.toggleFindRepoModal()}><i className="bi bi-search" style={{ padding: 5 }}></i></Button>
                         <Button onClick={() => this.exportCanvasAsJson()}>Export JSON</Button>
                         <Button onClick={() => this.toggleExportDSLModal()}>Export DSL</Button>
                         <Button onClick={() => this.toggleSaveAsTemplateModal()}>Save as Template</Button>
@@ -388,6 +463,26 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
                         <BreadcrumbItem active>{this.props.currentRootShape.name}</BreadcrumbItem>
                     </Breadcrumb>
 
+                    {/* Find repo modal */}
+                    <Modal isOpen={this.findRepoModal} toggle={(e) => this.toggleFindRepoModal()}>
+                        <ModalHeader toggle={(e) => this.toggleFindRepoModal()}>Find external public repo</ModalHeader>
+                        <ModalBody>
+                            <Autosuggest
+                                suggestions={suggestions}
+                                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                                getSuggestionValue={this.getSuggestionValue}
+                                renderSuggestion={this.renderSuggestion}
+                                inputProps={inputProps}
+                            />
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="primary" onClick={(e) => this.toggleFindRepoModal()}>Import repo</Button>
+                            <Button color="secondary" onClick={(e) => this.toggleFindRepoModal()}>Cancel</Button>
+                        </ModalFooter>
+                    </Modal>
+
+                    {/* Save template modal */}
                     <Modal isOpen={this.saveAsTemplateModal} toggle={(e) => this.toggleSaveAsTemplateModal()}>
                         <ModalHeader toggle={(e) => this.toggleSaveAsTemplateModal()}>Save pipeline as template</ModalHeader>
                         <ModalBody>
@@ -410,6 +505,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
                         </ModalFooter>
                     </Modal>
 
+                    {/* Save repo modal */}
                     <Modal isOpen={this.saveAsRepoModal} toggle={(e) => this.toggleSaveAsRepoModal()}>
                         <ModalHeader toggle={(e) => this.toggleSaveAsRepoModal()}>Save pipeline in repository</ModalHeader>
                         <ModalBody>
@@ -439,6 +535,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
                         </ModalFooter>
                     </Modal>
 
+                    {/* Export Dsl modal */}
                     <Modal isOpen={this.exportDSLModal} toggle={(e) => this.toggleExportDSLModal()}>
                         <ModalHeader toggle={(e) => this.toggleExportDSLModal()}>Export pipeline as DSL</ModalHeader>
                         <ModalBody>
