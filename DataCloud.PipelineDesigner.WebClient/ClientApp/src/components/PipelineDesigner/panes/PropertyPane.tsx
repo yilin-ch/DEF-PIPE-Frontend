@@ -1,6 +1,5 @@
 ﻿import * as React from 'react';
 import { connect } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
 import { Form, FormGroup, Input, Label } from 'reactstrap';
 import { ICanvasElementProperty, ICanvasElementPropertyType, ICanvasElementType, ICanvasShape } from '../../../models';
 import { ApplicationState } from '../../../store';
@@ -14,8 +13,7 @@ interface MyState {
 
 type PropertyPaneProps =
     CanvasStore.CanvasState &
-    typeof CanvasStore.actionCreators &
-    RouteComponentProps<{}>;
+    typeof CanvasStore.actionCreators;
 
 
 
@@ -94,7 +92,7 @@ class PropertyPane extends React.PureComponent<PropertyPaneProps, MyState> {
     renderProperty(prop: ICanvasElementProperty) {
         if (!this.props.selectedElement) return null;
         let propUniqueId = this.props.selectedElement.id + "-" + prop.name;
-            
+
         switch (prop.type) {
             case ICanvasElementPropertyType.singleLineText:
                 return <FormGroup>
@@ -120,24 +118,24 @@ class PropertyPane extends React.PureComponent<PropertyPaneProps, MyState> {
         let selectedShape = this.props.selectedElement && this.props.selectedElement.type === ICanvasElementType.Shape ? (this.props.selectedElement as ICanvasShape) : null;
         return (
             <React.Fragment>
-                { selectedShape ? 
+                { selectedShape ?
                     <React.Fragment>
                         <h3 className="property-pane-header">{selectedShape.name}</h3>
                         <p className="property-pane-subheader">ID: {selectedShape.id}</p>
                         <Form>
                             {selectedShape.properties.filter(p => p.allowEditing).map(prop => this.renderProperty(prop))}
                         <div className="from-group">
-                            <JSONEditor schema={this.schema}
-                                initialValue={this.state.initialValue}
-                                updateValue={this.updatePropertyValue}
-                                theme="bootstrap3"
-                                icon="fontawesome4">
-                            </JSONEditor>
+                            {/*<JSONEditor schema={this.schema}*/}
+                            {/*    initialValue={this.state.initialValue}*/}
+                            {/*    updateValue={this.updatePropertyValue}*/}
+                            {/*    theme="bootstrap3"*/}
+                            {/*    icon="fontawesome4">*/}
+                            {/*</JSONEditor>*/}
                         </div>
                         </Form>
                     </React.Fragment>
                     : null}
-            </React.Fragment>            
+            </React.Fragment>
         );
     }
 };

@@ -2,17 +2,16 @@
 import { connect } from 'react-redux';
 import * as CanvasStore from '../../../store/Canvas';
 import { ApplicationState } from '../../../store';
-import { RouteComponentProps } from 'react-router';
 import { useParams } from 'react-router-dom';
 import { Group, Layer, Rect, Stage, Text, Arrow, Circle, RegularPolygon, Ellipse, Line } from 'react-konva';
 import { ICanvasElementPropertyType, ICanvasShape, ICanvasElementType, ICanvasConnector, ICanvasShapeConnectionPoint, ICanvasElement, ICanvasConnectionPointType } from '../../../models';
 import { CanvasService } from '../../../services/CanvasService';
 import { CanvasRenderer } from '../../../services/CanvasRenderer';
 import { CanvasSettings } from '../../../constants';
-import { KonvaEventObject } from 'konva/types/Node';
 import { Breadcrumb, BreadcrumbItem, Button, ButtonGroup, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Tooltip } from 'reactstrap';
 import * as Autosuggest from "react-autosuggest";
 import { v4 as uuidv4 } from 'uuid';
+import Konva from "konva";
 
  interface MyState {
      value: string,
@@ -21,11 +20,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 type CanvasProps =
     CanvasStore.CanvasState &
-    typeof CanvasStore.actionCreators &
-    RouteComponentProps<{ username: string }>;
+    typeof CanvasStore.actionCreators;
 
 
 class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
+    componentDidMount() {
+        // const params: any = useParams();
+        // const username = params.username;
+    }
     constructor(props) {
         super(props);
         this.state = {
@@ -39,7 +41,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
         cursor: 'default'
     }
 
-    
+
 
     saveAsTemplateModal = false;
     saveAsRepoModal = false;
@@ -92,7 +94,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
     );
 
     onChange = (event, { newValue }) => {
-        
+
         this.setState({
             value: newValue
         });
@@ -187,7 +189,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
         }
     }
 
-    onShapeClick(e: KonvaEventObject<MouseEvent>, shape: ICanvasShape) {
+    onShapeClick(e: Konva.KonvaEventObject<MouseEvent>, shape: ICanvasShape) {
         e.cancelBubble = true;
         if (!this.props.selectedElement || this.props.selectedElement.id !== shape.id) {
             this.props.selectElement(shape);
@@ -196,7 +198,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
             this.props.deselectElement();
     }
 
-    onConnectorClick(e: KonvaEventObject<MouseEvent>, connector: ICanvasConnector) {
+    onConnectorClick(e: Konva.KonvaEventObject<MouseEvent>, connector: ICanvasConnector) {
         e.cancelBubble = true;
 
         if (!this.props.selectedElement || this.props.selectedElement.id !== connector.id) {
@@ -206,12 +208,12 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
             this.props.deselectElement();
     }
 
-    onConnectionPointClick(e: KonvaEventObject<MouseEvent>, shape: ICanvasShape, point: ICanvasShapeConnectionPoint) {
+    onConnectionPointClick(e: Konva.KonvaEventObject<MouseEvent>, shape: ICanvasShape, point: ICanvasShapeConnectionPoint) {
         e.cancelBubble = true;
         this.props.selectConnectionPoint(shape, point);
     }
 
-    onShapeDragEnd(e: KonvaEventObject<DragEvent>, shape: ICanvasShape) {
+    onShapeDragEnd(e: Konva.KonvaEventObject<DragEvent>, shape: ICanvasShape) {
         let newPosition = this.canvasService.snapToGrid(e.target.position());
         e.target.setPosition(newPosition);
 
@@ -222,7 +224,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
         this.props.updateElement(newShape);
     }
 
-    onShapeDragMove(e: KonvaEventObject<DragEvent>, shape: ICanvasShape) {
+    onShapeDragMove(e: Konva.KonvaEventObject<DragEvent>, shape: ICanvasShape) {
         let newPosition = this.canvasService.snapToGrid(e.target.position());
         e.target.setPosition(newPosition);
 
@@ -234,7 +236,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
         this.props.updateElement(newShape);
     }
 
-    onContainerExpand(e: KonvaEventObject<MouseEvent>, shape: ICanvasShape) {
+    onContainerExpand(e: Konva.KonvaEventObject<MouseEvent>, shape: ICanvasShape) {
         e.cancelBubble = true;
         this.props.expandContainer(shape);
     }
@@ -424,9 +426,10 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
     }
 
     public render() {
+        var username = 'vladom'
         this.props.requestDSLs();
         this.props.requestTemplates();
-        this.props.requestRepo(this.props.match.params.username);
+        this.props.requestRepo(username);
 
         const { value, suggestions } = this.state;
 
@@ -453,7 +456,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                         <Button onClick={() => this.exportCanvasAsJson()}>Export JSON</Button>
                         <Button onClick={() => this.toggleExportDSLModal()}>Export DSL</Button>
                         <Button onClick={() => this.toggleSaveAsTemplateModal()}>Save as Template</Button>
-                        {this.props.match.params.username  && <Button onClick={() => this.toggleSaveAsRepoModal()}>Save in repo</Button> }
+                        {username  && <Button onClick={() => this.toggleSaveAsRepoModal()}>Save in repo</Button> }
                     </ButtonGroup>
 
                     <Breadcrumb className="canvas-breadcrumb">

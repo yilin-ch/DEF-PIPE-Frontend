@@ -1,6 +1,5 @@
 ﻿import * as React from 'react';
 import { connect } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
 import { Button, Form, FormGroup, Input, Label, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap';
 import { ICanvasConnectionPointType, ICanvasElementProperty, ICanvasElementPropertyType, ICanvasElementType, ICanvasShape, ICanvasShapeConnectionPoint, ICanvasShapeTemplate, IAPiTemplate } from '../../../models';
 import { ApplicationState } from '../../../store';
@@ -9,8 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 type TemplatePropertyPaneProps =
     CanvasStore.CanvasState &
-    typeof CanvasStore.actionCreators &
-    RouteComponentProps<{}>;
+    typeof CanvasStore.actionCreators;
 
 class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps> {
 
