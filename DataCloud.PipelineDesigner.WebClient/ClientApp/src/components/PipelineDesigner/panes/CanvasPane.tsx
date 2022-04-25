@@ -15,7 +15,8 @@ import Konva from "konva";
 
  interface MyState {
      value: string,
-    suggestions: Array<any>
+     suggestions: Array<any>,
+     username?: string
 }
 
 type CanvasProps =
@@ -24,15 +25,12 @@ type CanvasProps =
 
 
 class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
-    componentDidMount() {
-        // const params: any = useParams();
-        // const username = params.username;
-    }
     constructor(props) {
         super(props);
         this.state = {
             value: '',
-            suggestions: []
+            suggestions: [],
+            username: props.params.username
         }
     }
     canvasService: CanvasService = new CanvasService();
@@ -426,10 +424,9 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
     }
 
     public render() {
-        var username = 'vladom'
         this.props.requestDSLs();
         this.props.requestTemplates();
-        this.props.requestRepo(username);
+        this.props.requestRepo(this.state.username);
 
         const { value, suggestions } = this.state;
 
@@ -456,7 +453,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                         <Button onClick={() => this.exportCanvasAsJson()}>Export JSON</Button>
                         <Button onClick={() => this.toggleExportDSLModal()}>Export DSL</Button>
                         <Button onClick={() => this.toggleSaveAsTemplateModal()}>Save as Template</Button>
-                        {username  && <Button onClick={() => this.toggleSaveAsRepoModal()}>Save in repo</Button> }
+                        {this.state.username  && <Button onClick={() => this.toggleSaveAsRepoModal()}>Save in repo</Button> }
                     </ButtonGroup>
 
                     <Breadcrumb className="canvas-breadcrumb">
@@ -560,7 +557,15 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
     }
 };
 
+function withRouter(Component) {
+    function ComponentWithRouter(props) {
+        let params = useParams()
+        return <Component {...props} params={params} />
+    }
+    return ComponentWithRouter
+}
+
 export default connect(
     (state: ApplicationState) => state.canvas,
     CanvasStore.actionCreators
-)(CanvasPane);
+)( withRouter(CanvasPane));
