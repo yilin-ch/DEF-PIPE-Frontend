@@ -4,6 +4,11 @@
     data: T
 }
 
+export interface ISearchRepo {
+    user: string;
+    workflowName: string;
+}
+
 export interface ICanvasElement {
     id: string;
     type: ICanvasElementType;
@@ -22,6 +27,7 @@ export interface ICanvasShape extends ICanvasElement {
     height: number;
     shape?: string;
     templateId?: string;
+    parameters?: object;
     properties: Array<ICanvasElementProperty>;
     position: ICanvasPosition;
     connectionPoints: Array<ICanvasShapeConnectionPoint>;
@@ -58,6 +64,7 @@ export interface ICanvasShapeTemplate {
     height: number;
     shape?: string;
     properties: Array<ICanvasElementProperty>;
+    parameters?: object;
     connectionPoints: Array<ICanvasShapeConnectionPoint>;
     isContainer?: boolean;
     elements?: Array<ICanvasElement>

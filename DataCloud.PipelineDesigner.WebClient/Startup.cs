@@ -40,6 +40,7 @@ namespace DataCloud.PipelineDesigner.WebClient
 
             services.AddScoped<ITemplateService, TemplateService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IPublicRepoService, PublicRepoService>();
 
 
             // In production, the React files will be served from this directory
@@ -76,7 +77,7 @@ namespace DataCloud.PipelineDesigner.WebClient
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
             });
-
+           
             app.UseSpa(spa =>
             {
                 spa.Options.SourcePath = "ClientApp";

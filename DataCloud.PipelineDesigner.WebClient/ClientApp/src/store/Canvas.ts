@@ -119,7 +119,7 @@ export const actionCreators = {
     requestRepo: (username: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
         const appState = getState();
         if (username && appState && appState.canvas && !appState.canvas.repo) {
-            fetch(`/api/templates/` + username)
+            fetch(`/api/repo/` + username)
                 .then(response => response.json() as Promise<ApiResult<Array<IAPiTemplate>>>)
                 .then(apiResult => {
                     dispatch({ type: 'REQUEST_REPO', repo: apiResult.data, username: username });

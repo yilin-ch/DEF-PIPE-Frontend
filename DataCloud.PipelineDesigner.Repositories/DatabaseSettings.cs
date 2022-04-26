@@ -8,6 +8,7 @@
         public string ShapeCollectionName { get; set; }
         public string CategoryCollectionName { get; set; }
         public string TypeCollectionName { get; set; }
+        public string PublicRepoCollectionName { get; set; }
     }
 
     public interface IDatabaseSettings
@@ -18,5 +19,6 @@
         string ShapeCollectionName { get; set; }
         string CategoryCollectionName { get; set; }
         string TypeCollectionName { get; set; }
+        string PublicRepoCollectionName { get; set; }
     }
 }
