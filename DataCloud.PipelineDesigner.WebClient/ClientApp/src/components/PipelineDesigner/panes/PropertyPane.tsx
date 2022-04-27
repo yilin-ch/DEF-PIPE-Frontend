@@ -15,7 +15,6 @@ import {JSONEditor, Schema} from "react-schema-based-json-editor";
 interface MyState {
     initialValue: Object,
     updateValue: Object,
-    selectedShape: ICanvasShape
 }
 
 type PropertyPaneProps =
@@ -26,11 +25,9 @@ type PropertyPaneProps =
 class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
     constructor(props) {
         super(props);
-        var selectedShape = this.props.selectedElement && this.props.selectedElement.type === ICanvasElementType.Shape ? (this.props.selectedElement as ICanvasShape) : null;
         this.state = {
             initialValue: {},
             updateValue: '',
-            selectedShape: selectedShape
         }
     }
 
@@ -84,13 +81,11 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
     };
 
     private savePropertyValue = () => {
-        console.log(this.props.repo)
-        var template = this.props.repo.filter(repo => repo.id == this.props.currentRootShape.templateId)[0];
-        console.log(template)
-        var index = template.canvasTemplate.elements.findIndex(e => e.id = this.props.selectedElement.id);
-        (template.canvasTemplate.elements[index] as ICanvasShape).parameters = this.state.updateValue
+        const template = this.props.repo.find(repo => repo.id === this.props.currentRootShape.templateId);
+        const  index = template.canvasTemplate.elements.findIndex(e => e.id === this.props.selectedElement.id);
+        (template.canvasTemplate.elements[index] as ICanvasShape).parameters = this.state.updateValue;
 
-        this.props.addRepo(template)
+        this.props.addRepo(template);
     };
 
     onPropertyChange(e: React.ChangeEvent<HTMLInputElement>, prop: ICanvasElementProperty) {
