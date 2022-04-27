@@ -39,7 +39,8 @@ import {TemplateService} from "../../../services/TemplateService";
 interface MyState {
     value: string,
     suggestions: Array<ISearchRepo>,
-    username?: string
+    username?: string,
+    selectedSuggestion: ISearchRepo
 }
 
 type CanvasProps =
@@ -53,15 +54,19 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
         this.state = {
             value: '',
             suggestions: [],
-            username: props.params.username
-        }
+            username: props.params.username,
+            selectedSuggestion: null
+        };
+        this.props.requestDSLs();
+        this.props.requestTemplates();
+        this.props.requestRepo(this.state.username);
     }
 
     canvasService: CanvasService = new CanvasService();
 
     stageStyle = {
         cursor: 'default'
-    }
+    };
 
 
     saveAsTemplateModal = false;
@@ -102,13 +107,13 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
     onChange = (event, {newValue}) => {
 
         this.setState({
-            value: newValue
+            value: newValue,
         });
     };
 
     onSuggestionsFetchRequested = ({value}) => {
 
-        TemplateService.getPublicRepo(value).then(r => {
+        TemplateService.searchPublicRepos(value).then(r => {
             this.setState({
                 suggestions: r
             });
@@ -126,8 +131,39 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
         });
     };
 
+    getSuggestionValue = suggestion => {
+        this.setState({
+            selectedSuggestion: suggestion
+        });
+        return suggestion.user + ' - ' + suggestion.workflowName;
+    };
 
-    getSuggestionValue = suggestion => suggestion.user;
+    importRepo = (repo: ISearchRepo) => {
+        TemplateService.getPublicRepo(repo).then(r => {
+            let newShape: ICanvasShape = {
+                ...r.canvasTemplate,
+                name: r.name,
+                properties: r.canvasTemplate.properties.map(p => ({ ...p })),
+                id: uuidv4(),
+                templateId: r.id,
+                type: ICanvasElementType.Shape,
+                width: r.canvasTemplate.width,
+                height: r.canvasTemplate.height,
+                shape: r.canvasTemplate.shape,
+                position: { x: 500, y: 500 },
+                canHaveChildren: r.canvasTemplate.isContainer,
+                elements: r.canvasTemplate.elements || []
+            };
+
+            this.props.addElement(newShape);
+        }).catch(e => {
+            console.error(e);
+            this.setState({
+                suggestions: []
+            });
+        });
+        this.toggleFindRepoModal()
+    };
 
     saveAsTemplate() {
         this.props.addTemplate({
@@ -255,7 +291,6 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
     onCollapseContainer(shape: ICanvasShape) {
         this.props.collapseContainer(shape);
     }
-
 
     onMouseMove(e: React.MouseEvent) {
         let canvasContainer = document.getElementById('canvas-container').getBoundingClientRect();
@@ -435,9 +470,6 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
     }
 
     public render() {
-        this.props.requestDSLs();
-        this.props.requestTemplates();
-        this.props.requestRepo(this.state.username);
 
         const {value, suggestions} = this.state;
 
@@ -494,7 +526,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                             />
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="primary" onClick={(e) => this.toggleFindRepoModal()}>Import repo</Button>
+                            <Button color="primary"  disabled={!this.state.selectedSuggestion}  onClick={(e) => this.importRepo(this.state.selectedSuggestion)}>Import repo</Button>
                             <Button color="secondary" onClick={(e) => this.toggleFindRepoModal()}>Cancel</Button>
                         </ModalFooter>
                     </Modal>

@@ -3,6 +3,7 @@ using DataCloud.PipelineDesigner.Repositories.Models;
 using DataCloud.PipelineDesigner.Services.Interfaces;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -49,14 +50,14 @@ namespace DataCloud.PipelineDesigner.Services
             Template template = repo.Templates.Find(t => t.Name == workflowName);
 
 
-            if (template.Public)
+            if ((template is not null) && template.Public)
             {
                 return template;
             }
             else
             {
               await this.RemoveRepo(user, workflowName);
-                return null;
+              throw new InvalidOperationException("This repo is not available anymore");
             }
 
 

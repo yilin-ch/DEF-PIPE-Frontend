@@ -23,7 +23,7 @@ export class TemplateService {
             connectionPoints: [],
             width: 0,
             height: 0
-        }
+        };
 
         return rootShape;
     }
@@ -79,9 +79,18 @@ export class TemplateService {
     }
 
 
-    public static getPublicRepo<T>(query: string): Promise<ISearchRepo[]> {
+    public static searchPublicRepos<T>(query: string): Promise<ISearchRepo[]> {
         return fetch(`/api/repo/s?query=` + query)
             .then(response => response.json() as Promise<ApiResult<Array<ISearchRepo>>>)
+            .then(apiResult => {
+                return apiResult.data;
+            });
+    }
+
+
+    public static getPublicRepo<T>(repo: ISearchRepo): Promise<IAPiTemplate> {
+        return fetch(`/api/repo?user=` + repo.user +`&workflowName=` + repo.workflowName )
+            .then(response => response.json() as Promise<ApiResult<IAPiTemplate>>)
             .then(apiResult => {
                 return apiResult.data;
             });
