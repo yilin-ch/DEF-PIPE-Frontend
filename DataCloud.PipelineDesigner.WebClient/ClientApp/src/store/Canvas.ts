@@ -369,14 +369,12 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
             templateService.saveTemplate(state.selectedTemplate);
             return state;
         case 'REMOVE_TEMPLATE':
-            templateGroup = state.templateGroups.filter(group => group.name === action.template.category)[0];
-            console.log(templateGroup.items.length)
+            templateGroup = state.templateGroups.filter(group => group.name === action.template.category)[0]
             templateGroup.items = templateGroup.items.filter(obj => obj !== action.template);
             let index = state.templateGroups.findIndex((group) => group.name === templateGroup.name);
 
             state.templateGroups[index] = templateGroup;
             templateService.deleteTemplate(action.template.id);
-            console.log(state.templateGroups[index].items.length);
             return {
                 ...state,
                 templateGroups: state.templateGroups,

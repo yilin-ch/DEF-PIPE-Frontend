@@ -198,7 +198,6 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
     }
 
     saveAsRepo() {
-        console.log(this.saveAsRepoPublic)
         this.props.addRepo({
             id: uuidv4(),
             name: this.saveAsName,
@@ -593,7 +592,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                             <FormGroup check inline>
                                 <Input type="checkbox" id={"txt-repo-public"} checked={this.saveAsRepoPublic}
                                        onChange={(e) => {
-                                           this.saveAsRepoPublic = e.target.checked, console.log(this.saveAsRepoPublic)
+                                           this.saveAsRepoPublic = e.target.checked
                                        }}></Input>
                                 <Label check>
                                     Public repository
