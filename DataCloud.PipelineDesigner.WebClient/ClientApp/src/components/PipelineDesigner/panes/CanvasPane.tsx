@@ -1,4 +1,4 @@
-﻿import * as React from 'react';
+import * as React from 'react';
 import {connect} from 'react-redux';
 import * as CanvasStore from '../../../store/Canvas';
 import {ApplicationState} from '../../../store';
@@ -206,7 +206,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
             canvasTemplate: {
                 shape: "Container",
                 isContainer: true,
-                elements: (this.props.shapeExpandStack[0] || this.props.currentRootShape).elements,
+                elements: this.props.currentRootShape.elements,
                 connectionPoints: [{
                     id: '1',
                     position: {x: 0, y: 50},

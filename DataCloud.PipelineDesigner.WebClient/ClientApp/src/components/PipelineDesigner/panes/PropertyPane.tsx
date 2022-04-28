@@ -33,20 +33,23 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
 
     schema: Schema = {
         type: "object",
+        "title":"Parameters",
         properties: {
-            "data_source_step": {
-                "type": "string"
-            },
             "implementation": {
-                "type": "string"
+                "title":"Implementation",
+                "type": "string",
             },
             "image": {
-                "type": "string"
+                "title":"Image",
+                "type": "string",
+
             },
             "environmentParameters": {
+                "title":"Env. Parameters",
                 "type": "array",
                 "items": {
                     "type": "object",
+                    "title":"key-value",
                     "properties": {
                         "key": {
                             "type": "string"
@@ -62,7 +65,8 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
                 }
             },
             "resourceProvider": {
-                "type": "string"
+                "type": "string",
+                "title":"Resource Provider"
             },
         },
         "required": [
