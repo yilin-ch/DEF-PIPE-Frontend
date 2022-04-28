@@ -5,4 +5,4 @@ services:
     ports:
       - "80:80"
     environment:
-        CONNECTION_STRING: YOUR_CONNECTION_STRING
+        MANGO_CONNECTION_STRING: YOUR_CONNECTION_STRING
