@@ -4,9 +4,9 @@ import Keycloak from "keycloak-js";
 
 // @ts-ignore
 const _kc = Keycloak({
-    url: process.env.KEYCLOAK_URL,
-    realm: process.env.KEYCLOAK_REALM,
-    clientId: process.env.KEYCLOAK_CLIENT_ID
+    url: process.env.REACT_APP_KEYCLOAK_URL,
+    realm: process.env.REACT_APP_KEYCLOAK_REALM,
+    clientId: process.env.REACT_APP_KEYCLOAK_CLIENT_ID
 });
 
 /**
@@ -18,6 +18,7 @@ const initKeycloak = (onAuthenticatedCallback) => {
     _kc.init({
         onLoad: 'check-sso',
         checkLoginIframe: false,
+        redirectUri: window.location.origin + '/repo',
     })
         .then((authenticated) => {
             if (!authenticated) {

@@ -35,11 +35,11 @@ import * as Autosuggest from "react-autosuggest";
 import {v4 as uuidv4} from 'uuid';
 import Konva from "konva";
 import {TemplateService} from "../../../services/TemplateService";
+import KeycloakService from "../../../services/KeycloakService";
 
 interface MyState {
     value: string,
     suggestions: Array<ISearchRepo>,
-    username?: string,
     selectedSuggestion: ISearchRepo
 }
 
@@ -54,12 +54,11 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
         this.state = {
             value: '',
             suggestions: [],
-            username: props.params.username,
             selectedSuggestion: null
         };
         this.props.requestDSLs();
         this.props.requestTemplates();
-        this.props.requestRepo(this.state.username);
+        this.props.requestRepo(KeycloakService.getUsername());
     }
 
     canvasService: CanvasService = new CanvasService();
@@ -499,7 +498,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                         <Button onClick={() => this.exportCanvasAsJson()}>Export JSON</Button>
                         <Button onClick={() => this.toggleExportDSLModal()}>Export DSL</Button>
                         <Button onClick={() => this.toggleSaveAsTemplateModal()}>Save as Template</Button>
-                        {this.state.username &&
+                        {KeycloakService.getUsername() &&
                         <Button onClick={() => this.toggleSaveAsRepoModal()}>Save in repo</Button>}
                     </ButtonGroup>
 
