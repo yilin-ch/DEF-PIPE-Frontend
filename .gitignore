@@ -396,3 +396,5 @@ FodyWeavers.xsd
 
 
 DataCloud.PipelineDesigner.WebClient/ClientApp/.idea/
+
+DataCloud.PipelineDesigner.WebClient/ClientApp/.env

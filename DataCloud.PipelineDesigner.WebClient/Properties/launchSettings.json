@@ -18,7 +18,6 @@
     "DataCloud.PipelineDesigner.WebClient": {
       "commandName": "Project",
       "commandLineArgs": "--dev",
-      "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

@@ -1,18 +1,19 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
-using Microsoft.EntityFrameworkCore;
 using DataCloud.PipelineDesigner.Repositories;
 using Microsoft.Extensions.Options;
 using DataCloud.PipelineDesigner.Services.Interfaces;
 using DataCloud.PipelineDesigner.Repositories.Services;
 using DataCloud.PipelineDesigner.Services;
+using System;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using DataCloud.PipelineDesigner.WebClient.Controllers.Auth;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DataCloud.PipelineDesigner.WebClient
 {
@@ -49,6 +50,25 @@ namespace DataCloud.PipelineDesigner.WebClient
                 configuration.RootPath = "ClientApp/build";
             });
 
+            services.AddAuthentication(options => { options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;/* Authentication options */ })
+                                                .AddJwtBearer(options =>
+                                                {
+                                                    options.Authority = Environment.GetEnvironmentVariable("KEYCLOAK_AUTHORITY");
+                                                    options.TokenValidationParameters =
+                                                        new TokenValidationParameters
+                                                        {
+                                                            ValidateAudience = false,
+                                                            NameClaimType = "preferred_username"
+                                                        };
+                                                });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("OwnershipPolicy", policy =>
+                    policy.Requirements.Add(new OwnershipRequirement()));
+            });
+
+            services.AddSingleton<IAuthorizationHandler, OwnershipAuthHandler>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -70,6 +90,9 @@ namespace DataCloud.PipelineDesigner.WebClient
             app.UseSpaStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

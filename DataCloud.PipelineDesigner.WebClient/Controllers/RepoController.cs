@@ -1,6 +1,7 @@
 ﻿using DataCloud.PipelineDesigner.Repositories.Models;
 using DataCloud.PipelineDesigner.Services.Interfaces;
 using DataCloud.PipelineDesigner.WebClient.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,17 +10,19 @@ using System.Threading.Tasks;
 
 namespace DataCloud.PipelineDesigner.WebClient.Controllers
 {
-
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class RepoController : ControllerBase
     {
         Services.Interfaces.IUserService userService;
         Services.Interfaces.IPublicRepoService pRepoService;
-        public RepoController(IUserService uService, IPublicRepoService prService)
+        private readonly IAuthorizationService authorizationService;
+        public RepoController(IUserService uService, IPublicRepoService prService, IAuthorizationService authService)
         {
             userService = uService;
             pRepoService = prService;
+            authorizationService= authService;
         }
 
         [HttpGet("s")]
@@ -39,6 +42,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         [HttpGet]
         public async Task<ApiResult<Template>> ImportRepo([FromQuery] string user, [FromQuery] string workflowName)
         {
+
             try
             {
                 Template prs = await pRepoService.GetPublicRepo(user, workflowName);
@@ -53,6 +57,13 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         [HttpGet("{user}")]
         public async Task<ApiResult<List<Template>>> GetAvailableRepo(String user)
         {
+
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, user, "OwnershipPolicy");
+
+            if (!authorizationResult.Succeeded)
+            {
+                return ApiHelper.CreateFailedResult< List<Template>>("Forbiden");
+            }
             try
             {
                 User userDB = await userService.GetRepoAsync(user);
