@@ -1,5 +1,4 @@
 ﻿import * as React from 'react';
-import { RouteComponentProps } from 'react-router';
 import { connect } from 'react-redux';
 import { Button, Input } from 'reactstrap';
 import * as CanvasStore from '../../../store/Canvas';
@@ -9,8 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 type TemplatePaletteProps =
     CanvasStore.CanvasState &
-    typeof CanvasStore.actionCreators &
-    RouteComponentProps<{}>;
+    typeof CanvasStore.actionCreators;
 
 class TemplatePalettePane extends React.PureComponent<TemplatePaletteProps> {
 

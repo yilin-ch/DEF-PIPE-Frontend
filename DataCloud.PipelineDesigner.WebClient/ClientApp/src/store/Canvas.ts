@@ -4,6 +4,7 @@ import { TemplateService } from '../services/TemplateService';
 import { v4 as uuidv4 } from 'uuid';
 import { AppThunkAction } from '.';
 import { useParams } from 'react-router-dom';
+import KeycloakService from "../services/KeycloakService";
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
@@ -119,7 +120,12 @@ export const actionCreators = {
     requestRepo: (username: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
         const appState = getState();
         if (username && appState && appState.canvas && !appState.canvas.repo) {
-            fetch(`/api/templates/` + username)
+            fetch(`/api/repo/` + username, {
+                method: 'GET',
+                headers: {
+                    'Content-type': 'application/json',
+                    'Authorization': `Bearer ${KeycloakService.getToken()}`,
+                }})
                 .then(response => response.json() as Promise<ApiResult<Array<IAPiTemplate>>>)
                 .then(apiResult => {
                     dispatch({ type: 'REQUEST_REPO', repo: apiResult.data, username: username });
@@ -369,14 +375,12 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
             templateService.saveTemplate(state.selectedTemplate);
             return state;
         case 'REMOVE_TEMPLATE':
-            templateGroup = state.templateGroups.filter(group => group.name === action.template.category)[0];
-            console.log(templateGroup.items.length)
+            templateGroup = state.templateGroups.filter(group => group.name === action.template.category)[0]
             templateGroup.items = templateGroup.items.filter(obj => obj !== action.template);
             let index = state.templateGroups.findIndex((group) => group.name === templateGroup.name);
 
             state.templateGroups[index] = templateGroup;
             templateService.deleteTemplate(action.template.id);
-            console.log(state.templateGroups[index].items.length);
             return {
                 ...state,
                 templateGroups: state.templateGroups,

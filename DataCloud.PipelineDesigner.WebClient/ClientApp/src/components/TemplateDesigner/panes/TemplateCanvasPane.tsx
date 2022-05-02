@@ -2,18 +2,16 @@
 import { connect } from 'react-redux';
 import * as CanvasStore from '../../../store/Canvas';
 import { ApplicationState } from '../../../store';
-import { RouteComponentProps } from 'react-router';
 import { Group, Layer, Rect, Stage, Text, Arrow, Circle, KonvaNodeComponent, Ellipse, RegularPolygon, Line } from 'react-konva';
 import { ICanvasElementPropertyType, ICanvasShape, ICanvasElementType, ICanvasConnector, ICanvasShapeConnectionPoint, ICanvasElement, ICanvasShapeTemplate, IAPiTemplate } from '../../../models';
-import { KonvaEventObject } from 'konva/types/Node';
+import Konva from 'konva';
 import { Button, ButtonGroup } from 'reactstrap';
 import { CanvasSettings } from '../../../constants';
 import { CanvasRenderer } from '../../../services/CanvasRenderer';
 
 type TemplateCanvasProps =
     CanvasStore.CanvasState &
-    typeof CanvasStore.actionCreators &
-    RouteComponentProps<{}>;
+    typeof CanvasStore.actionCreators;
 
 class TemplateCanvasPane extends React.PureComponent<TemplateCanvasProps> {
 
@@ -23,7 +21,7 @@ class TemplateCanvasPane extends React.PureComponent<TemplateCanvasProps> {
         }
     }
 
-    onShapeClick(e: KonvaEventObject<MouseEvent>, shape: ICanvasShape) {
+    onShapeClick(e: Konva.KonvaEventObject<MouseEvent>, shape: ICanvasShape) {
         e.cancelBubble = true;
         if (!this.props.selectedElement || this.props.selectedElement.id !== shape.id) {
             this.props.selectElement(shape);
@@ -32,7 +30,7 @@ class TemplateCanvasPane extends React.PureComponent<TemplateCanvasProps> {
             this.props.deselectElement();
     }
 
-    onConnectorClick(e: KonvaEventObject<MouseEvent>, connector: ICanvasConnector) {
+    onConnectorClick(e: Konva.KonvaEventObject<MouseEvent>, connector: ICanvasConnector) {
         e.cancelBubble = true;
 
         if (!this.props.selectedElement || this.props.selectedElement.id !== connector.id) {
@@ -42,7 +40,7 @@ class TemplateCanvasPane extends React.PureComponent<TemplateCanvasProps> {
             this.props.deselectElement();
     }
 
-    onConnectionPointClick(e: KonvaEventObject<MouseEvent>, shape: ICanvasShape, point: ICanvasShapeConnectionPoint) {
+    onConnectionPointClick(e: Konva.KonvaEventObject<MouseEvent>, shape: ICanvasShape, point: ICanvasShapeConnectionPoint) {
         e.cancelBubble = true;
         this.props.selectConnectionPoint(shape, point);
     }

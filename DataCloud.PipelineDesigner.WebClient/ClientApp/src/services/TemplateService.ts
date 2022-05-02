@@ -1,4 +1,11 @@
-import { ICanvasShapeTemplateGroup, ICanvasShapeTemplate, ICanvasShape, ICanvasElementType, IAPiTemplate } from '../models';
+import {
+    ICanvasShapeTemplateGroup,
+    ICanvasShapeTemplate,
+    ICanvasShape,
+    ICanvasElementType,
+    IAPiTemplate,
+    ApiResult, ISearchRepo
+} from '../models';
 import { v4 as uuidv4 } from 'uuid';
 
 export class TemplateService {
@@ -16,7 +23,7 @@ export class TemplateService {
             connectionPoints: [],
             width: 0,
             height: 0
-        }
+        };
 
         return rootShape;
     }
@@ -52,7 +59,7 @@ export class TemplateService {
     public saveRepo(repo: IAPiTemplate, username : string) {
         TemplateService.saveTemplateTimeoutHandle = setTimeout(() => {
             TemplateService.saveTemplateTimeoutHandle = null;
-            fetch(`/api/templates/` + username, {
+            fetch(`/api/repo/` + username, {
                 method: "POST",
                 body: JSON.stringify(repo),
                 headers: {
@@ -71,8 +78,21 @@ export class TemplateService {
         }, 500);
     }
 
-    public persistTemplate(templates: Array<ICanvasShapeTemplate>) {
 
-        // localStorage.setItem("datacloud-templates", JSON.stringify(templates));
+    public static searchPublicRepos<T>(query: string): Promise<ISearchRepo[]> {
+        return fetch(`/api/repo/s?query=` + query)
+            .then(response => response.json() as Promise<ApiResult<Array<ISearchRepo>>>)
+            .then(apiResult => {
+                return apiResult.data;
+            });
+    }
+
+
+    public static getPublicRepo<T>(repo: ISearchRepo): Promise<IAPiTemplate> {
+        return fetch(`/api/repo?user=` + repo.user +`&workflowName=` + repo.workflowName )
+            .then(response => response.json() as Promise<ApiResult<IAPiTemplate>>)
+            .then(apiResult => {
+                return apiResult.data;
+            });
     }
 }

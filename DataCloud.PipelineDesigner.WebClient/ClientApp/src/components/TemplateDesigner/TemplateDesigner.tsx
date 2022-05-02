@@ -9,13 +9,13 @@ import "./../../style/common.css";
 const TemplateDesigner = () => (
     <Row className="designer-container">
         <Col md="2" className="palette-pane-container designer-pane">
-            <TemplatePalettePane location={null} history={null} match={null}></TemplatePalettePane>
+            <TemplatePalettePane/>
         </Col>
         <Col className="canvas-pane-container designer-pane">
-            <TemplateCanvasPane location={null} history={null} match={null}></TemplateCanvasPane>
+            <TemplateCanvasPane/>
         </Col>
         <Col md="2" className="property-pane-container designer-pane">
-            <TemplatePropertyPane location={null} history={null} match={null}></TemplatePropertyPane>
+            <TemplatePropertyPane/>
         </Col>
     </Row>
 );

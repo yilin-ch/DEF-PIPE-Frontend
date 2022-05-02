@@ -54,35 +54,6 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             }
         }
 
-        [HttpGet("{user}")]
-        public async Task<ApiResult<List<Template>>> GetAvailableTemplates(String user)
-        {
-            try
-            {
-                User userDB = await templateService.GetTemplatesAsync(user);
-                return ApiHelper.CreateSuccessResult(userDB.Templates);
-            }
-            catch (Exception e)
-            {
-                return ApiHelper.CreateFailedResult<List<Template>>(e.Message);
-            }
-        }
-
-        [HttpPost("{user}")]
-        public async Task<ApiResult<Template>> AddOrUpdateTemplateAsync([FromBody] Template template, string user)
-        {
-            try
-            {
-                await templateService.AddOrUpdateTemplateAsync(template, user);
-
-                return ApiHelper.CreateSuccessResult(template);
-            }
-            catch (Exception e)
-            {
-                return ApiHelper.CreateFailedResult<Template>(e.Message);
-            }
-        }
-
         [HttpDelete("{id}")]
         public async Task<ApiResult<bool>> DeleteTemplate(String id)
         {

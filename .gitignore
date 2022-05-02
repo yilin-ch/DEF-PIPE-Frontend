@@ -394,3 +394,7 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
+
+DataCloud.PipelineDesigner.WebClient/ClientApp/.idea/
+
+DataCloud.PipelineDesigner.WebClient/ClientApp/.env

@@ -44,19 +44,6 @@ namespace DataCloud.PipelineDesigner.Repositories.Services
             new ReplaceOptions { IsUpsert = true });
         }
 
-        public Task AddOrUpdateTemplateAsync(Template template, string user)
-        {
-
-
-            string jsonString = JsonConvert.SerializeObject(template);
-
-            var document = BsonSerializer.Deserialize<BsonDocument>(jsonString);
-
-
-            return _userPost.UpdateOneAsync(
-                        Builders<BsonDocument>.Filter.Eq("Username" , user),
-                        Builders<BsonDocument>.Update.AddToSet("Templates", document));
-        }
 
         public Task<DeleteResult> DeleteTemplate(string id)
         {
@@ -68,11 +55,6 @@ namespace DataCloud.PipelineDesigner.Repositories.Services
             return _template.Find(_ => true).ToListAsync();
         }
 
-
-        public Task<User> GetTemplatesAsync(string user)
-        {
-           return _user.Find(u => u.Username == user).FirstAsync();
-        }
     }
 
 
