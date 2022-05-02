@@ -30,6 +30,14 @@ namespace DataCloud.PipelineDesigner.Services
             return dslBuilder.ToString();
         }
 
+        public Workflow Transform(string dsl)
+        {
+            Workflow workflow = new Workflow();
+
+
+            return workflow;
+        }
+
         private void GenerateWorkflowProperties(StringBuilder dslBuilder, int level = 0)
         {
             dslBuilder.AppendLine(Identation(level) + "input:");

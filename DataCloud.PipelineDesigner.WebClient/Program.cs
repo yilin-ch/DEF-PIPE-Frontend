@@ -13,7 +13,15 @@ namespace DataCloud.PipelineDesigner.WebClient
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            if (args.Contains("--dev"))
+            {
+                CreateDevHostBuilder(args).Build().Run();
+            }
+            else
+            {
+                CreateHostBuilder(args).Build().Run();
+            }
+           
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -22,5 +30,35 @@ namespace DataCloud.PipelineDesigner.WebClient
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+
+        public static IHostBuilder CreateDevHostBuilder(string[] args) =>
+
+            Host.CreateDefaultBuilder(args)
+                .ConfigureServices((context, services) =>
+                {
+                    HostConfig.CertificateFileLocation = context.Configuration["CertificateFileLocation"];
+                    HostConfig.CertificatePassword = context.Configuration["CertPassword"];
+                })
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.ConfigureKestrel(opt =>
+                    {
+                        opt.ListenAnyIP(5001, listenOpt =>
+                        {
+                            listenOpt.UseHttps(HostConfig.CertificateFileLocation, HostConfig.CertificatePassword);
+                        });
+                        opt.ListenAnyIP(5000);
+                    });
+
+                    webBuilder.UseStartup<Startup>();
+                });
+
+
+    }
+
+    public static class HostConfig
+    {
+        public static string CertificateFileLocation { get; set; }
+        public static string CertificatePassword { get; set; }
     }
 }

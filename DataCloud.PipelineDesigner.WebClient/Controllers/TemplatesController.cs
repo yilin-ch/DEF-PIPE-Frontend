@@ -1,9 +1,12 @@
 ﻿using DataCloud.PipelineDesigner.CanvasModel;
+using DataCloud.PipelineDesigner.Repositories.Models;
+using DataCloud.PipelineDesigner.Repositories.Services;
 using DataCloud.PipelineDesigner.Services;
 using DataCloud.PipelineDesigner.Services.Interfaces;
 using DataCloud.PipelineDesigner.WebClient.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,15 +18,15 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
     [ApiController]
     public class TemplatesController : ControllerBase
     {
-        ITemplateService templateService;
+        Services.Interfaces.ITemplateService templateService;
 
-        public TemplatesController()
+        public TemplatesController(ITemplateService services)
         {
             //TODO: Update this to use dependency injection
-            templateService = new TemplateService();
+            templateService = services;
         }
         [HttpPost]
-        public async Task<ApiResult<CanvasShapeTemplate>> AddOrUpdateTemplateAsync([FromBody] CanvasShapeTemplate template)
+        public async Task<ApiResult<Template>> AddOrUpdateTemplateAsync([FromBody] Template template)
         {
             try
             {
@@ -33,12 +36,12 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             }
             catch (Exception e)
             {
-                return ApiHelper.CreateFailedResult<CanvasShapeTemplate>(e.Message);
+                return ApiHelper.CreateFailedResult<Template>(e.Message);
             }
         }
 
         [HttpGet]
-        public async Task<ApiResult<List<CanvasShapeTemplate>>> GetAvailableTemplates()
+        public async Task<ApiResult<List<Template>>> GetAvailableTemplates()
         {
             try
             {
@@ -47,7 +50,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             }
             catch (Exception e)
             {
-                return ApiHelper.CreateFailedResult<List<CanvasShapeTemplate>>(e.Message);
+                return ApiHelper.CreateFailedResult<List<Template>>(e.Message);
             }
         }
 

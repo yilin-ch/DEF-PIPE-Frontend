@@ -1,16 +1,14 @@
 ﻿import * as React from 'react';
 import { connect } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
 import { Button, Form, FormGroup, Input, Label, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap';
-import { ICanvasConnectionPointType, ICanvasElementProperty, ICanvasElementPropertyType, ICanvasElementType, ICanvasShape, ICanvasShapeConnectionPoint, ICanvasShapeTemplate } from '../../../models';
+import { ICanvasConnectionPointType, ICanvasElementProperty, ICanvasElementPropertyType, ICanvasElementType, ICanvasShape, ICanvasShapeConnectionPoint, ICanvasShapeTemplate, IAPiTemplate } from '../../../models';
 import { ApplicationState } from '../../../store';
 import * as CanvasStore from '../../../store/Canvas';
 import { v4 as uuidv4 } from 'uuid';
 
 type TemplatePropertyPaneProps =
     CanvasStore.CanvasState &
-    typeof CanvasStore.actionCreators &
-    RouteComponentProps<{}>;
+    typeof CanvasStore.actionCreators;
 
 class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps> {
 
@@ -21,7 +19,7 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
     }
 
     onNameChange(e: React.ChangeEvent<HTMLInputElement>) {
-        let updatedTemplate: ICanvasShapeTemplate = { ...this.props.selectedTemplate };
+        let updatedTemplate: IAPiTemplate = { ...this.props.selectedTemplate };
         updatedTemplate.name = e.target.value;
 
         this.props.updateTemplate(updatedTemplate);
@@ -34,81 +32,81 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
     }
     onWidthChange(e: React.ChangeEvent<HTMLInputElement>) {
         let updatedTemplate = { ...this.props.selectedTemplate };
-        updatedTemplate.width = parseInt(e.target.value);
+        updatedTemplate.canvasTemplate.width = parseInt(e.target.value);
 
         this.props.updateTemplate(updatedTemplate);
     }
     onHeightChange(e: React.ChangeEvent<HTMLInputElement>) {
         let updatedTemplate = { ...this.props.selectedTemplate };
-        updatedTemplate.height = parseInt(e.target.value);
+        updatedTemplate.canvasTemplate.height = parseInt(e.target.value);
 
         this.props.updateTemplate(updatedTemplate);
     }
     onShapeChange(e: React.ChangeEvent<HTMLInputElement>) {
         let updatedTemplate = { ...this.props.selectedTemplate };
-        updatedTemplate.shape = e.target.value;
+        updatedTemplate.canvasTemplate.shape = e.target.value;
 
         this.props.updateTemplate(updatedTemplate);
     }
 
     onPropertyNameChange(e: React.ChangeEvent<HTMLInputElement>, prop: ICanvasElementProperty) {
-        let updatedTemplate = { ...this.props.selectedTemplate } as ICanvasShapeTemplate;
-        updatedTemplate.properties.filter(x => x.name === prop.name)[0].name = e.target.value;
+        let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
+        updatedTemplate.canvasTemplate.properties.filter(x => x.name === prop.name)[0].name = e.target.value;
 
         this.props.updateTemplate(updatedTemplate);
     }
     onPropertyTypeChange(e: React.ChangeEvent<HTMLInputElement>, prop: ICanvasElementProperty) {
-        let updatedTemplate = { ...this.props.selectedTemplate } as ICanvasShapeTemplate;
-        updatedTemplate.properties.filter(x => x.name === prop.name)[0].type = parseInt(e.target.value) as ICanvasElementPropertyType;
+        let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
+        updatedTemplate.canvasTemplate.properties.filter(x => x.name === prop.name)[0].type = parseInt(e.target.value) as ICanvasElementPropertyType;
 
         this.props.updateTemplate(updatedTemplate);
     }
     onPropertyValueChange(e: React.ChangeEvent<HTMLInputElement>, prop: ICanvasElementProperty) {
-        let updatedTemplate = { ...this.props.selectedTemplate } as ICanvasShapeTemplate;
-        updatedTemplate.properties.filter(x => x.name === prop.name)[0].value = e.target.value;
+        let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
+        updatedTemplate.canvasTemplate.properties.filter(x => x.name === prop.name)[0].value = e.target.value;
 
         this.props.updateTemplate(updatedTemplate);
     }
     onPropertAllowEditChange(e: React.ChangeEvent<HTMLInputElement>, prop: ICanvasElementProperty) {
-        let updatedTemplate = { ...this.props.selectedTemplate } as ICanvasShapeTemplate;
-        updatedTemplate.properties.filter(x => x.name === prop.name)[0].allowEditing = e.target.checked;
+        let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
+        updatedTemplate.canvasTemplate.properties.filter(x => x.name === prop.name)[0].allowEditing = e.target.checked;
 
         this.props.updateTemplate(updatedTemplate);
     }
 
     onConnectionPointChangeX(e: React.ChangeEvent<HTMLInputElement>, point: ICanvasShapeConnectionPoint) {
-        let updatedTemplate = { ...this.props.selectedTemplate } as ICanvasShapeTemplate;
-        let pointToBeUpdated = updatedTemplate.connectionPoints.filter(x => x.id === point.id)[0]
+        let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
+        let pointToBeUpdated = updatedTemplate.canvasTemplate.connectionPoints.filter(x => x.id === point.id)[0]
         pointToBeUpdated.position.x = parseInt(e.target.value);
 
         this.props.updateTemplate(updatedTemplate);
     }
     onConnectionPointChangeY(e: React.ChangeEvent<HTMLInputElement>, point: ICanvasShapeConnectionPoint) {
-        let updatedTemplate = { ...this.props.selectedTemplate } as ICanvasShapeTemplate;
-        let pointToBeUpdated = updatedTemplate.connectionPoints.filter(x => x.id === point.id)[0]
+        let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
+        let pointToBeUpdated = updatedTemplate.canvasTemplate.connectionPoints.filter(x => x.id === point.id)[0]
         pointToBeUpdated.position.y = parseInt(e.target.value);
 
         this.props.updateTemplate(updatedTemplate);
     }
 
     onConnectionPointChangeType(e: React.ChangeEvent<HTMLInputElement>, point: ICanvasShapeConnectionPoint) {
-        let updatedTemplate = { ...this.props.selectedTemplate } as ICanvasShapeTemplate;
-        let pointToBeUpdated = updatedTemplate.connectionPoints.filter(x => x.id === point.id)[0]
+        let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
+        let pointToBeUpdated = updatedTemplate.canvasTemplate.connectionPoints.filter(x => x.id === point.id)[0]
         pointToBeUpdated.type = parseInt(e.target.value);
 
         this.props.updateTemplate(updatedTemplate);
     }
 
     addProperty() {
-        let updatedTemplate = { ...this.props.selectedTemplate } as ICanvasShapeTemplate;
-        updatedTemplate.properties.push({ name: 'New property', type: ICanvasElementPropertyType.singleLineText });
+        let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
+        updatedTemplate.canvasTemplate.properties.push({ name: 'New property', type: ICanvasElementPropertyType.singleLineText });
 
         this.props.updateTemplate(updatedTemplate);
     }
 
     addConnectionPoint() {
-        let updatedTemplate = { ...this.props.selectedTemplate } as ICanvasShapeTemplate;
-        updatedTemplate.connectionPoints.push({
+        let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
+        updatedTemplate.canvasTemplate.connectionPoints.push({
             id: uuidv4(),
             type: ICanvasConnectionPointType.input,
             position: {
@@ -135,13 +133,13 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
                 <option value="0">Single line of text</option>
                 <option value="1">Multiple lines of text</option>
                 <option value="2">Options</option>
-            </Input>            
+            </Input>
             <Label for={propValueUniqueId}>Property Value</Label>
             <Input type="text" name={propValueUniqueId} id={propValueUniqueId} value={prop.value} onChange={(e) => this.onPropertyValueChange(e, prop)} />
 
             <Label for={propAllowEditUniqueId} className="checkbox-label">
                 <Input type="checkbox" name={propAllowEditUniqueId} id={propAllowEditUniqueId} checked={prop.allowEditing} onChange={(e) => this.onPropertAllowEditChange(e, prop)} /> {' '}
-                Editable 
+                Editable
             </Label>
         </FormGroup>;
     }
@@ -168,7 +166,7 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
     public render() {
         return (
             <React.Fragment>
-                { this.props.selectedTemplate ? 
+                {this.props.selectedTemplate ?
                     <React.Fragment>
                         <Form>
                             <h3 className="property-pane-header">
@@ -177,7 +175,7 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
                             <p className="property-pane-subheader">ID: {this.props.selectedTemplate.id}</p>
                             <Nav tabs>
                                 <NavItem>
-                                    <NavLink className={this.props.selectedTab === '1' ? 'active' : '' } onClick={() => { this.toggle('1'); }}>Information</NavLink>
+                                    <NavLink className={this.props.selectedTab === '1' ? 'active' : ''} onClick={() => { this.toggle('1'); }}>Information</NavLink>
                                 </NavItem>
                                 <NavItem>
                                     <NavLink className={this.props.selectedTab === '2' ? 'active' : ''} onClick={() => { this.toggle('2'); }}>Parameters</NavLink>
@@ -194,7 +192,7 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
                                         <Label for={this.props.selectedTemplate.id + '_type'}>Category</Label>
                                         <Input type="text" name={this.props.selectedTemplate.id + '_type'} id={this.props.selectedTemplate.id + '_type'} value={this.props.selectedTemplate.category} onChange={(e) => this.onCategoryChange(e)} />
                                         <Label for={this.props.selectedTemplate.id + '_shape'}>Shape</Label>
-                                        <Input type="select" name={this.props.selectedTemplate.id + '_shape'} id={this.props.selectedTemplate.id + '_shape'} value={this.props.selectedTemplate.shape} onChange={(e) => this.onShapeChange(e)}>
+                                        <Input type="select" name={this.props.selectedTemplate.id + '_shape'} id={this.props.selectedTemplate.id + '_shape'} value={this.props.selectedTemplate.canvasTemplate.shape} onChange={(e) => this.onShapeChange(e)}>
                                             <option>Rectangle</option>
                                             <option>Ellipse</option>
                                             <option>Diamond</option>
@@ -202,29 +200,38 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
                                             <option>Custom</option>
                                         </Input>
                                         <Label for={this.props.selectedTemplate.id + '_width'}>Width</Label>
-                                        <Input type="number" name={this.props.selectedTemplate.id + '_width'} id={this.props.selectedTemplate.id + '_width'} value={this.props.selectedTemplate.width} onChange={(e) => this.onWidthChange(e)} />
+                                        <Input type="number" name={this.props.selectedTemplate.id + '_width'} id={this.props.selectedTemplate.id + '_width'} value={this.props.selectedTemplate.canvasTemplate.width} onChange={(e) => this.onWidthChange(e)} />
                                         <Label for={this.props.selectedTemplate.id + '_height'}>Height</Label>
-                                        <Input type="number" name={this.props.selectedTemplate.id + '_height'} id={this.props.selectedTemplate.id + '_height'} value={this.props.selectedTemplate.height} onChange={(e) => this.onHeightChange(e)} />
+                                        <Input type="number" name={this.props.selectedTemplate.id + '_height'} id={this.props.selectedTemplate.id + '_height'} value={this.props.selectedTemplate.canvasTemplate.height} onChange={(e) => this.onHeightChange(e)} />
                                     </FormGroup>
                                 </TabPane>
                                 <TabPane tabId="2">
-                                    {this.props.selectedTemplate.properties.map(prop => this.renderProperty(prop))}
+                                    {this.props.selectedTemplate.canvasTemplate.properties.map(prop => this.renderProperty(prop))}
                                     <Button onClick={e => this.addProperty()}>Add Property</Button>
                                 </TabPane>
                                 <TabPane tabId="3">
-                                    {this.props.selectedTemplate.connectionPoints.map(point => this.renderConnectionPoint(point))}
+                                    {this.props.selectedTemplate.canvasTemplate.connectionPoints.map(point => this.renderConnectionPoint(point))}
                                     <Button onClick={e => this.addConnectionPoint()}>Add Connection Point</Button>
                                 </TabPane>
                             </TabContent>
-                            <p className="btn btn-danger removeButton" onClick={(e) => {
-                                this.props.removeTemplate(this.props.selectedTemplate)
-                            }}>
-                                Delete
-                            </p>
+                            <td>
+                                <p className="btn btn-success saveButton" onClick={(e) => {
+                                    this.props.saveTemplate(this.props.selectedTemplate)
+                                }}>
+                                    Save
+                                </p>
+                            </td>
+                            <td>
+                                <p className="btn btn-danger removeButton" onClick={(e) => {
+                                    this.props.removeTemplate(this.props.selectedTemplate)
+                                }}>
+                                    Delete
+                                </p>
+                            </td>
                         </Form>
                     </React.Fragment>
-                : null}
-            </React.Fragment>            
+                    : null}
+            </React.Fragment>
         );
     }
 };

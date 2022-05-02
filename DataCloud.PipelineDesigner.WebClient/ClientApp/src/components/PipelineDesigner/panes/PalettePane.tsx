@@ -1,46 +1,46 @@
-﻿import * as React from 'react';
-import { RouteComponentProps } from 'react-router';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import { Input } from 'reactstrap';
 import * as CanvasStore from '../../../store/Canvas';
 import { ApplicationState } from '../../../store';
-import { ICanvasElementType, ICanvasShapeTemplate, ICanvasShape } from '../../../models';
+import { ICanvasElementType, ICanvasShapeTemplate, ICanvasShape, IAPiTemplate } from '../../../models';
 import { v4 as uuidv4 } from 'uuid';
 
 type PaletteProps =
     CanvasStore.CanvasState &
-    typeof CanvasStore.actionCreators &
-    RouteComponentProps<{}>;
+    typeof CanvasStore.actionCreators;
 
 class PalettePane extends React.PureComponent<PaletteProps> {
+
 
     onFilterChanged(e: React.ChangeEvent<HTMLInputElement>) {
         this.props.filterTemplates(e.target.value);
     }
 
-    onTemplateClicked(template: ICanvasShapeTemplate) {
+    onTemplateClicked(template: IAPiTemplate) {
         let newShape: ICanvasShape = {
-            ...template,
-            properties: template.properties.map(p => ({...p})),
+            ...template.canvasTemplate,
+            name: template.name,
+            properties: template.canvasTemplate.properties.map(p => ({ ...p })),
             id: uuidv4(),
             templateId: template.id,
             type: ICanvasElementType.Shape,
-            width: template.width,
-            height: template.height,
-            shape: template.shape,
+            width: template.canvasTemplate.width,
+            height: template.canvasTemplate.height,
+            shape: template.canvasTemplate.shape,
             position: { x: 500, y: 500 },
-            canHaveChildren: template.isContainer,
-            elements: template.elements || []
+            canHaveChildren: template.canvasTemplate.isContainer,
+            elements: template.canvasTemplate.elements || []
         };
 
         this.props.addElement(newShape);
     }
 
-    onTemplateDragStarted(template: ICanvasShapeTemplate) {
+    onTemplateDragStarted(template: IAPiTemplate) {
         this.props.dragTemplate(template);
     }
 
-    onTemplateDragEnded(template: ICanvasShapeTemplate) {
+    onTemplateDragEnded(template: IAPiTemplate) {
 
     }
 
@@ -48,14 +48,35 @@ class PalettePane extends React.PureComponent<PaletteProps> {
         return (
             <React.Fragment>
                 <Input className="palette-searchbox" type="text" placeholder="Search components..." onChange={this.onFilterChanged.bind(this)} />
-                { this.props.templateGroups ? this.props.templateGroups.map(group =>
+                {this.props.templateGroups ? this.props.templateGroups.map(group =>
                     <React.Fragment>
                         <p className="palette-group-header">{group.name}</p>
                         {group.items.map(item =>
                             <p className="palette-group-item" onClick={() => this.onTemplateClicked(item)} draggable onDragStart={(e) => this.onTemplateDragStarted(item)} onDragEnd={(e) => this.onTemplateDragEnded(item)}>{item.name}</p>
                         )}
-                    </React.Fragment>      
+                    </React.Fragment>
                 ) : null}
+
+                {this.props.username ?
+                    <React.Fragment>
+                        <p className="palette-group-username">
+                            <i className="bi bi-person-fill" style={{ padding: 5}}></i>
+                            {this.props.username}
+                        </p>
+
+                    </React.Fragment> : null}
+                {this.props.repoGroups ? this.props.repoGroups.map(group =>
+                    <React.Fragment>
+                        <p className="palette-group-header">{group.name}</p>
+                        {group.items.map(item =>
+                            <p className="palette-group-item" onClick={() => this.onTemplateClicked(item)} draggable onDragStart={(e) => this.onTemplateDragStarted(item)} onDragEnd={(e) => this.onTemplateDragEnded(item)}>
+                                {item.public ? <i className="bi bi-unlock" style={{ padding: 5, color: '#FF0000' }}></i> : <i className="bi bi-lock-fill" style={{ padding: 5}}></i>}
+                                {item.name}
+                            </p>
+                        )}
+                    </React.Fragment>
+                ) : null}
+
             </React.Fragment>
         );
     }

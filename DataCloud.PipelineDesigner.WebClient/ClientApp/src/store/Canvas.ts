@@ -1,8 +1,10 @@
 import { Action, Reducer } from 'redux';
-import { ICanvasElement, ICanvasShapeTemplateGroup, ICanvasShapeTemplate, ICanvasShapeConnectionPoint, ICanvasShape, ICanvasConnector, ICanvasElementType, ICanvasPosition, ICanvasConnectionPointType, IDSLInfo, ApiResult } from '../models';
+import { ICanvasElement, ICanvasShapeTemplateGroup, ICanvasShapeTemplate, ICanvasShapeConnectionPoint, ICanvasShape, ICanvasConnector, ICanvasElementType, ICanvasPosition, ICanvasConnectionPointType, IDSLInfo, ApiResult, IAPiTemplate } from '../models';
 import { TemplateService } from '../services/TemplateService';
 import { v4 as uuidv4 } from 'uuid';
 import { AppThunkAction } from '.';
+import { useParams } from 'react-router-dom';
+import KeycloakService from "../services/KeycloakService";
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
@@ -17,10 +19,13 @@ export interface CanvasState {
     currentRootShape: ICanvasShape;
 
     //templates: Array<ICanvasShapeTemplate> | null;
-    draggedTemplate: ICanvasShapeTemplate | null;
-    templates: Array<ICanvasShapeTemplate> | null;
+    draggedTemplate: IAPiTemplate | null;
+    templates: Array<IAPiTemplate> | null;
+    repo: Array<IAPiTemplate> | null;
+    username: string | null;
     templateGroups: Array<ICanvasShapeTemplateGroup>;
-    selectedTemplate?: ICanvasShapeTemplate | null;
+    repoGroups: Array<ICanvasShapeTemplateGroup>;
+    selectedTemplate?: IAPiTemplate | null;
     selectedTab: string | null;
 
     availableDSLs: Array<IDSLInfo> | null;
@@ -34,29 +39,32 @@ export interface CanvasState {
 export interface ImportElementsAction { type: 'IMPORT_ELEMENTS', elements: Array<ICanvasElement> }
 export interface AddElementAction { type: 'ADD_ELEMENT', element: ICanvasElement }
 export interface RemoveElementAction { type: 'REMOVE_ELEMENT', elementId: string }
-export interface UpdateElementAction { type: 'UPDATE_ELEMENT', element: ICanvasElement}
+export interface UpdateElementAction { type: 'UPDATE_ELEMENT', element: ICanvasElement }
 export interface SelectElementAction { type: 'SELECT_ELEMENT', element: ICanvasElement }
 export interface DeselectElementAction { type: 'DESELECT_ELEMENT' }
 export interface SelectConnectionPointAction { type: 'SELECT_CONNECTIONPOINT', element: ICanvasElement, point: ICanvasShapeConnectionPoint }
 export interface UpdateMousePosition { type: 'UPDATE_MOUSE_POSITION', position: ICanvasPosition }
-export interface SelectTemplateAction { type: 'SELECT_TEMPLATE', template: ICanvasShapeTemplate }
-export interface DragTemplateAction { type: 'DRAG_TEMPLATE', template: ICanvasShapeTemplate }
+export interface SelectTemplateAction { type: 'SELECT_TEMPLATE', template: IAPiTemplate }
+export interface DragTemplateAction { type: 'DRAG_TEMPLATE', template: IAPiTemplate }
 export interface DropTemplateAction { type: 'DROP_TEMPLATE' }
-export interface AddTemplateAction { type: 'ADD_TEMPLATE', template: ICanvasShapeTemplate }
-export interface UpdateTemplateAction { type: 'UPDATE_TEMPLATE', template: ICanvasShapeTemplate }
-export interface RemoveTemplateAction { type: 'REMOVE_TEMPLATE', template: ICanvasShapeTemplate }
+export interface AddRepoAction { type: 'ADD_REPO', repo: IAPiTemplate }
+export interface AddTemplateAction { type: 'ADD_TEMPLATE', template: IAPiTemplate }
+export interface UpdateTemplateAction { type: 'UPDATE_TEMPLATE', template: IAPiTemplate }
+export interface SaveTemplateAction { type: 'SAVE_TEMPLATE', template: IAPiTemplate }
+export interface RemoveTemplateAction { type: 'REMOVE_TEMPLATE', template: IAPiTemplate }
 export interface FilterTemplatesAction { type: 'FILTER_TEMPLATES', value: string }
 export interface ExpandContainer { type: 'EXPAND_CONTAINER', shape: ICanvasShape }
 export interface CollapseContainer { type: 'COLLAPSE_CONTAINER', shape: ICanvasShape }
 export interface SelectTab { type: 'SELECT_TAB', tabId: string }
 export interface RequestDSL { type: 'REQUEST_DSL', dsl: Array<IDSLInfo> }
-export interface RequestTemplates { type: 'REQUEST_TEMPLATES', templates: Array<ICanvasShapeTemplate> }
+export interface RequestTemplates { type: 'REQUEST_TEMPLATES', templates: Array<IAPiTemplate> }
+export interface RequestRepo { type: 'REQUEST_REPO', repo: Array<IAPiTemplate>, username: string }
 
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
 export type KnownAction = ImportElementsAction | AddElementAction | RemoveElementAction | SelectElementAction | DeselectElementAction | UpdateElementAction | SelectConnectionPointAction |
-    FilterTemplatesAction | SelectTemplateAction | AddTemplateAction | UpdateTemplateAction | RemoveTemplateAction | DragTemplateAction | DropTemplateAction |
-    UpdateMousePosition | ExpandContainer | CollapseContainer | SelectTab | RequestDSL | RequestTemplates;
+    FilterTemplatesAction | SelectTemplateAction | AddTemplateAction | AddRepoAction | UpdateTemplateAction | SaveTemplateAction | RemoveTemplateAction | DragTemplateAction | DropTemplateAction |
+    UpdateMousePosition | ExpandContainer | CollapseContainer | SelectTab | RequestDSL | RequestTemplates | RequestRepo;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -71,13 +79,15 @@ export const actionCreators = {
     deselectElement: () => ({ type: 'DESELECT_ELEMENT' } as DeselectElementAction),
     selectConnectionPoint: (element: ICanvasElement, point: ICanvasShapeConnectionPoint) => ({ type: 'SELECT_CONNECTIONPOINT', element: element, point: point } as SelectConnectionPointAction),
     updateMousePosition: (position: ICanvasPosition) => ({ type: 'UPDATE_MOUSE_POSITION', position: position }),
-    
-    selectTemplate: (template: ICanvasShapeTemplate) => ({ type: 'SELECT_TEMPLATE', template: template } as SelectTemplateAction),
-    dragTemplate: (template: ICanvasShapeTemplate) => ({ type: 'DRAG_TEMPLATE', template: template } as DragTemplateAction),
+
+    selectTemplate: (template: IAPiTemplate) => ({ type: 'SELECT_TEMPLATE', template: template } as SelectTemplateAction),
+    dragTemplate: (template: IAPiTemplate) => ({ type: 'DRAG_TEMPLATE', template: template } as DragTemplateAction),
     dropTemplate: () => ({ type: 'DROP_TEMPLATE' } as DropTemplateAction),
-    addTemplate: (template: ICanvasShapeTemplate) => ({ type: 'ADD_TEMPLATE', template: template } as AddTemplateAction),
-    updateTemplate: (template: ICanvasShapeTemplate) => ({ type: 'UPDATE_TEMPLATE', template: template } as UpdateTemplateAction),
-    removeTemplate: (template: ICanvasShapeTemplate) => ({ type: 'REMOVE_TEMPLATE', template: template } as RemoveTemplateAction),
+    addTemplate: (template: IAPiTemplate) => ({ type: 'ADD_TEMPLATE', template: template } as AddTemplateAction),
+    addRepo: (template: IAPiTemplate) => ({ type: 'ADD_REPO', repo: template } as AddRepoAction),
+    updateTemplate: (template: IAPiTemplate) => ({ type: 'UPDATE_TEMPLATE', template: template } as UpdateTemplateAction),
+    saveTemplate: (template: IAPiTemplate) => ({ type: 'SAVE_TEMPLATE', template: template } as SaveTemplateAction),
+    removeTemplate: (template: IAPiTemplate) => ({ type: 'REMOVE_TEMPLATE', template: template } as RemoveTemplateAction),
     filterTemplates: (newValue: string) => ({ type: 'FILTER_TEMPLATES', value: newValue } as FilterTemplatesAction),
 
     expandContainer: (shape: ICanvasShape) => ({ type: 'EXPAND_CONTAINER', shape: shape }),
@@ -97,18 +107,31 @@ export const actionCreators = {
         }
     },
 
-     requestTemplates: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
-         const appState = getState();
-         console.log("appState");
-         console.log(appState);
-         if (appState && appState.canvas && !appState.canvas.templates) {
+    requestTemplates: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        const appState = getState();
+        if (appState && appState.canvas && !appState.canvas.templates) {
             fetch(`/api/templates`)
-                .then(response => response.json() as Promise<ApiResult<Array<ICanvasShapeTemplate>>>)
+                .then(response => response.json() as Promise<ApiResult<Array<IAPiTemplate>>>)
                 .then(apiResult => {
                     dispatch({ type: 'REQUEST_TEMPLATES', templates: apiResult.data });
                 });
         }
-    }
+    },
+    requestRepo: (username: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
+        const appState = getState();
+        if (username && appState && appState.canvas && !appState.canvas.repo) {
+            fetch(`/api/repo/` + username, {
+                method: 'GET',
+                headers: {
+                    'Content-type': 'application/json',
+                    'Authorization': `Bearer ${KeycloakService.getToken()}`,
+                }})
+                .then(response => response.json() as Promise<ApiResult<Array<IAPiTemplate>>>)
+                .then(apiResult => {
+                    dispatch({ type: 'REQUEST_REPO', repo: apiResult.data, username: username });
+                });
+        }
+    },
 };
 
 // ----------------
@@ -124,16 +147,19 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
             currentRootShape: rootShape,
             shapeExpandStack: [],
             templates: null,
+            repo: null,
+            username: null,
             templateGroups: templateService.getTemplateGroups([]),
+            repoGroups: templateService.getTemplateGroups([]),
             selectedTemplate: null,
             draggedTemplate: null,
             selectedTab: '1',
             availableDSLs: null,
         };
     }
-    
+
     const action = incomingAction as KnownAction;
-    console.log(action.type);
+
     switch (action.type) {
         case 'REQUEST_DSL':
             return {
@@ -146,6 +172,13 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                 templates: action.templates,
                 templateGroups: templateService.getTemplateGroups(action.templates)
             }
+        case 'REQUEST_REPO':
+            return {
+                ...state,
+                repo: action.repo,
+                repoGroups: templateService.getTemplateGroups(action.repo),
+                username: action.username
+            }
         case 'IMPORT_ELEMENTS':
             let newRootShape = templateService.createNewRootShape();
             newRootShape.elements = action.elements;
@@ -154,7 +187,7 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                 currentRootShape: newRootShape,
                 shapeExpandStack: [],
                 selectedConnectionPoint: null,
-                selectedElement: null                
+                selectedElement: null
             }
         case 'ADD_ELEMENT':
             return {
@@ -208,7 +241,7 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                     if (state.selectedConnectionPoint.id === action.point.id) {
                         newSelectedPoint = undefined
                     }
-                    else if (action.point.type === ICanvasConnectionPointType.output){
+                    else if (action.point.type === ICanvasConnectionPointType.output) {
                         newSelectedPoint = action.point;
                     }
                 }
@@ -228,7 +261,7 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                 newSelectedShape = action.element as ICanvasShape;
                 newSelectedPoint = action.point;
             }
-            
+
             return {
                 ...state,
                 selectedElement: newSelectedShape,
@@ -270,16 +303,39 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                 templateGroup = {
                     name: action.template.category,
                     items: [action.template]
-                }                
+                }
             }
             let groupIndex = state.templateGroups.findIndex((group) => group.name === templateGroup.name);
             state.templateGroups[groupIndex] = templateGroup;
+
             templateService.saveTemplate(action.template);
-            
+
             return {
                 ...state,
                 templateGroups: state.templateGroups,
                 selectedTemplate: action.template
+            };
+        case 'ADD_REPO':
+            let repoGroup = state.repoGroups.filter(group => group.name === action.repo.category)[0];
+            if (repoGroup) {
+                repoGroup.items = repoGroup.items || [];
+                repoGroup.items.push(action.repo);
+            }
+            else {
+                repoGroup = {
+                    name: action.repo.category,
+                    items: [action.repo]
+                }
+            }
+            let repoIndex = state.repoGroups.findIndex((group) => group.name === repoGroup.name);
+            state.repoGroups[repoIndex] = repoGroup;
+
+            templateService.saveRepo(action.repo, state.username);
+
+            return {
+                ...state,
+                repoGroups: state.repoGroups,
+                selectedTemplate: action.repo
             };
         case 'UPDATE_TEMPLATE':
             let templateGroupToBeUpdated = state.templateGroups.filter(group => group.name === action.template.category)[0];
@@ -289,7 +345,7 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
 
                 templateToBeUpdated = { ...action.template };
                 templateGroupToBeUpdated.items = [...templateGroupToBeUpdated.items.slice(0, indexOfExistingTemplate), ...templateGroupToBeUpdated.items.slice(indexOfExistingTemplate + 1), action.template]
-                templateService.saveTemplate(templateToBeUpdated);
+                //templateService.saveTemplate(templateToBeUpdated);
 
                 return {
                     ...state,
@@ -302,7 +358,7 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                 let newTemplateGroup = {
                     name: action.template.category,
                     items: [action.template]
-                }  
+                }
 
                 let templateGroups = state.templateGroups;
                 if (oldTemplateGroup.items.length === 0) {
@@ -315,20 +371,21 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                     selectedTemplate: action.template
                 };
             }
-        case 'REMOVE_TEMPLATE':    
-            templateGroup = state.templateGroups.filter(group => group.name === action.template.category)[0];
-            console.log(templateGroup.items.length)
+        case 'SAVE_TEMPLATE':
+            templateService.saveTemplate(state.selectedTemplate);
+            return state;
+        case 'REMOVE_TEMPLATE':
+            templateGroup = state.templateGroups.filter(group => group.name === action.template.category)[0]
             templateGroup.items = templateGroup.items.filter(obj => obj !== action.template);
             let index = state.templateGroups.findIndex((group) => group.name === templateGroup.name);
 
             state.templateGroups[index] = templateGroup;
             templateService.deleteTemplate(action.template.id);
-            console.log(state.templateGroups[index].items.length);
             return {
                 ...state,
                 templateGroups: state.templateGroups,
                 selectedTemplate: null,
-                selectedElement: null                
+                selectedElement: null
             };
         case 'EXPAND_CONTAINER':
             state.shapeExpandStack.push(state.currentRootShape);

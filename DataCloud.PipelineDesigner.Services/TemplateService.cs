@@ -1,131 +1,61 @@
 ﻿using DataCloud.PipelineDesigner.CanvasModel;
+using DataCloud.PipelineDesigner.Repositories.Models;
 using DataCloud.PipelineDesigner.Services.Interfaces;
-using DataCloud.PipelineDesigner.Repositories;
-using System;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
+using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace DataCloud.PipelineDesigner.Services
+namespace DataCloud.PipelineDesigner.Repositories.Services
 {
-    public class TemplateService: ITemplateService
+    public class TemplateService : ITemplateService
     {
-        // Use In-memory storage for testing until DB layer is added.
-        static List<CanvasShapeTemplate> Templates = new List<CanvasShapeTemplate>();
-        EntitiesContext db = new EntitiesContext();
-
-        public TemplateService()
+        private readonly IMongoCollection<BsonDocument> _templatePost;
+        private readonly IMongoCollection<Template> _template;
+        private readonly IMongoCollection<User> _user;
+        private readonly IMongoCollection<BsonDocument> _userPost;
+        public TemplateService(IDatabaseSettings settings)
         {
+            MongoService mongo = new();
 
+            var db = mongo.GetClient().GetDatabase(settings.DatabaseName);
+
+            _template = db.GetCollection<Template>(settings.TemplateCollectionName);
+            _templatePost = db.GetCollection<BsonDocument>(settings.TemplateCollectionName, new MongoCollectionSettings { WriteConcern = WriteConcern.Acknowledged });
+            _user = db.GetCollection<User>(settings.UserCollectionName);
+            _userPost = db.GetCollection<BsonDocument>(settings.UserCollectionName, new MongoCollectionSettings { WriteConcern = WriteConcern.Acknowledged });
         }
 
-        public async Task<List<CanvasShapeTemplate>> GetTemplatesAsync()
-        {
-            Templates.Clear();
-            EnsureBuiltInTemplates();
-
-            db.BaseEntities.ToList().ForEach(entity =>
-            {
-                Templates.Add(CanvasShapeTemplate.ParseDBString(entity.Workflow));
-            });
-
-            return Templates;
-        }
-
-        public async Task AddOrUpdateTemplateAsync(CanvasShapeTemplate template)
-        {
-            Templates.Clear();
-            EnsureBuiltInTemplates();
-
-            var existingTemplate = Templates.SingleOrDefault(t => t.Id.ToLower() == template.Id.ToLower());
-            if (existingTemplate != null)
-            {
-                Templates.Remove(existingTemplate);
-            }
-            String IdTemp = template.Id;
-            Repositories.Entities.BaseEntity temp =  null;
-            try
-            {
-
-               temp  = db.BaseEntities.First(t => t.Id == IdTemp);
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
-           
-
-            if (temp == null)
-            {
-                Repositories.Entities.BaseEntity newEntity = new Repositories.Entities.BaseEntity
-                {
-                    Id = template.Id,
-                    Name = template.Name,
-                    Owner = "anonymous",
-                    Workflow = template.ToDBString(),
-                    CreatedAt = DateTime.Now,
-                };
-
-                db.BaseEntities.Add(newEntity);
-            }
-            else
-            {
-                temp.Name = template.Name;
-                temp.Workflow = template.ToDBString();
-                temp.ModifiedAt = DateTime.Now;
-                db.BaseEntities.Update(temp);
-            }
-
-
-
-            try
-            {
-              
-               db.SaveChanges();
-
-            }
-            catch (Exception e)
-            {
-              Console.WriteLine(e.ToString());
-            }
-
-
-
-
-            Templates.Add(template);
-        }
-
-        public async Task<bool> DeleteTemplate(String id)
+        public Task AddOrUpdateTemplateAsync(Template template)
         {
 
-            Repositories.Entities.BaseEntity temp = db.BaseEntities.First(t => t.Id == id);
+            string jsonString = JsonConvert.SerializeObject(template);
 
-            try
-            {
+            BsonDocument document = BsonSerializer.Deserialize<BsonDocument>(jsonString);
 
-                db.Remove(temp);
-                db.SaveChanges();
-                return true;
+            // This fix the issue when updating
+            document.Remove("_id");
 
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-                return false;
-            }
-
-
+            return _templatePost.ReplaceOneAsync(
+            Builders<BsonDocument>.Filter.Eq("id", template.Id),
+            document,
+            new ReplaceOptions { IsUpsert = true });
         }
 
-        private void EnsureBuiltInTemplates()
+
+        public Task<DeleteResult> DeleteTemplate(string id)
         {
-            if (Templates.Count == 0)
-            {
-                Templates.AddRange(Constants.BuiltInTemplates);
-                Templates.AddRange(Constants.SimpleDSLTemlates);
-            }
+            return _template.DeleteOneAsync(t => t.Id == id);
         }
+
+        public Task<List<Template>> GetTemplatesAsync()
+        {
+            return _template.Find(_ => true).ToListAsync();
+        }
+
     }
+
+
 }

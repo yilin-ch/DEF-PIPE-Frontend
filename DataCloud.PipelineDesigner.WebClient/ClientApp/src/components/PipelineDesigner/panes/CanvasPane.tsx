@@ -1,73 +1,233 @@
-﻿import * as React from 'react';
-import { connect } from 'react-redux';
+import * as React from 'react';
+import {connect} from 'react-redux';
 import * as CanvasStore from '../../../store/Canvas';
-import { ApplicationState } from '../../../store';
-import { RouteComponentProps } from 'react-router';
-import { Group, Layer, Rect, Stage, Text, Arrow, Circle, RegularPolygon, Ellipse, Line } from 'react-konva';
-import { ICanvasElementPropertyType, ICanvasShape, ICanvasElementType, ICanvasConnector, ICanvasShapeConnectionPoint, ICanvasElement, ICanvasConnectionPointType } from '../../../models';
-import { CanvasService } from '../../../services/CanvasService';
-import { CanvasRenderer } from '../../../services/CanvasRenderer';
-import { CanvasSettings } from '../../../constants';
-import { KonvaEventObject } from 'konva/types/Node';
-import { Breadcrumb, BreadcrumbItem, Button, ButtonGroup, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
-import { v4 as uuidv4 } from 'uuid';
+import {ApplicationState} from '../../../store';
+import {useParams} from 'react-router-dom';
+import {Group, Layer, Rect, Stage, Text, Arrow, Circle, RegularPolygon, Ellipse, Line} from 'react-konva';
+import {
+    ICanvasElementPropertyType,
+    ICanvasShape,
+    ICanvasElementType,
+    ICanvasConnector,
+    ICanvasShapeConnectionPoint,
+    ICanvasElement,
+    ICanvasConnectionPointType,
+    ISearchRepo
+} from '../../../models';
+import {CanvasService} from '../../../services/CanvasService';
+import {CanvasRenderer} from '../../../services/CanvasRenderer';
+import {CanvasSettings} from '../../../constants';
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    Button,
+    ButtonGroup,
+    FormGroup,
+    Input,
+    Label,
+    Modal,
+    ModalBody,
+    ModalFooter,
+    ModalHeader,
+    Tooltip
+} from 'reactstrap';
+import * as Autosuggest from "react-autosuggest";
+import {v4 as uuidv4} from 'uuid';
+import Konva from "konva";
+import {TemplateService} from "../../../services/TemplateService";
+import KeycloakService from "../../../services/KeycloakService";
+
+interface MyState {
+    value: string,
+    suggestions: Array<ISearchRepo>,
+    selectedSuggestion: ISearchRepo
+}
 
 type CanvasProps =
     CanvasStore.CanvasState &
-    typeof CanvasStore.actionCreators &
-    RouteComponentProps<{}>;
+    typeof CanvasStore.actionCreators;
 
-class CanvasPane extends React.PureComponent<CanvasProps> {
+
+class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: '',
+            suggestions: [],
+            selectedSuggestion: null
+        };
+        this.props.requestDSLs();
+        this.props.requestTemplates();
+        this.props.requestRepo(KeycloakService.getUsername());
+    }
+
     canvasService: CanvasService = new CanvasService();
 
     stageStyle = {
         cursor: 'default'
-    }
+    };
+
 
     saveAsTemplateModal = false;
+    saveAsRepoModal = false;
     exportDSLModal = false;
+    findRepoModal = false;
 
-    saveAsTemplateName = "";
-    saveAsTemplateDescription = "";
-    saveAsTemplateCategory = "";
+    saveAsName = "";
+    saveAsDescription = "";
+    saveAsCategory = "";
+    saveAsRepoPublic = false;
 
     selectedDSLToExport = "";
 
     toggleSaveAsTemplateModal() {
         this.saveAsTemplateModal = !this.saveAsTemplateModal;
     }
+
+    toggleSaveAsRepoModal() {
+        this.saveAsRepoModal = !this.saveAsRepoModal;
+    }
+
     toggleExportDSLModal() {
         this.exportDSLModal = !this.exportDSLModal;
     }
 
+    toggleFindRepoModal() {
+        this.findRepoModal = !this.findRepoModal;
+    }
+
+
+    renderSuggestion = suggestion => (
+        <div>
+            {suggestion.user + ' - ' + suggestion.workflowName}
+        </div>
+    );
+
+    onChange = (event, {newValue}) => {
+
+        this.setState({
+            value: newValue,
+        });
+    };
+
+    onSuggestionsFetchRequested = ({value}) => {
+
+        TemplateService.searchPublicRepos(value).then(r => {
+            this.setState({
+                suggestions: r
+            });
+        }).catch(e => {
+            console.error(e);
+            this.setState({
+                suggestions: []
+            });
+        });
+    };
+
+    onSuggestionsClearRequested = () => {
+        this.setState({
+            suggestions: []
+        });
+    };
+
+    getSuggestionValue = suggestion => {
+        this.setState({
+            selectedSuggestion: suggestion
+        });
+        return suggestion.user + ' - ' + suggestion.workflowName;
+    };
+
+    importRepo = (repo: ISearchRepo) => {
+        TemplateService.getPublicRepo(repo).then(r => {
+            let newShape: ICanvasShape = {
+                ...r.canvasTemplate,
+                name: r.name,
+                properties: r.canvasTemplate.properties.map(p => ({ ...p })),
+                id: uuidv4(),
+                templateId: r.id,
+                type: ICanvasElementType.Shape,
+                width: r.canvasTemplate.width,
+                height: r.canvasTemplate.height,
+                shape: r.canvasTemplate.shape,
+                position: { x: 500, y: 500 },
+                canHaveChildren: r.canvasTemplate.isContainer,
+                elements: r.canvasTemplate.elements || []
+            };
+
+            this.props.addElement(newShape);
+        }).catch(e => {
+            console.error(e);
+            this.setState({
+                suggestions: []
+            });
+        });
+        this.toggleFindRepoModal()
+    };
+
     saveAsTemplate() {
         this.props.addTemplate({
             id: uuidv4(),
-            name: this.saveAsTemplateName,
+            name: this.saveAsName,
             description: "",
-            category: this.saveAsTemplateCategory,
-            shape: "Container",
-            isContainer: true,
-            elements: (this.props.shapeExpandStack[0] || this.props.currentRootShape).elements,
-            connectionPoints: [{
-                id: '1',
-                position: { x: 0, y: 50 },
-                type: ICanvasConnectionPointType.input
-            },
-            {
-                id: '2',
-                position: { x: 200, y: 50 },
-                type: ICanvasConnectionPointType.output
-            }],
-            properties: [],
-            width: 200,
-            height: 100
+            category: this.saveAsCategory,
+            canvasTemplate: {
+                shape: "Container",
+                isContainer: true,
+                elements: (this.props.shapeExpandStack[0] || this.props.currentRootShape).elements,
+                connectionPoints: [{
+                    id: '1',
+                    position: {x: 0, y: 50},
+                    type: ICanvasConnectionPointType.input
+                },
+                    {
+                        id: '2',
+                        position: {x: 200, y: 50},
+                        type: ICanvasConnectionPointType.output
+                    }],
+                properties: [],
+                width: 200,
+                height: 100
+            }
         });
 
-        this.saveAsTemplateName = "";
-        this.saveAsTemplateDescription = "";
-        this.saveAsTemplateCategory = "";
+        this.saveAsName = "";
+        this.saveAsDescription = "";
+        this.saveAsCategory = "";
         this.saveAsTemplateModal = false;
+    }
+
+    saveAsRepo() {
+        this.props.addRepo({
+            id: uuidv4(),
+            name: this.saveAsName,
+            description: "",
+            category: this.saveAsCategory,
+            canvasTemplate: {
+                shape: "Container",
+                isContainer: true,
+                elements: this.props.currentRootShape.elements,
+                connectionPoints: [{
+                    id: '1',
+                    position: {x: 0, y: 50},
+                    type: ICanvasConnectionPointType.input
+                },
+                    {
+                        id: '2',
+                        position: {x: 200, y: 50},
+                        type: ICanvasConnectionPointType.output
+                    }],
+                properties: [],
+                width: 200,
+                height: 100
+            },
+            public: this.saveAsRepoPublic
+        });
+
+        this.saveAsName = "";
+        this.saveAsDescription = "";
+        this.saveAsCategory = "";
+        this.saveAsRepoModal = false;
+        this.saveAsRepoPublic = false;
     }
 
     onKeyDown(e: React.KeyboardEvent) {
@@ -76,31 +236,29 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
         }
     }
 
-    onShapeClick(e: KonvaEventObject<MouseEvent>, shape: ICanvasShape) {
+    onShapeClick(e: Konva.KonvaEventObject<MouseEvent>, shape: ICanvasShape) {
         e.cancelBubble = true;
         if (!this.props.selectedElement || this.props.selectedElement.id !== shape.id) {
             this.props.selectElement(shape);
-        }
-        else
+        } else
             this.props.deselectElement();
     }
 
-    onConnectorClick(e: KonvaEventObject<MouseEvent>, connector: ICanvasConnector) {
+    onConnectorClick(e: Konva.KonvaEventObject<MouseEvent>, connector: ICanvasConnector) {
         e.cancelBubble = true;
 
         if (!this.props.selectedElement || this.props.selectedElement.id !== connector.id) {
             this.props.selectElement(connector);
-        }
-        else
+        } else
             this.props.deselectElement();
     }
 
-    onConnectionPointClick(e: KonvaEventObject<MouseEvent>, shape: ICanvasShape, point: ICanvasShapeConnectionPoint) {
+    onConnectionPointClick(e: Konva.KonvaEventObject<MouseEvent>, shape: ICanvasShape, point: ICanvasShapeConnectionPoint) {
         e.cancelBubble = true;
         this.props.selectConnectionPoint(shape, point);
     }
 
-    onShapeDragEnd(e: KonvaEventObject<DragEvent>, shape: ICanvasShape) {
+    onShapeDragEnd(e: Konva.KonvaEventObject<DragEvent>, shape: ICanvasShape) {
         let newPosition = this.canvasService.snapToGrid(e.target.position());
         e.target.setPosition(newPosition);
 
@@ -111,7 +269,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
         this.props.updateElement(newShape);
     }
 
-    onShapeDragMove(e: KonvaEventObject<DragEvent>, shape: ICanvasShape) {
+    onShapeDragMove(e: Konva.KonvaEventObject<DragEvent>, shape: ICanvasShape) {
         let newPosition = this.canvasService.snapToGrid(e.target.position());
         e.target.setPosition(newPosition);
 
@@ -123,7 +281,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
         this.props.updateElement(newShape);
     }
 
-    onContainerExpand(e: KonvaEventObject<MouseEvent>, shape: ICanvasShape) {
+    onContainerExpand(e: Konva.KonvaEventObject<MouseEvent>, shape: ICanvasShape) {
         e.cancelBubble = true;
         this.props.expandContainer(shape);
     }
@@ -132,11 +290,9 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
         this.props.collapseContainer(shape);
     }
 
-
-
     onMouseMove(e: React.MouseEvent) {
         let canvasContainer = document.getElementById('canvas-container').getBoundingClientRect();
-        this.props.updateMousePosition({ x: e.clientX - canvasContainer.left, y: e.clientY - canvasContainer.top });
+        this.props.updateMousePosition({x: e.clientX - canvasContainer.left, y: e.clientY - canvasContainer.top});
     }
 
     exportCanvasAsJson() {
@@ -165,13 +321,13 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
         });
 
         let newShape: ICanvasShape = {
-            ...template,
-            properties: template.properties.map(p => ({ ...p })),
+            ...template.canvasTemplate,
+            properties: template.canvasTemplate.properties.map(p => ({...p})),
             id: uuidv4(),
             type: ICanvasElementType.Shape,
-            width: template.width,
-            height: template.height,
-            shape: template.shape,
+            width: template.canvasTemplate.width,
+            height: template.canvasTemplate.height,
+            shape: template.canvasTemplate.shape,
             position: dropPosition
         };
 
@@ -234,7 +390,7 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
                     },
                     width: 20,
                     height: 10,
-                    connectionPoints: [{ id: '0', position: { x: 10, y: 0 }, type: ICanvasConnectionPointType.input }],
+                    connectionPoints: [{id: '0', position: {x: 10, y: 0}, type: ICanvasConnectionPointType.input}],
                     type: ICanvasElementType.Shape,
                     properties: []
                 }
@@ -255,16 +411,14 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
 
         if (points.length > 0) {
             return <Arrow points={points} dash={[10, 5]} stroke={"black"}></ Arrow>
-        }
-        else
+        } else
             return null;
     }
 
     renderCanvasElement(element: ICanvasElement) {
         if (element.type === ICanvasElementType.Shape) {
             return this.renderCanvasShape(element as ICanvasShape);
-        }
-        else {
+        } else {
             return this.renderCanvasConnector(element as ICanvasConnector);
         }
     }
@@ -276,9 +430,9 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
         }
 
         return <Group x={shape.position.x} y={shape.position.y} draggable={true}
-            onClick={(e) => this.onShapeClick(e, shape)}
-            onDragMove={(e) => this.onShapeDragMove(e, shape)}
-            onDragEnd={(e) => this.onShapeDragEnd(e, shape)}>
+                      onClick={(e) => this.onShapeClick(e, shape)}
+                      onDragMove={(e) => this.onShapeDragMove(e, shape)}
+                      onDragEnd={(e) => this.onShapeDragEnd(e, shape)}>
 
             {CanvasRenderer.renderShapeComponent(shape, isSelectedShape, (e, shape) => this.onContainerExpand(e, shape))}
             {CanvasRenderer.renderShapeName(shape)}
@@ -309,52 +463,97 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
             points.push(p.y)
         });
 
-        return <Arrow points={points} stroke={isSelectedConnector ? "blue" : "black"} onClick={(e) => this.onConnectorClick(e, connector)} ></ Arrow>
+        return <Arrow points={points} stroke={isSelectedConnector ? "blue" : "black"}
+                      onClick={(e) => this.onConnectorClick(e, connector)}></ Arrow>
     }
 
     public render() {
-        this.props.requestDSLs();
-        this.props.requestTemplates();
+
+        const {value, suggestions} = this.state;
+
+        const inputProps = {
+            placeholder: 'Search for a repo, workflow',
+            value,
+            onChange: this.onChange
+        };
 
         return (
             <React.Fragment>
-                <div id="canvas-container" className="canvas-container" tabIndex={1} onKeyDown={(e: React.KeyboardEvent) => this.onKeyDown(e)} onDrop={(e) => this.onDrop(e)} onDragOver={(e) => e.preventDefault()} onMouseMove={(e) => this.onMouseMove(e)}>
-                    <Stage width={window.innerWidth} height={window.innerHeight} onClick={(e) => this.props.deselectElement()} style={this.stageStyle} onMou >
+                <div id="canvas-container" className="canvas-container" tabIndex={1}
+                     onKeyDown={(e: React.KeyboardEvent) => this.onKeyDown(e)} onDrop={(e) => this.onDrop(e)}
+                     onDragOver={(e) => e.preventDefault()} onMouseMove={(e) => this.onMouseMove(e)}>
+                    <Stage width={window.innerWidth} height={window.innerHeight}
+                           onClick={(e) => this.props.deselectElement()} style={this.stageStyle} onMou>
                         <Layer listening={false}>
                             {CanvasRenderer.renderGrid()}
                         </Layer>
-                        <Layer >
+                        <Layer>
                             {this.renderTemporaryConnector()}
                             {this.props.currentRootShape.elements.map(x => this.renderCanvasElement(x))}
                         </Layer>
                     </Stage>
                     <ButtonGroup className="canvas-top-toolbar">
+                        <Button onClick={() => this.toggleFindRepoModal()}><i className="bi bi-search"
+                                                                              style={{padding: 5}}></i></Button>
                         <Button onClick={() => this.exportCanvasAsJson()}>Export JSON</Button>
                         <Button onClick={() => this.toggleExportDSLModal()}>Export DSL</Button>
                         <Button onClick={() => this.toggleSaveAsTemplateModal()}>Save as Template</Button>
+                        {KeycloakService.getUsername() &&
+                        <Button onClick={() => this.toggleSaveAsRepoModal()}>Save in repo</Button>}
                     </ButtonGroup>
 
                     <Breadcrumb className="canvas-breadcrumb">
                         {this.props.shapeExpandStack.map(shape =>
-                                <BreadcrumbItem onClick={() => this.onCollapseContainer(shape)}>{shape.name}</BreadcrumbItem>
+                            <BreadcrumbItem
+                                onClick={() => this.onCollapseContainer(shape)}>{shape.name}</BreadcrumbItem>
                         )}
                         <BreadcrumbItem active>{this.props.currentRootShape.name}</BreadcrumbItem>
                     </Breadcrumb>
 
+                    {/* Find repo modal */}
+                    <Modal isOpen={this.findRepoModal} toggle={(e) => this.toggleFindRepoModal()}>
+                        <ModalHeader toggle={(e) => this.toggleFindRepoModal()}>Find external public repo</ModalHeader>
+                        <ModalBody>
+                            <Autosuggest
+                                suggestions={suggestions}
+                                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                                onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+                                getSuggestionValue={this.getSuggestionValue}
+                                renderSuggestion={this.renderSuggestion}
+                                inputProps={inputProps}
+                            />
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="primary"  disabled={!this.state.selectedSuggestion}  onClick={(e) => this.importRepo(this.state.selectedSuggestion)}>Import repo</Button>
+                            <Button color="secondary" onClick={(e) => this.toggleFindRepoModal()}>Cancel</Button>
+                        </ModalFooter>
+                    </Modal>
+
+                    {/* Save template modal */}
                     <Modal isOpen={this.saveAsTemplateModal} toggle={(e) => this.toggleSaveAsTemplateModal()}>
-                        <ModalHeader toggle={(e) => this.toggleSaveAsTemplateModal()}>Save pipeline as template</ModalHeader>
+                        <ModalHeader toggle={(e) => this.toggleSaveAsTemplateModal()}>Save pipeline as
+                            template</ModalHeader>
                         <ModalBody>
                             <FormGroup>
                                 <Label for={"txt-template-category"}>Category</Label>
-                                <Input type="text" name={"txt-template-category"} id={"txt-template-category"} onChange={(e) => { this.saveAsTemplateCategory = e.target.value }} ></Input>
+                                <Input type="text" name={"txt-template-category"} id={"txt-template-category"}
+                                       onChange={(e) => {
+                                           this.saveAsCategory = e.target.value
+                                       }}></Input>
                             </FormGroup>
                             <FormGroup>
                                 <Label for={"txt-template-name"}>Name</Label>
-                                <Input type="text" name={"txt-template-name"} id={"txt-template-name"} onChange={(e) => { this.saveAsTemplateName = e.target.value }} ></Input>
+                                <Input type="text" name={"txt-template-name"} id={"txt-template-name"}
+                                       onChange={(e) => {
+                                           this.saveAsName = e.target.value
+                                       }}></Input>
                             </FormGroup>
                             <FormGroup>
                                 <Label for={"txt-template-description"}>Description</Label>
-                                <Input type="textarea" name={"txt-template-description"} id={"txt-template-description"} onChange={(e) => { this.saveAsTemplateDescription= e.target.value }} ></Input>
+                                <Input type="textarea" name={"txt-template-description"} id={"txt-template-description"}
+                                       onChange={(e) => {
+                                           this.saveAsDescription = e.target.value
+                                       }}></Input>
                             </FormGroup>
                         </ModalBody>
                         <ModalFooter>
@@ -363,13 +562,61 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
                         </ModalFooter>
                     </Modal>
 
+                    {/* Save repo modal */}
+                    <Modal isOpen={this.saveAsRepoModal} toggle={(e) => this.toggleSaveAsRepoModal()}>
+                        <ModalHeader toggle={(e) => this.toggleSaveAsRepoModal()}>Save pipeline in
+                            repository</ModalHeader>
+                        <ModalBody>
+                            <FormGroup>
+                                <Label for={"txt-template-category"}>Category</Label>
+                                <Input type="text" name={"txt-template-category"} id={"txt-template-category"}
+                                       onChange={(e) => {
+                                           this.saveAsCategory = e.target.value
+                                       }}></Input>
+                            </FormGroup>
+                            <FormGroup>
+                                <Label for={"txt-template-name"}>Name</Label>
+                                <Input type="text" name={"txt-template-name"} id={"txt-template-name"}
+                                       onChange={(e) => {
+                                           this.saveAsName = e.target.value
+                                       }}></Input>
+                            </FormGroup>
+                            <FormGroup>
+                                <Label for={"txt-template-description"}>Description</Label>
+                                <Input type="textarea" name={"txt-template-description"} id={"txt-template-description"}
+                                       onChange={(e) => {
+                                           this.saveAsDescription = e.target.value
+                                       }}></Input>
+                            </FormGroup>
+                            <FormGroup check inline>
+                                <Input type="checkbox" id={"txt-repo-public"} checked={this.saveAsRepoPublic}
+                                       onChange={(e) => {
+                                           this.saveAsRepoPublic = e.target.checked
+                                       }}></Input>
+                                <Label check>
+                                    Public repository
+                                </Label>
+
+                            </FormGroup>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="primary" onClick={(e) => this.saveAsRepo()}>Save</Button>
+                            <Button color="secondary" onClick={(e) => this.toggleSaveAsRepoModal()}>Cancel</Button>
+                        </ModalFooter>
+                    </Modal>
+
+                    {/* Export Dsl modal */}
                     <Modal isOpen={this.exportDSLModal} toggle={(e) => this.toggleExportDSLModal()}>
                         <ModalHeader toggle={(e) => this.toggleExportDSLModal()}>Export pipeline as DSL</ModalHeader>
                         <ModalBody>
                             <FormGroup>
                                 <Label for={"txt-export-dsl-name"}>DSL to export</Label>
-                                <Input type="select" name={"txt-export-dsl-name"} id={"txt-export-dsl-name"} onChange={(e) => { this.selectedDSLToExport = e.target.value }}>
-                                    {this.props.availableDSLs ? this.props.availableDSLs.map(dsl => <option value={dsl.name}>{dsl.name}</option>) : null}
+                                <Input type="select" name={"txt-export-dsl-name"} id={"txt-export-dsl-name"}
+                                       onChange={(e) => {
+                                           this.selectedDSLToExport = e.target.value
+                                       }}>
+                                    {this.props.availableDSLs ? this.props.availableDSLs.map(dsl => <option
+                                        value={dsl.name}>{dsl.name}</option>) : null}
                                 </Input>
                             </FormGroup>
                         </ModalBody>
@@ -384,7 +631,16 @@ class CanvasPane extends React.PureComponent<CanvasProps> {
     }
 };
 
+function withRouter(Component) {
+    function ComponentWithRouter(props) {
+        let params = useParams()
+        return <Component {...props} params={params}/>
+    }
+
+    return ComponentWithRouter
+}
+
 export default connect(
     (state: ApplicationState) => state.canvas,
     CanvasStore.actionCreators
-)(CanvasPane);
+)(withRouter(CanvasPane));
