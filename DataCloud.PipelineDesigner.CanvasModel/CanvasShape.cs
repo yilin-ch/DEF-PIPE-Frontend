@@ -15,7 +15,7 @@ namespace DataCloud.PipelineDesigner.CanvasModel
         public List<CanvasElement> Elements { get; set; }
         public CanvasShapeTemplate Template { get; set; }
         public string TemplateId { get; set; }
-
+        public CanvasParameters Parameters;
         [JsonProperty("Properties")]
         public List<CanvasElementProperty> Properties { get; set; }
 

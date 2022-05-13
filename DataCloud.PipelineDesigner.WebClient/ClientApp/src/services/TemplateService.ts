@@ -7,6 +7,7 @@ import {
     ApiResult, ISearchRepo
 } from '../models';
 import { v4 as uuidv4 } from 'uuid';
+import KeycloakService from './KeycloakService';
 
 export class TemplateService {
     static saveTemplateTimeoutHandle = null;
@@ -63,7 +64,8 @@ export class TemplateService {
                 method: "POST",
                 body: JSON.stringify(repo),
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${KeycloakService.getToken()}`,
                 }
             })
         }, 500);
@@ -80,7 +82,13 @@ export class TemplateService {
 
 
     public static searchPublicRepos<T>(query: string): Promise<ISearchRepo[]> {
-        return fetch(`/api/repo/s?query=` + query)
+        return fetch(`/api/repo/s?query=` + query, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+                'Authorization': `Bearer ${KeycloakService.getToken()}`,
+            }
+        })
             .then(response => response.json() as Promise<ApiResult<Array<ISearchRepo>>>)
             .then(apiResult => {
                 return apiResult.data;
@@ -89,7 +97,13 @@ export class TemplateService {
 
 
     public static getPublicRepo<T>(repo: ISearchRepo): Promise<IAPiTemplate> {
-        return fetch(`/api/repo?user=` + repo.user +`&workflowName=` + repo.workflowName )
+        return fetch(`/api/repo?user=` + repo.user + `&workflowName=` + repo.workflowName, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+                'Authorization': `Bearer ${KeycloakService.getToken()}`,
+            }
+        })
             .then(response => response.json() as Promise<ApiResult<IAPiTemplate>>)
             .then(apiResult => {
                 return apiResult.data;

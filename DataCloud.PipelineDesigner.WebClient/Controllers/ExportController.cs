@@ -18,6 +18,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
     {
         IDSLService dslService;
         IWorkflowService workflowService;
+
         public ExportController()
         {
             //TODO: Update this to use dependency injection
@@ -47,7 +48,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
 
                 var workflow = workflowService.TransformCanvasToWorkflow(newCanvas);
 
-                return dslService.TransformWorkflowToDSL(workflow);
+                return dslService.TransformWorkflowToDSL(workflow, canvas.Name);
             }
             catch (Exception e)
             {

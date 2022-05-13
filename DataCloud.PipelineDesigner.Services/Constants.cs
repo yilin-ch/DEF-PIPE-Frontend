@@ -9,9 +9,9 @@ namespace DataCloud.PipelineDesigner.Services
     {
         public static class BuiltInTemplateIDs
         {
-            public static Guid Start => new Guid("0d2b01d5-e839-4217-b8e4-7ad41e7d8bd0");
+            public static String Start => "WORK_START";
 
-            public static Guid End => new Guid("31ad8241-6f04-46ec-99cc-d958769305c9");
+            public static String End => "WORK_END";
 
             public static Guid If => new Guid("e8a39e61-ad91-47b5-8a59-2464ce80f1d7");
 

@@ -60,8 +60,7 @@ class PalettePane extends React.PureComponent<PaletteProps> {
                 {this.props.username ?
                     <React.Fragment>
                         <p className="palette-group-username">
-                            <i className="bi bi-person-fill" style={{ padding: 5}}></i>
-                            {this.props.username}
+                            My repository
                         </p>
 
                     </React.Fragment> : null}
@@ -80,7 +79,7 @@ class PalettePane extends React.PureComponent<PaletteProps> {
             </React.Fragment>
         );
     }
-};
+}
 
 export default connect(
     (state: ApplicationState) => state.canvas,

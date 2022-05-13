@@ -16,7 +16,7 @@ namespace DataCloud.PipelineDesigner.Services
             var startElement = canvas.Elements
                 .Where(e => e.Type == CanvasElementType.Shape)
                 .Select(e => e as CanvasShape)
-                .First(e => e.TemplateId.ToLower() == Constants.BuiltInTemplateIDs.Start.ToString().ToLower());
+                .First(e => e.TemplateId.ToLower() == Constants.BuiltInTemplateIDs.Start.ToLower());
 
             workflow.Parameters = new Dictionary<string, string>(startElement.PropertiesDict);
 
@@ -67,11 +67,10 @@ namespace DataCloud.PipelineDesigner.Services
 
         private WorkflowAction MapToWorkflowAction(Canvas canvas, CanvasShape canvasShape)
         {
-            WorkflowAction workflowAction = new WorkflowAction();
+            WorkflowAction workflowAction = new WorkflowAction(canvasShape.Parameters);
 
             workflowAction.ID = canvasShape.ID;
             workflowAction.Title = canvasShape.Name;
-            workflowAction.Parameters = new Dictionary<string, string>(canvasShape.PropertiesDict);
             workflowAction.InputDataSetId = FindInputDataset(canvas, canvasShape);
             workflowAction.OutputDataSetId = FindOutputDataset(canvas, canvasShape);
 

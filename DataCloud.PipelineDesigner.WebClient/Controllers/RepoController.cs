@@ -1,6 +1,7 @@
 ﻿using DataCloud.PipelineDesigner.Repositories.Models;
 using DataCloud.PipelineDesigner.Services.Interfaces;
 using DataCloud.PipelineDesigner.WebClient.Models;
+using DataCloud.PipelineDesigner.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,11 +19,13 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         Services.Interfaces.IUserService userService;
         Services.Interfaces.IPublicRepoService pRepoService;
         private readonly IAuthorizationService authorizationService;
+        IDSLService dslService;
         public RepoController(IUserService uService, IPublicRepoService prService, IAuthorizationService authService)
         {
             userService = uService;
             pRepoService = prService;
             authorizationService= authService;
+            dslService = new DSLService();
         }
 
         [HttpGet("s")]
@@ -113,6 +116,22 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             {
 
                 await userService.DeleteTemplate(user, id);
+
+                return ApiHelper.CreateSuccessResult(true);
+            }
+            catch (Exception e)
+            {
+                return ApiHelper.CreateFailedResult<bool>(e.Message);
+            }
+        }
+
+
+        [HttpPost("{user}/import")]
+        public ApiResult<bool> ImportDsl([FromForm] string dsl)
+        {
+            try
+            {
+                var result = dslService.TransformDSLtoWorkflow(dsl);
 
                 return ApiHelper.CreateSuccessResult(true);
             }

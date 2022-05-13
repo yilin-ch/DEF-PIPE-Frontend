@@ -11,7 +11,7 @@ namespace DataCloud.PipelineDesigner.Services
 {
     public class WorkflowService : IWorkflowService
     {
-        WorkflowTransformer workflowTransformer;
+       WorkflowTransformer  workflowTransformer;
         public WorkflowService()
         {
             workflowTransformer = new WorkflowTransformer();

@@ -14,16 +14,15 @@ namespace DataCloud.PipelineDesigner.Services
         {            
         }
 
-        public string Transform(Workflow workflow)
+        public string Transform(Workflow workflow, string name)
         {
             Workflow = workflow;
 
             StringBuilder dslBuilder = new StringBuilder();
 
-            dslBuilder.AppendLine("Workflow prototypeWorkflow");
-            dslBuilder.AppendLine("{");
+            dslBuilder.AppendLine("Pipeline " + name + " {");
 
-            GenerateWorkflowProperties(dslBuilder);
+            //GenerateWorkflowProperties(dslBuilder);
             GenerateWorkflowSteps(dslBuilder, workflow.Elements);
             dslBuilder.AppendLine("}");
 
@@ -33,7 +32,28 @@ namespace DataCloud.PipelineDesigner.Services
         public Workflow Transform(string dsl)
         {
             Workflow workflow = new Workflow();
+            try
+            {
+                var tokens = DslTokenizer.TryTokenize(dsl);
+                if (!tokens.HasValue)
+                {
+                    throw new Exception(tokens.ErrorMessage.ToString());
+                }
+                else if (!DslParser.TryParse(tokens.Value, out var expr, out var error, out var errorPosition))
+                {
+                    throw new Exception(error.ToString());
+                }
+                else
+                {
+                    var e = expr;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
 
+            
 
             return workflow;
         }
@@ -102,7 +122,7 @@ namespace DataCloud.PipelineDesigner.Services
 
         private void GenerateWorkflowStep(StringBuilder dslBuilder, WorkflowAction workflowAction, int level)
         {
-            dslBuilder.AppendLine(Identation(level) + "- step " + workflowAction.Title);
+            dslBuilder.AppendLine(Identation(level) + "data-source step: " + workflowAction.Title);
 
             if (workflowAction.InputDataSetId != null)
             {
@@ -118,11 +138,28 @@ namespace DataCloud.PipelineDesigner.Services
                 dslBuilder.AppendLine(Identation(level + 2) + outputDataSet.Parameters["File Path"]);
             }
 
+            if (workflowAction.Parameters != null)
+            {
+                dslBuilder.AppendLine(Identation(level) + "implementation: " + workflowAction.Parameters.Implementation);
+
+                dslBuilder.AppendLine(Identation(level) + "environmentParameters: {");
+                foreach (var envParam in workflowAction.Parameters.EnvironmentParameters)
+                {
+                    dslBuilder.AppendLine(Identation(level + 1) + envParam.Key + "=" + envParam.Value);
+                }
+                dslBuilder.AppendLine(Identation(level) + "}");
+                dslBuilder.AppendLine(Identation(level) + "resourceProvider: " + workflowAction.Parameters.ResourceProvider);
+            }
+            
+
+
+            /*
             dslBuilder.AppendLine(Identation(level + 1) + "paramters:");
             foreach (var actionParam in workflowAction.Parameters)
             {
                 dslBuilder.AppendLine(Identation(level + 2) + actionParam.Key + ": " + actionParam.Value);
             }
+            */
 
             dslBuilder.AppendLine();
         }
@@ -132,5 +169,6 @@ namespace DataCloud.PipelineDesigner.Services
         {
             return new String('\t', level + 1);
         }
+
     }
 }
