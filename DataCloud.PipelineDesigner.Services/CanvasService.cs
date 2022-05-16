@@ -1,150 +1,131 @@
 ﻿using DataCloud.PipelineDesigner.CanvasModel;
 using DataCloud.PipelineDesigner.Repositories.Models;
+using DataCloud.PipelineDesigner.WorkflowModel.DSL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static DataCloud.PipelineDesigner.Services.Constants;
 
 namespace DataCloud.PipelineDesigner.Services
 {
-    class CanvasService
+    public class CanvasService
     {
-/*
-        public static CanvasShapeTemplate ToCanvasShapeTemplate(Repositories.Entities.Template t)
+         public static CanvasShapeTemplate TransformDslToCanvas(Dsl dsl)
         {
+            CanvasShapeTemplate template = new CanvasShapeTemplate(dsl.Name, "", "Imported");
+            template.Properties = new List<CanvasElementProperty>();
+            var startGUID = Guid.NewGuid().ToString();
+            var endGUID = Guid.NewGuid().ToString();
 
-            List<CanvasElement> elements = new List<CanvasElement>();
-            foreach (Template e in t.Elements)
+            var start = new CanvasShape
             {
-                elements.Add(new CanvasShape
+                ID = startGUID,
+                TemplateId = BuiltInTemplateIDs.Start.ToString(),
+                Name = "Start",
+
+                Shape = BuiltyInCanvasShape.Rectangle,
+
+                ConnectionPoints = new List<CanvasShapeConnectionPoint>() {
+                    new CanvasShapeConnectionPoint { Id = "2", Position = new CanvasPosition { X = 25, Y = 50 }, Type = CanvasConnectionPointType.Output }
+                },
+                Position = new CanvasPosition { X = 25, Y = 50 },
+                Type = CanvasElementType.Shape,
+                Width = 50,
+                Height = 50,
+            };
+
+            template.Elements.Add(start);
+
+
+            var lastShape = start;
+
+
+            foreach (Step step in dsl.Steps)
+            {
+
+               
+
+                var guid = Guid.NewGuid().ToString();
+
+                var shape = new CanvasShape
                 {
-                ID = e.Id,
-                Name = e.Name,
-                Shape = (t.Elements?.Count > 0) ? "Container" : "Rectangle",
-                Properties = e.Properties.Select(p => new CanvasElementProperty
-                {
-                    Name = p.Name,
-                    Value = p.Value,
-                }).ToList(),
-                ConnectionPoints = e.Connections.Select(c => new CanvasShapeConnectionPoint
+                    ID = guid,
+                    Name = step.Name,
+                    Shape = BuiltyInCanvasShape.Rectangle,
+                    ConnectionPoints = new List<CanvasShapeConnectionPoint>() {
+                        new CanvasShapeConnectionPoint { Id = "1", Position = new CanvasPosition { X = 0, Y = 100 }, Type= CanvasConnectionPointType.Input },
+                        new CanvasShapeConnectionPoint { Id = "2", Position = new CanvasPosition { X = 300, Y = 100 }, Type = CanvasConnectionPointType.Output }
+                    },
+                    Position = NextPositon(lastShape),
+                    Type = CanvasElementType.Shape,
+                    Width = 300,
+                    Height = 200,
+                    Parameters = new CanvasParameters { 
+                        Implementation = step.Implementation,
+                        Image = step.Image,
+                        ResourceProvider = step.ResourceProvider,
+                        EnvironmentParameters = step.EnvParams.Select(e => new EnvironmentParameter { Key = e.Key, Value = e.Value }).ToList()                        }
+                };
+
+                template.Elements.Add(shape);
+
+                template.Elements.Add(
+                    new CanvasConnector
                     {
-                        Id = c.Id,
-                        Position = new CanvasPosition { X= c.X, Y= c.Y },
-                        Type = c.Output ? CanvasConnectionPointType.Output : CanvasConnectionPointType.Input,
-                }).ToList(),
-                });
+                        ID = Guid.NewGuid().ToString(),
+                        SourceShapeId = lastShape.ID,
+                        SourceConnectionPointId = "2",
+                        DestShapeId = guid,
+                        DestConnectionPointId = "1",
+                        Type = CanvasElementType.Connector,
+                    });
+
+                lastShape = shape;
             }
 
+            
 
-
-            return new CanvasShapeTemplate
+            var end = new CanvasShape
             {
-                Id = t.Id,
-                Name = t.Name,
-                Description = t.Description,
-                Category = t.Category?.Name,
-                Width = t.Width,
-                Height = t.Height,
-                Elements = elements,
-                Shape = (t.Elements?.Count > 0) ? "Container" : "Rectangle",
-                ConnectionPoints = t.Connections.Select(c => new CanvasShapeConnectionPoint
-                {
-                    Id = c.Id,
-                    Position = new CanvasPosition { X = c.X, Y = c.Y },
-                    Type = c.Output ? CanvasConnectionPointType.Output : CanvasConnectionPointType.Input,
+                ID = endGUID,
+                TemplateId = BuiltInTemplateIDs.End.ToString(),
+                Name = "End",
+                Shape = BuiltyInCanvasShape.Rectangle,
+                ConnectionPoints = new List<CanvasShapeConnectionPoint>() {
+                    new CanvasShapeConnectionPoint { Id = "1", Position = new CanvasPosition { X = 25, Y = 50 }, Type= CanvasConnectionPointType.Input }
+                },
 
-                }).ToList(),
-                Properties = t.Properties.Select(c => new CanvasElementProperty
-                {
-                    Id = c.Id,
-                    Name= c.Name,
-                    Value = c.Value,
-                    Type  = CanvasElementPropertyType.MultiLineText,
-                    AllowEditing =c.Editable
-
-
-                }).ToList(),
-                IsContainer = (t.Elements?.Count > 0)
-
-
-
-
-            };
-        }
-
-
-        public static Template ToTemplateEntity(CanvasShape cs)
-        {
-            Template t = new Template
-            {
-                //Id = cs.ID,
-                Name = cs.Name,
-                Elements = cs.Elements.OfType<CanvasShape>().Select(e => ToTemplateEntity(e)).ToList(),
-
-                Connections = cs.ConnectionPoints.Select(c => new Connection
-                {
-                    //Id = c.Id,
-                    X = c.Position.X,
-                    Y = c.Position.Y,
-                    Output = c.Type == CanvasConnectionPointType.Output,
-                    TemplateId = cs.ID,
-
-                }).ToList(),
-                Properties = cs.Properties.Select(c => new Parameter
-                {
-                    //Id = c.Id,
-                    Name = c.Name,
-                    Value = c.Value,
-                    Editable = (bool)c.AllowEditing,
-
-                }).ToList(),
-
-
-
+                Position = NextPositon(lastShape),
+                Type = CanvasElementType.Shape,
+                Width = 50,
+                Height = 50
             };
 
-            return t;
+            template.Elements.Add(end);
+
+            template.Elements.Add(
+                new CanvasConnector
+                {
+                    ID = Guid.NewGuid().ToString(),
+                    SourceShapeId = lastShape.ID,
+                    SourceConnectionPointId = "2",
+                    DestShapeId = endGUID,
+                    DestConnectionPointId = "1",
+                    Type = CanvasElementType.Connector,
+                });
+
+            return template;
         }
 
-        public static Template ToTemplateEntity(CanvasShapeTemplate t)
+        private static CanvasPosition NextPositon(CanvasShape cs)
         {
 
-           
+            CanvasPosition nextPositon = new CanvasPosition { X = cs.Position.X + cs.Width + 30, Y = cs.Position.Y};
 
-            return new Template
-            {
-                Id = t.Id,
-                Name = t.Name,
-                Description = t.Description,
-                CategoryId = t.Category,
-                Width = t.Width,
-                Height = t.Height,
-                Elements = t.Elements.OfType<CanvasShape>().Select(e => ToTemplateEntity(e)).ToList(),
-                
-                Connections = t.ConnectionPoints.Select(c => new Connection
-                {
-                    Id = c.Id,
-                    X = c.Position.X,
-                    Y = c.Position.Y,
-                    Output = c.Type == CanvasConnectionPointType.Output,
-                    TemplateId = t.Id,
-
-                }).ToList(),
-                Properties = t.Properties.Select(c => new Parameter
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Value = c.Value,
-                    Editable = (bool)c.AllowEditing,
-
-                }).ToList(),
-
-
-
-            };
+            return nextPositon;
         }
-*/
 
     }
 }

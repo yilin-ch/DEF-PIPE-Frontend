@@ -12,6 +12,8 @@ namespace DataCloud.PipelineDesigner.CanvasModel
         //public new CanvasElementType Type => CanvasElementType.Shape;
         public string Name { get; set; }
         public CanvasPosition Position { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
         public List<CanvasElement> Elements { get; set; }
         public CanvasShapeTemplate Template { get; set; }
         public string TemplateId { get; set; }
@@ -26,7 +28,7 @@ namespace DataCloud.PipelineDesigner.CanvasModel
                 if (properties == null)
                 {
                     properties = new Dictionary<string, string>();
-                    Properties.ForEach(p => properties.Add(p.Name, p.Value));
+                    Properties?.ForEach(p => properties.Add(p.Name, p.Value));
                 }
                 return properties;
             }
@@ -39,6 +41,7 @@ namespace DataCloud.PipelineDesigner.CanvasModel
         {
             Elements = new List<CanvasElement>();
             Position = new CanvasPosition();
+            Properties = new List<CanvasElementProperty>();
         }
     }
 

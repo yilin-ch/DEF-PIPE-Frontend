@@ -1,4 +1,4 @@
-﻿using DataCloud.PipelineDesigner.Repositories.Models;
+using DataCloud.PipelineDesigner.Repositories.Models;
 using DataCloud.PipelineDesigner.Services.Interfaces;
 using DataCloud.PipelineDesigner.WebClient.Models;
 using DataCloud.PipelineDesigner.Services;
@@ -8,6 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Text.Json;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson;
 
 namespace DataCloud.PipelineDesigner.WebClient.Controllers
 {
@@ -87,7 +92,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
 
 
                 // Probably a better way to do nested upsert
-                if(result.ModifiedCount < 1)
+                if (result.ModifiedCount < 1)
                 {
                     await userService.AddRepoAsync(template, user);
                 }
@@ -127,11 +132,16 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
 
 
         [HttpPost("{user}/import")]
-        public ApiResult<bool> ImportDsl([FromForm] string dsl)
+        public async Task<ApiResult<bool>> ImportDsl([FromForm] string dsl, String user)
         {
             try
             {
-                var result = dslService.TransformDSLtoWorkflow(dsl);
+                var d = dslService.DeserializeDsl(dsl);
+                var r = CanvasService.TransformDslToCanvas(d);
+
+                var template = new Template { Name = d.Name, Category = r.Category, Id = Guid.NewGuid().ToString(), CanvasTemplate = r };
+
+                var result = await userService.AddRepoAsync(template, user);
 
                 return ApiHelper.CreateSuccessResult(true);
             }

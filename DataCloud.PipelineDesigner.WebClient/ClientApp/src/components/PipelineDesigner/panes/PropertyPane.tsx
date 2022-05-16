@@ -1,4 +1,4 @@
-﻿import * as React from 'react';
+import * as React from 'react';
 import {connect} from 'react-redux';
 import {Form, FormGroup, Input, Label} from 'reactstrap';
 import {
@@ -136,7 +136,7 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
                         <h3 className="property-pane-header">{selectedShape.name}</h3>
                         <p className="property-pane-subheader">ID: {selectedShape.id}</p>
                         <Form>
-                            {selectedShape.properties.filter(p => p.allowEditing).map(prop => this.renderProperty(prop))}
+                            {selectedShape.properties?.filter(p => p.allowEditing).map(prop => this.renderProperty(prop))}
                         </Form>
                         <td>
                             <p className="btn btn-success saveButton" onClick={(e) => {

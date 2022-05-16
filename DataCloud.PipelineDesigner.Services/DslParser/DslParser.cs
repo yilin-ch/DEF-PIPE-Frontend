@@ -104,7 +104,7 @@ namespace DataCloud.PipelineDesigner.Services
             from implementation in StepImplementation
             from image in StepImage
             from env in StepEnvParam
-            from execRequ in StepExecReq
+            from execRequ in StepExecReq.OptionalOrDefault()
             from resource in StepResource
             from previous in StepPrevious.OptionalOrDefault()
             select new Step { Name = name, Implementation = implementation, Image = image, ResourceProvider = resource, Previous = previous, ExecRequirements = execRequ , EnvParams= env };
@@ -130,7 +130,7 @@ namespace DataCloud.PipelineDesigner.Services
 
 
 
-        public static bool TryParse(TokenList<DSlToken> tokens, out object expr, out string error, out Position errorPosition)
+        public static bool TryParse(TokenList<DSlToken> tokens, out Dsl expr, out string error, out Position errorPosition)
         {
             var result = Pipeline(tokens);
             if (!result.HasValue)

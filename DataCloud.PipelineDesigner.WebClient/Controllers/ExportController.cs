@@ -47,8 +47,9 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
                 }
 
                 var workflow = workflowService.TransformCanvasToWorkflow(newCanvas);
+                var dsl = workflowService.TransformWorkflowToDsl(workflow, canvas.Name);
 
-                return dslService.TransformWorkflowToDSL(workflow, canvas.Name);
+                return dslService.SerializeDsl(dsl);
             }
             catch (Exception e)
             {

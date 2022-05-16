@@ -52,14 +52,16 @@ namespace DataCloud.PipelineDesigner.Services
             return dsl;
         }
 
-        public string TransformWorkflowToDSL(Workflow workflow, string name)
+        public string SerializeDsl(Dsl workflow)
         {
-            return dslTransformer.Transform(workflow, name);
+            return dslTransformer.Transform(workflow);
         }
 
-        public Workflow TransformDSLtoWorkflow(String dsl)
+        public Dsl DeserializeDsl(String dsl)
         {
             return dslTransformer.Transform(dsl);
         }
+
+      
     }
 }

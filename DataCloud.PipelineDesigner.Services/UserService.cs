@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace DataCloud.PipelineDesigner.Services
 {
@@ -52,11 +53,23 @@ namespace DataCloud.PipelineDesigner.Services
 
         public Task<UpdateResult> AddRepoAsync(Template template, string user)
         {
+            DefaultContractResolver contractResolver = new DefaultContractResolver
+            {
+                NamingStrategy = new CamelCaseNamingStrategy()
+            };
 
+            string templateString = JsonConvert.SerializeObject(template.CanvasTemplate, Formatting.Indented, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                ContractResolver = contractResolver,
+            });
+            var templateDoc = JsonConvert.DeserializeObject<dynamic>(templateString);
 
-            string jsonString = JsonConvert.SerializeObject(template);
-
-            var document = BsonSerializer.Deserialize<BsonDocument>(jsonString);
+            var temp = template;
+            temp.CanvasTemplate = templateDoc;
+            
+            string temeString = JsonConvert.SerializeObject(template);
+            var document = BsonSerializer.Deserialize<BsonDocument>(temeString);
 
             return _userPost.UpdateOneAsync(
                     Builders<BsonDocument>.Filter.Eq("Username", user) ,
