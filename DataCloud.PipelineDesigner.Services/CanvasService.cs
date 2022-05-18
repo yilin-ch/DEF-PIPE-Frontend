@@ -30,7 +30,7 @@ namespace DataCloud.PipelineDesigner.Services
                 ConnectionPoints = new List<CanvasShapeConnectionPoint>() {
                     new CanvasShapeConnectionPoint { Id = "2", Position = new CanvasPosition { X = 25, Y = 50 }, Type = CanvasConnectionPointType.Output }
                 },
-                Position = new CanvasPosition { X = 25, Y = 50 },
+                Position = new CanvasPosition { X = 25, Y = 100 },
                 Type = CanvasElementType.Shape,
                 Width = 50,
                 Height = 50,
@@ -121,8 +121,10 @@ namespace DataCloud.PipelineDesigner.Services
 
         private static CanvasPosition NextPositon(CanvasShape cs)
         {
+            var x = cs.Position.X + cs.Width + 30;
+            var y = cs.Position.Y;
 
-            CanvasPosition nextPositon = new CanvasPosition { X = cs.Position.X + cs.Width + 30, Y = cs.Position.Y};
+            CanvasPosition nextPositon = new CanvasPosition { X = x, Y = y};
 
             return nextPositon;
         }

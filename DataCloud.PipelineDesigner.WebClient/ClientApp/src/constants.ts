@@ -4,8 +4,8 @@ export const CanvasSettings = {
     gridBlockSize: 10,
     minConnectorLength: 20,
     shapeBackground: "#fff",
-    shapeStroke: "#121212",
-    selectedShapeBackground: "#28b5b5",
+    shapeStroke: "#454545",
+    selectedShapeBackground: "#09d4f1",
     connectionPointBackground: "#fff",
     selectedConnectionPointBackground: "#4b778d",
     textColor: "#121212"

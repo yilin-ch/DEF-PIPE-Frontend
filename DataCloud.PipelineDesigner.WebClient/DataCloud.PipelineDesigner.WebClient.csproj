@@ -40,13 +40,8 @@
     <None Remove="ClientApp\src\components\PalettePane.tsx" />
     <None Remove="ClientApp\src\components\PipelineDesigner\panes\CanvasPane.js" />
     <None Remove="ClientApp\src\components\PipelineDesigner\panes\CanvasPane.js.map" />
-    <None Remove="ClientApp\src\components\PipelineDesigner\panes\CanvasPane.tsx" />
     <None Remove="ClientApp\src\components\PipelineDesigner\panes\PropertyPane.js" />
     <None Remove="ClientApp\src\components\PipelineDesigner\panes\PropertyPane.js.map" />
-    <None Remove="ClientApp\src\components\PipelineDesigner\panes\PropertyPane.tsx" />
-    <None Remove="ClientApp\src\components\TemplateDesigner\panes\TemplateCanvasPane.tsx" />
-    <None Remove="ClientApp\src\components\TemplateDesigner\panes\TemplatePalettePane.tsx" />
-    <None Remove="ClientApp\src\components\TemplateDesigner\panes\TemplatePropertyPane.tsx" />
     <None Remove="ClientApp\src\models\index.ts" />
     <None Remove="ClientApp\src\services\RepoService.js" />
     <None Remove="ClientApp\src\services\RepoService.ts" />

@@ -41,7 +41,6 @@ namespace DataCloud.PipelineDesigner.CanvasModel
         {
             Elements = new List<CanvasElement>();
             Position = new CanvasPosition();
-            Properties = new List<CanvasElementProperty>();
         }
     }
 

@@ -1,4 +1,4 @@
-using DataCloud.PipelineDesigner.Repositories.Models;
+﻿using DataCloud.PipelineDesigner.Repositories.Models;
 using DataCloud.PipelineDesigner.Services.Interfaces;
 using DataCloud.PipelineDesigner.WebClient.Models;
 using DataCloud.PipelineDesigner.Services;
@@ -16,7 +16,7 @@ using MongoDB.Bson;
 
 namespace DataCloud.PipelineDesigner.WebClient.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class RepoController : ControllerBase
@@ -139,7 +139,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
                 var d = dslService.DeserializeDsl(dsl);
                 var r = CanvasService.TransformDslToCanvas(d);
 
-                var template = new Template { Name = d.Name, Category = r.Category, Id = Guid.NewGuid().ToString(), CanvasTemplate = r };
+                var template = new Template { Name = d.Name, Category = "Imported", Id = Guid.NewGuid().ToString(), CanvasTemplate = r };
 
                 var result = await userService.AddRepoAsync(template, user);
 

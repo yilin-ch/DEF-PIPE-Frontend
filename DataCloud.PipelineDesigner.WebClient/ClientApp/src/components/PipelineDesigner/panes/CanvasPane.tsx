@@ -85,6 +85,12 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
     }
 
     toggleSaveAsRepoModal() {
+        if(this.props.currentRepoEdit && !this.saveAsRepoModal){
+            this.saveAsName = this.props.currentRepoEdit.name;
+            this.saveAsDescription = this.props.currentRepoEdit.description;
+            this.saveAsCategory = this.props.currentRepoEdit.category;
+            this.saveAsRepoPublic = this.props.currentRepoEdit.public;
+        }
         this.saveAsRepoModal = !this.saveAsRepoModal;
     }
 
@@ -142,14 +148,14 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
             let newShape: ICanvasShape = {
                 ...r.canvasTemplate,
                 name: r.name,
-                properties: r.canvasTemplate.properties.map(p => ({ ...p })),
+                properties: r.canvasTemplate.properties.map(p => ({...p})),
                 id: uuidv4(),
                 templateId: r.id,
                 type: ICanvasElementType.Shape,
                 width: r.canvasTemplate.width,
                 height: r.canvasTemplate.height,
                 shape: r.canvasTemplate.shape,
-                position: { x: 500, y: 500 },
+                position: {x: 500, y: 500},
                 canHaveChildren: r.canvasTemplate.isContainer,
                 elements: r.canvasTemplate.elements || []
             };
@@ -198,7 +204,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
 
     saveAsRepo() {
         this.props.addRepo({
-            id: uuidv4(),
+            id: this.props.currentRepoEdit ? this.props.currentRepoEdit.id : uuidv4(),
             name: this.saveAsName,
             description: "",
             category: this.saveAsCategory,
@@ -228,6 +234,10 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
         this.saveAsCategory = "";
         this.saveAsRepoModal = false;
         this.saveAsRepoPublic = false;
+
+        if(this.props.currentRepoEdit && !this.saveAsRepoModal){
+            this.props.cancelEditRepo()
+        }
     }
 
     onKeyDown(e: React.KeyboardEvent) {
@@ -494,12 +504,16 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                     </Stage>
                     <ButtonGroup className="canvas-top-toolbar">
                         <Button onClick={() => this.toggleFindRepoModal()}><i className="bi bi-search"
-                                                                              style={{padding: 5}}></i></Button>
+                                                                              style={{padding: 5}}/></Button>
                         <Button onClick={() => this.exportCanvasAsJson()}>Export JSON</Button>
                         <Button onClick={() => this.toggleExportDSLModal()}>Export DSL</Button>
-                        <Button onClick={() => this.toggleSaveAsTemplateModal()}>Save as Template</Button>
+                        {/*<Button onClick={() => this.toggleSaveAsTemplateModal()}>Save as Template</Button>*/}
                         {KeycloakService.getUsername() &&
-                        <Button onClick={() => this.toggleSaveAsRepoModal()}>Save in repo</Button>}
+                        <Button onClick={() => this.toggleSaveAsRepoModal()}><i className="bi bi-save"
+                                                                                style={{padding: 5}}/>Save</Button>}
+                        {this.props.currentRepoEdit &&
+                        <Button onClick={() => this.props.cancelEditRepo()}><i className="bi bi-x-square-fill"
+                                                                                style={{padding: 5, color: "red"}}/>Cancel</Button>}
                     </ButtonGroup>
 
                     <Breadcrumb className="canvas-breadcrumb">
@@ -524,7 +538,8 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                             />
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="primary"  disabled={!this.state.selectedSuggestion}  onClick={(e) => this.importRepo(this.state.selectedSuggestion)}>Import repo</Button>
+                            <Button color="primary" disabled={!this.state.selectedSuggestion}
+                                    onClick={(e) => this.importRepo(this.state.selectedSuggestion)}>Import repo</Button>
                             <Button color="secondary" onClick={(e) => this.toggleFindRepoModal()}>Cancel</Button>
                         </ModalFooter>
                     </Modal>
@@ -539,21 +554,21 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                                 <Input type="text" name={"txt-template-category"} id={"txt-template-category"}
                                        onChange={(e) => {
                                            this.saveAsCategory = e.target.value
-                                       }}></Input>
+                                       }}/>
                             </FormGroup>
                             <FormGroup>
                                 <Label for={"txt-template-name"}>Name</Label>
                                 <Input type="text" name={"txt-template-name"} id={"txt-template-name"}
                                        onChange={(e) => {
                                            this.saveAsName = e.target.value
-                                       }}></Input>
+                                       }}/>
                             </FormGroup>
                             <FormGroup>
                                 <Label for={"txt-template-description"}>Description</Label>
                                 <Input type="textarea" name={"txt-template-description"} id={"txt-template-description"}
                                        onChange={(e) => {
                                            this.saveAsDescription = e.target.value
-                                       }}></Input>
+                                       }}/>
                             </FormGroup>
                         </ModalBody>
                         <ModalFooter>
@@ -569,30 +584,31 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                         <ModalBody>
                             <FormGroup>
                                 <Label for={"txt-template-category"}>Category</Label>
-                                <Input type="text" name={"txt-template-category"} id={"txt-template-category"}
+                                <Input type="text" name={"txt-template-category"} id={"txt-template-category"} defaultValue={this.saveAsCategory}
                                        onChange={(e) => {
                                            this.saveAsCategory = e.target.value
-                                       }}></Input>
+                                       }}/>
                             </FormGroup>
                             <FormGroup>
                                 <Label for={"txt-template-name"}>Name</Label>
-                                <Input type="text" name={"txt-template-name"} id={"txt-template-name"}
+                                <Input type="text" name={"txt-template-name"} id={"txt-template-name"} defaultValue={this.saveAsName}
                                        onChange={(e) => {
                                            this.saveAsName = e.target.value
-                                       }}></Input>
+                                       }}/>
                             </FormGroup>
                             <FormGroup>
                                 <Label for={"txt-template-description"}>Description</Label>
-                                <Input type="textarea" name={"txt-template-description"} id={"txt-template-description"}
+                                <Input type="textarea" name={"txt-template-description"} id={"txt-template-description"} defaultValue={this.saveAsDescription}
                                        onChange={(e) => {
                                            this.saveAsDescription = e.target.value
-                                       }}></Input>
+                                       }}/>
                             </FormGroup>
                             <FormGroup check inline>
-                                <Input type="checkbox" id={"txt-repo-public"} checked={this.saveAsRepoPublic}
+                                <Input type="checkbox" id={"txt-repo-public"} checked={this.saveAsRepoPublic} defaultChecked={this.saveAsRepoPublic}
                                        onChange={(e) => {
                                            this.saveAsRepoPublic = e.target.checked
-                                       }}></Input>
+                                       }}/>
+                                <span className="custom-toggle-slider rounded-circle" data-label-off="OFF" data-label-on="ON"/>
                                 <Label check>
                                     Public repository
                                 </Label>

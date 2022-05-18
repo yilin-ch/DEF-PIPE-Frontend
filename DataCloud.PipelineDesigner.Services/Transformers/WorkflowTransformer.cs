@@ -172,10 +172,10 @@ namespace DataCloud.PipelineDesigner.Services
                 Step step = new Step();
                 if (element.ElementType == WorkflowElementType.Action)
                     step.Name = (element as WorkflowAction).Title;
-                    step.Implementation = (element as WorkflowAction).Parameters.Implementation;
-                    step.Image = (element as WorkflowAction).Parameters.Image;
-                    step.ResourceProvider = (element as WorkflowAction).Parameters.ResourceProvider;
-                    step.EnvParams = (element as WorkflowAction).Parameters.EnvironmentParameters.ToDictionary((ep) => ep.Key, (ep) => ep.Value);
+                    step.Implementation = (element as WorkflowAction).Parameters?.Implementation;
+                    step.Image = (element as WorkflowAction).Parameters?.Image;
+                    step.ResourceProvider = (element as WorkflowAction).Parameters?.ResourceProvider;
+                    step.EnvParams = (element as WorkflowAction).Parameters?.EnvironmentParameters.ToDictionary((ep) => ep.Key, (ep) => ep.Value);
                 
                     steps.Add(step);
 

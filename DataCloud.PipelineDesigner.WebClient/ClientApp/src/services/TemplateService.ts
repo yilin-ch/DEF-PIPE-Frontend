@@ -12,10 +12,10 @@ import KeycloakService from './KeycloakService';
 export class TemplateService {
     static saveTemplateTimeoutHandle = null;
 
-    public createNewRootShape() {
+    public createNewRootShape(id?: string, name?: string) {
         let rootShape: ICanvasShape = {
-            id: uuidv4(),
-            name: "Root",
+            id: id ? id : uuidv4(),
+            name: name ? name : "Root",
             type: ICanvasElementType.Shape,
             canHaveChildren: true,
             elements: [],
@@ -70,6 +70,14 @@ export class TemplateService {
             })
         }, 500);
     }
+    public deleteRepo(repoId: string, username : string) {
+        TemplateService.saveTemplateTimeoutHandle = setTimeout(() => {
+            TemplateService.saveTemplateTimeoutHandle = null;
+            fetch(`/api/repo/` + username + "/" + repoId, {
+                method: "DELETE",
+            })
+        }, 500);
+    }
 
     public deleteTemplate(templateId: string) {
         TemplateService.saveTemplateTimeoutHandle = setTimeout(() => {
@@ -79,6 +87,8 @@ export class TemplateService {
             })
         }, 500);
     }
+
+
 
 
     public static searchPublicRepos<T>(query: string): Promise<ISearchRepo[]> {
