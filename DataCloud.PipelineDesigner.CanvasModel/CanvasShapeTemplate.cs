@@ -37,10 +37,9 @@ namespace DataCloud.PipelineDesigner.CanvasModel
             this.IsContainer = true;
             this.ConnectionPoints = new List<CanvasShapeConnectionPoint>() {
                     new CanvasShapeConnectionPoint { Id = "1", Position = new CanvasPosition { X = 0, Y = 50 }, Type= CanvasConnectionPointType.Input },
-                    new CanvasShapeConnectionPoint { Id = "2", Position = new CanvasPosition { X = 100, Y = 50 }, Type = CanvasConnectionPointType.Output }
+                    new CanvasShapeConnectionPoint { Id = "2", Position = new CanvasPosition { X = 200, Y = 50 }, Type = CanvasConnectionPointType.Output }
                 };
             this.Elements = new List<CanvasElement>();
-            ConnectionPoints = new List<CanvasShapeConnectionPoint>();
             Properties = new List<CanvasElementProperty>();
         }
 

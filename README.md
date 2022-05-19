@@ -5,7 +5,7 @@
 
 # DEF-PIPE Frontend
 
-The DEF-PIPE Frontend is a graphic pipeline designer tool for defining Big Data pipelines and tranforming them to DSL. The pipeline designer is deployed and accessible at https://pipelinedesign.azurewebsites.net/
+The DEF-PIPE Frontend is a graphic pipeline designer tool for defining Big Data pipelines and tranforming them to DSL. The pipeline designer test version is deployed and accessible at http://def-pipe.northeurope.azurecontainer.io
 
 Because of several benefits such as ease of use, compability, and reusability, the web application approach was chosen to implement a pipeline designer. From a high-level view, the system consists of the following three components:
 
@@ -16,12 +16,37 @@ Because of several benefits such as ease of use, compability, and reusability, t
 The project also use Bootstrap, a framework providing basic UI components building blocks which are easy to customize.
 
 ## Back-End
-- The back-end is implemented in CSharp using Dor Net (.NET) framework from Microsoft. In particular, ASP.NET Core, which is the part of the >NET framework for web application, is being used. It implements a web API providing a central interface for operations such as managing pipelines and templates data, transforming pipelines into DSL.
+- The back-end is implemented in CSharp using Dor Net (.NET) framework from Microsoft. In particular, ASP.NET Core, which is the part of the NET framework for web application, is being used. It implements a web API providing a central interface for operations such as managing pipelines and templates data, transforming pipelines into DSL.
 
 ## Database
-- The database in Pipeline Designer is mainly used to persist pipelines and templates created by users. As such, there was no need for any kind of complex query capabilities. Based on this assesment Entity Framework which is an object-relational mapping (ORM) framework for .NET is used.
+- The database in Pipeline Designer is used to persist steps and workflow created by users. As the visual workflows are represented in JSON format, MongoDB is used.
 
-# Installation
+# Deployment
+
+The solutions is configured to work in a docker container and the image is published on [docker hub](https://hub.docker.com/repository/docker/vlx09/def-pipe-designer). An docker-compose.yml example is available at the root of the repository. 
+
+## Environment
+
+### Docker
+
+| Variable | Description |
+|---|---|
+|MANGO_CONNECTION_STRING| Connection string for MongoDB |
+|KEYCLOAK_AUTHORITY| Url of the KeyCloak authorization server  |
+
+### ReactJS
+
+For the frontend, you need to add a .env file in `DataCloud.PipelineDesigner.WebClient/ClientApp` and set the following variables:
+
+| Variable | Description |
+|---|---|
+|REACT_APP_KEYCLOAK_URL| KeyCloak base url |
+|REACT_APP_KEYCLOAK_REALM| KeyCloak realm  |
+|REACT_APP_KEYCLOAK_CLIENT_ID| KeyCloak client id |
+
+A `.env.example` file is available for example.
+
+# C# Environment
 
 ## Toolings
 
@@ -31,14 +56,14 @@ For both Windows and MacOS, install the following:
 ### Windows
 
 - Download and install [Visual Studio 2022](https://visualstudio.microsoft.com/vs/). The free Community edition can be used in case a Visual Studio license is not available.
-- Go to [.NET SDK Download](https://dotnet.microsoft.com/en-us/download/dotnet/5.0) and download & install the SDK 5.0.100 for Windows.
-- Go to [.NET Download](https://dotnet.microsoft.com/en-us/download/dotnet/5.0/runtime) and download & install the Hosting Bundle for Windows.
+- Go to [.NET SDK Download](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) and download & install the SDK 6.0.1 for Windows.
+- Go to [.NET Download](https://dotnet.microsoft.com/en-us/download/dotnet/6.0/runtime) and download & install the Hosting Bundle for Windows.
 
 ### MacOS
 
 - Download and install [Visual Studio for Mac](https://visualstudio.microsoft.com/vs/mac/).
-- Go to [.NET SDK Download](https://dotnet.microsoft.com/en-us/download/dotnet/5.0) and download & install the SDK 5.0.100 for MacOS.
-- Go to [.NET Download](https://dotnet.microsoft.com/en-us/download/dotnet/5.0/runtime) and download & install the Hosting Bundle for MacOS.
+- Go to [.NET SDK Download](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) and download & install the SDK 6.0.1 for MacOS.
+- Go to [.NET Download](https://dotnet.microsoft.com/en-us/download/dotnet/6.0/runtime) and download & install the Hosting Bundle for MacOS.
 
 ## Build
 

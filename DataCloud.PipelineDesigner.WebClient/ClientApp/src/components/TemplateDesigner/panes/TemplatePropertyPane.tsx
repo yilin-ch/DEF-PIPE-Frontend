@@ -170,7 +170,7 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
                     <React.Fragment>
                         <Form>
                             <h3 className="property-pane-header">
-                                Template Properties
+                                Step Properties
                             </h3>
                             <p className="property-pane-subheader">ID: {this.props.selectedTemplate.id}</p>
                             <Nav tabs>

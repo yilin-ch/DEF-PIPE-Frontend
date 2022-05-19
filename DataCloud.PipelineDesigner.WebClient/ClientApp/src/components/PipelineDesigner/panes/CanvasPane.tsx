@@ -70,7 +70,6 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
 
     saveAsTemplateModal = false;
     saveAsRepoModal = false;
-    exportDSLModal = false;
     findRepoModal = false;
 
     saveAsName = "";
@@ -92,10 +91,6 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
             this.saveAsRepoPublic = this.props.currentRepoEdit.public;
         }
         this.saveAsRepoModal = !this.saveAsRepoModal;
-    }
-
-    toggleExportDSLModal() {
-        this.exportDSLModal = !this.exportDSLModal;
     }
 
     toggleFindRepoModal() {
@@ -506,7 +501,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                         <Button onClick={() => this.toggleFindRepoModal()}><i className="bi bi-search"
                                                                               style={{padding: 5}}/></Button>
                         <Button onClick={() => this.exportCanvasAsJson()}>Export JSON</Button>
-                        <Button onClick={() => this.toggleExportDSLModal()}>Export DSL</Button>
+                        <Button onClick={() => this.exportCanvasAsDSL()}>Export DSL</Button>
                         {/*<Button onClick={() => this.toggleSaveAsTemplateModal()}>Save as Template</Button>*/}
                         {KeycloakService.getUsername() &&
                         <Button onClick={() => this.toggleSaveAsRepoModal()}><i className="bi bi-save"
@@ -618,27 +613,6 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                         <ModalFooter>
                             <Button color="primary" onClick={(e) => this.saveAsRepo()}>Save</Button>
                             <Button color="secondary" onClick={(e) => this.toggleSaveAsRepoModal()}>Cancel</Button>
-                        </ModalFooter>
-                    </Modal>
-
-                    {/* Export Dsl modal */}
-                    <Modal isOpen={this.exportDSLModal} toggle={(e) => this.toggleExportDSLModal()}>
-                        <ModalHeader toggle={(e) => this.toggleExportDSLModal()}>Export pipeline as DSL</ModalHeader>
-                        <ModalBody>
-                            <FormGroup>
-                                <Label for={"txt-export-dsl-name"}>DSL to export</Label>
-                                <Input type="select" name={"txt-export-dsl-name"} id={"txt-export-dsl-name"}
-                                       onChange={(e) => {
-                                           this.selectedDSLToExport = e.target.value
-                                       }}>
-                                    {this.props.availableDSLs ? this.props.availableDSLs.map(dsl => <option
-                                        value={dsl.name}>{dsl.name}</option>) : null}
-                                </Input>
-                            </FormGroup>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button color="primary" onClick={(e) => this.exportCanvasAsDSL()}>Export</Button>
-                            <Button color="secondary" onClick={(e) => this.toggleExportDSLModal()}>Cancel</Button>
                         </ModalFooter>
                     </Modal>
                 </div>
