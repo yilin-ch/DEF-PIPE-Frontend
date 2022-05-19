@@ -1,5 +1,6 @@
 ﻿using DataCloud.PipelineDesigner.Services.Interfaces;
 using DataCloud.PipelineDesigner.WorkflowModel;
+using DataCloud.PipelineDesigner.WorkflowModel.DSL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,121 +11,111 @@ namespace DataCloud.PipelineDesigner.Services
     public class SimpleDSLTransfomer: IDSLTransformer
     {
         public Workflow Workflow { get; set; }
+        public Dsl Dsl { get; set; }
         public SimpleDSLTransfomer()
         {            
         }
 
-        public string Transform(Workflow workflow)
+
+        public string Transform(Dsl dsl)
         {
-            Workflow = workflow;
+            Dsl = dsl;
 
             StringBuilder dslBuilder = new StringBuilder();
 
-            dslBuilder.AppendLine("Workflow prototypeWorkflow");
-            dslBuilder.AppendLine("{");
-
-            GenerateWorkflowProperties(dslBuilder);
-            GenerateWorkflowSteps(dslBuilder, workflow.Elements);
+            dslBuilder.AppendLine("Pipeline " + dsl.Name + " {");
+            dslBuilder.AppendLine(Identation(0) + "steps:");
+            GenerateWorkflowSteps(dslBuilder, dsl.Steps, 0);
             dslBuilder.AppendLine("}");
 
             return dslBuilder.ToString();
         }
 
-        public Workflow Transform(string dsl)
+        private void GenerateWorkflowSteps(StringBuilder dslBuilder, Step[] steps, int level = 0)
+        {
+            foreach (var step in steps)
+            {
+                GenerateStepName(dslBuilder, step.Name, level + 1);
+                GenerateStepImplementation(dslBuilder, step.Implementation, level + 1);
+                GenerateStepImage(dslBuilder, step.Image, level + 1);
+                if(step.EnvParams?.Count > 0)
+                    GenerateStepEnvParams(dslBuilder, step.EnvParams, level + 1);
+                if (step.ExecRequirements?.Length > 0)
+                    GenerateStepExcRequ(dslBuilder, step.ExecRequirements, level + 1);
+                GenerateStepResrceProvider(dslBuilder, step.ResourceProvider, level + 1);
+                if (step.Previous != null)
+                    GenerateStepPrevious(dslBuilder, step.Previous, level + 1);
+
+            }
+        }
+
+        private void GenerateStepName(StringBuilder dslBuilder, string name, int level = 0)
+        {
+            dslBuilder.AppendLine(Identation(level-1) + "-" + Identation(0) + name);
+        }
+        private void GenerateStepImplementation (StringBuilder dslBuilder, string implementaton, int level = 0)
+        {
+            dslBuilder.AppendLine(Identation(level) + "implementation: " + implementaton);
+        }
+        private void GenerateStepImage(StringBuilder dslBuilder, string image, int level = 0)
+        {
+            dslBuilder.AppendLine(Identation(level) + "image: " + image);
+        }
+        private void GenerateStepEnvParams(StringBuilder dslBuilder, Dictionary<string, string> envs, int level = 0)
+        {
+            dslBuilder.AppendLine(Identation(level) + "environmentParameters: {" );
+            foreach (var e in envs)
+            {
+                dslBuilder.AppendLine(Identation(level + 1) + e.Key + "=" + e.Value);
+            }
+            dslBuilder.AppendLine(Identation(level) + "}");
+        }
+        private void GenerateStepExcRequ(StringBuilder dslBuilder,ExecutionRequirements[] requs, int level = 0)
+        {
+            dslBuilder.AppendLine(Identation(level) + "environmentParameters: :" );
+            foreach (var r in requs)
+            {
+                dslBuilder.AppendLine(Identation(level + 1) + r.Type + " " + r.SubType + " {");
+                foreach (var e in r.Requirements)
+                {
+                    dslBuilder.AppendLine(Identation(level + 2) + e.Key + " " + e.Value);
+                }
+                dslBuilder.AppendLine(Identation(level + 1) + "}");
+            }
+            
+        }
+        private void GenerateStepResrceProvider(StringBuilder dslBuilder, string rsrc, int level = 0)
+        {
+            dslBuilder.AppendLine(Identation(level) + "resourceProvider: " + rsrc);
+        }
+        private void GenerateStepPrevious(StringBuilder dslBuilder, string prev, int level = 0)
+        {
+            dslBuilder.AppendLine(Identation(level) + "previous: " + prev);
+        }
+
+        public Dsl Transform(string dsl)
         {
             Workflow workflow = new Workflow();
-
-
-            return workflow;
-        }
-
-        private void GenerateWorkflowProperties(StringBuilder dslBuilder, int level = 0)
-        {
-            dslBuilder.AppendLine(Identation(level) + "input:");
-            dslBuilder.AppendLine(Identation(level + 1) + Workflow.Parameters["Input path"]);
-
-            var remainingParams = Workflow.Parameters.Where(p => p.Key != "Input path").ToList();
-            if (remainingParams.Count > 0)
+            try
             {
-                dslBuilder.AppendLine(Identation(level) + "parameters:");
-                foreach (var param in remainingParams)
+                var tokens = DslTokenizer.TryTokenize(dsl);
+                if (!tokens.HasValue)
                 {
-                    dslBuilder.AppendLine(Identation(level + 1) + param.Key + ": " + param.Value);
+                    throw new Exception(tokens.ErrorMessage.ToString());
+                }
+                else if (!DslParser.TryParse(tokens.Value, out Dsl expr, out var error, out var errorPosition))
+                {
+                    throw new Exception(error.ToString());
+                }
+                else
+                {
+                    return expr;
                 }
             }
-        }
-
-        private void GenerateWorkflowSteps(StringBuilder dslBuilder, List<WorkflowElement> elements, int level = 0)
-        {
-            dslBuilder.AppendLine(Identation(level) + "steps:");
-            foreach (var element in elements)
+            catch (Exception e)
             {
-                switch (element.ElementType)
-                {
-                    case WorkflowElementType.Action:
-                        GenerateWorkflowStep(dslBuilder, element as WorkflowAction, level + 1);
-                        break;
-                    case WorkflowElementType.Control:
-                        if (element is WorkflowSwitchControl)
-                        {
-                            GenerateWorkflowStep(dslBuilder, element as WorkflowSwitchControl, level + 1);
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                throw new Exception(e.Message, e);
             }
-        }
-
-        private void GenerateWorkflowStep(StringBuilder dslBuilder, WorkflowSwitchControl workflowControl, int level)
-        {
-            dslBuilder.AppendLine(Identation(level) + "- step Branching");
-
-            if (workflowControl.InputDataSetId != null)
-            {
-                dslBuilder.AppendLine(Identation(level + 1) + "input:");
-                var inputDataSet = Workflow.DataSets.FirstOrDefault(p => p.Id == workflowControl.InputDataSetId);
-                dslBuilder.AppendLine(Identation(level + 2) + inputDataSet.Parameters["File Path"]);
-            }
-
-            dslBuilder.AppendLine(Identation(level + 1) + "switch:");
-            foreach (var branch in workflowControl.SwitchCases)
-            {
-                dslBuilder.AppendLine(Identation(level + 2) + "case: " + branch.Key);
-                GenerateWorkflowSteps(dslBuilder, branch.Value, level + 3);
-            }
-
-            dslBuilder.AppendLine(Identation(level + 2) + "default: ");
-            GenerateWorkflowSteps(dslBuilder, workflowControl.Elements, level + 3);
-
-            dslBuilder.AppendLine();
-        }
-
-        private void GenerateWorkflowStep(StringBuilder dslBuilder, WorkflowAction workflowAction, int level)
-        {
-            dslBuilder.AppendLine(Identation(level) + "- step " + workflowAction.Title);
-
-            if (workflowAction.InputDataSetId != null)
-            {
-                dslBuilder.AppendLine(Identation(level + 1) + "input:");
-                var inputDataSet = Workflow.DataSets.FirstOrDefault(p => p.Id == workflowAction.InputDataSetId);
-                dslBuilder.AppendLine(Identation(level + 2) + inputDataSet.Parameters["File Path"]);
-            }
-
-            if (workflowAction.OutputDataSetId != null)
-            {
-                dslBuilder.AppendLine(Identation(level + 1) + "output:");
-                var outputDataSet = Workflow.DataSets.FirstOrDefault(p => p.Id == workflowAction.OutputDataSetId);
-                dslBuilder.AppendLine(Identation(level + 2) + outputDataSet.Parameters["File Path"]);
-            }
-
-            dslBuilder.AppendLine(Identation(level + 1) + "paramters:");
-            foreach (var actionParam in workflowAction.Parameters)
-            {
-                dslBuilder.AppendLine(Identation(level + 2) + actionParam.Key + ": " + actionParam.Value);
-            }
-
-            dslBuilder.AppendLine();
         }
 
 

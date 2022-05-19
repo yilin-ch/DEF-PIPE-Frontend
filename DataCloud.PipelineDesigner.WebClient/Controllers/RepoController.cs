@@ -1,16 +1,22 @@
 ﻿using DataCloud.PipelineDesigner.Repositories.Models;
 using DataCloud.PipelineDesigner.Services.Interfaces;
 using DataCloud.PipelineDesigner.WebClient.Models;
+using DataCloud.PipelineDesigner.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Text.Json;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson;
 
 namespace DataCloud.PipelineDesigner.WebClient.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class RepoController : ControllerBase
@@ -18,11 +24,13 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         Services.Interfaces.IUserService userService;
         Services.Interfaces.IPublicRepoService pRepoService;
         private readonly IAuthorizationService authorizationService;
+        IDSLService dslService;
         public RepoController(IUserService uService, IPublicRepoService prService, IAuthorizationService authService)
         {
             userService = uService;
             pRepoService = prService;
             authorizationService= authService;
+            dslService = new DSLService();
         }
 
         [HttpGet("s")]
@@ -84,7 +92,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
 
 
                 // Probably a better way to do nested upsert
-                if(result.ModifiedCount < 1)
+                if (result.ModifiedCount < 1)
                 {
                     await userService.AddRepoAsync(template, user);
                 }
@@ -113,6 +121,27 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             {
 
                 await userService.DeleteTemplate(user, id);
+
+                return ApiHelper.CreateSuccessResult(true);
+            }
+            catch (Exception e)
+            {
+                return ApiHelper.CreateFailedResult<bool>(e.Message);
+            }
+        }
+
+
+        [HttpPost("{user}/import")]
+        public async Task<ApiResult<bool>> ImportDsl([FromForm] string dsl, String user)
+        {
+            try
+            {
+                var d = dslService.DeserializeDsl(dsl);
+                var r = CanvasService.TransformDslToCanvas(d);
+
+                var template = new Template { Name = d.Name, Category = "Imported", Id = Guid.NewGuid().ToString(), CanvasTemplate = r };
+
+                var result = await userService.AddRepoAsync(template, user);
 
                 return ApiHelper.CreateSuccessResult(true);
             }

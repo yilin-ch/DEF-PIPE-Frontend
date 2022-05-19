@@ -7,14 +7,15 @@ import {
     ApiResult, ISearchRepo
 } from '../models';
 import { v4 as uuidv4 } from 'uuid';
+import KeycloakService from './KeycloakService';
 
 export class TemplateService {
     static saveTemplateTimeoutHandle = null;
 
-    public createNewRootShape() {
+    public createNewRootShape(id?: string, name?: string) {
         let rootShape: ICanvasShape = {
-            id: uuidv4(),
-            name: "Root",
+            id: id ? id : uuidv4(),
+            name: name ? name : "Root",
             type: ICanvasElementType.Shape,
             canHaveChildren: true,
             elements: [],
@@ -63,8 +64,17 @@ export class TemplateService {
                 method: "POST",
                 body: JSON.stringify(repo),
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${KeycloakService.getToken()}`,
                 }
+            })
+        }, 500);
+    }
+    public deleteRepo(repoId: string, username : string) {
+        TemplateService.saveTemplateTimeoutHandle = setTimeout(() => {
+            TemplateService.saveTemplateTimeoutHandle = null;
+            fetch(`/api/repo/` + username + "/" + repoId, {
+                method: "DELETE",
             })
         }, 500);
     }
@@ -79,8 +89,16 @@ export class TemplateService {
     }
 
 
+
+
     public static searchPublicRepos<T>(query: string): Promise<ISearchRepo[]> {
-        return fetch(`/api/repo/s?query=` + query)
+        return fetch(`/api/repo/s?query=` + query, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+                'Authorization': `Bearer ${KeycloakService.getToken()}`,
+            }
+        })
             .then(response => response.json() as Promise<ApiResult<Array<ISearchRepo>>>)
             .then(apiResult => {
                 return apiResult.data;
@@ -89,7 +107,13 @@ export class TemplateService {
 
 
     public static getPublicRepo<T>(repo: ISearchRepo): Promise<IAPiTemplate> {
-        return fetch(`/api/repo?user=` + repo.user +`&workflowName=` + repo.workflowName )
+        return fetch(`/api/repo?user=` + repo.user + `&workflowName=` + repo.workflowName, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+                'Authorization': `Bearer ${KeycloakService.getToken()}`,
+            }
+        })
             .then(response => response.json() as Promise<ApiResult<IAPiTemplate>>)
             .then(apiResult => {
                 return apiResult.data;

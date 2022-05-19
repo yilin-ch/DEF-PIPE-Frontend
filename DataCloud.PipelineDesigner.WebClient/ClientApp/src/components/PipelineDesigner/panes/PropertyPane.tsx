@@ -1,4 +1,4 @@
-﻿import * as React from 'react';
+import * as React from 'react';
 import {connect} from 'react-redux';
 import {Form, FormGroup, Input, Label} from 'reactstrap';
 import {
@@ -31,25 +31,25 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
         }
     }
 
+
     schema: Schema = {
         type: "object",
-        "title":"Parameters",
+        "title": "Parameters",
         properties: {
             "implementation": {
-                "title":"Implementation",
+                "title": "Implementation",
                 "type": "string",
             },
             "image": {
-                "title":"Image",
+                "title": "Image",
                 "type": "string",
-
             },
             "environmentParameters": {
-                "title":"Env. Parameters",
+                "title": "Env. Parameters",
                 "type": "array",
                 "items": {
                     "type": "object",
-                    "title":"key-value",
+                    "title": "key-value",
                     "properties": {
                         "key": {
                             "type": "string"
@@ -66,11 +66,12 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
             },
             "resourceProvider": {
                 "type": "string",
-                "title":"Resource Provider"
+                "title": "Resource Provider"
             },
         },
         "required": [
             "data_source_step",
+            "impl_edit",
             "implementation",
             "image",
             "environmentParameters",
@@ -86,7 +87,7 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
 
     private savePropertyValue = () => {
         const template = this.props.repo.find(repo => repo.id === this.props.currentRootShape.templateId);
-        const  index = template.canvasTemplate.elements.findIndex(e => e.id === this.props.selectedElement.id);
+        const index = template.canvasTemplate.elements.findIndex(e => e.id === this.props.selectedElement.id);
         (template.canvasTemplate.elements[index] as ICanvasShape).parameters = this.state.updateValue;
 
         this.props.addRepo(template);
@@ -136,7 +137,7 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
                         <h3 className="property-pane-header">{selectedShape.name}</h3>
                         <p className="property-pane-subheader">ID: {selectedShape.id}</p>
                         <Form>
-                            {selectedShape.properties.filter(p => p.allowEditing).map(prop => this.renderProperty(prop))}
+                            {selectedShape.properties?.filter(p => p.allowEditing).map(prop => this.renderProperty(prop))}
                         </Form>
                         <td>
                             <p className="btn btn-success saveButton" onClick={(e) => {
@@ -145,23 +146,23 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
                                 Save
                             </p>
                         </td>
-                        <td>
-                            <p className="btn btn-danger removeButton" onClick={(e) => {
-                                this.setState({
-                                    updateValue: this.state.initialValue
-                                });
-                            }}>
-                                Reset
-                            </p>
-                        </td>
-                        <div className="from-group">
-                            <JSONEditor
+                        {/*<td>*/}
+                        {/*    <p className="btn btn-danger removeButton" onClick={(e) => {*/}
+                        {/*        this.setState({*/}
+                        {/*            updateValue: this.state.initialValue*/}
+                        {/*        });*/}
+                        {/*    }}>*/}
+                        {/*        Reset*/}
+                        {/*    </p>*/}
+                        {/*</td>*/}
+                        {selectedShape.properties?.length < 0 ?
+                            null
+                            : <JSONEditor
                                 schema={this.schema}
                                 initialValue={(selectedShape as ICanvasShape).parameters}
                                 updateValue={this.updatePropertyValue}
                                 theme="bootstrap5"
-                                icon="bootstrap-icons"/>
-                        </div>
+                                icon="bootstrap-icons"/>}
                     </React.Fragment>
                     : null}
             </React.Fragment>

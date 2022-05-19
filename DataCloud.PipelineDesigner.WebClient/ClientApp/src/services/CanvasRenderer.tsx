@@ -25,22 +25,29 @@ export class CanvasRenderer {
 
 
         return lines.map((line, index) => {
-            let strokeColor = index % 5 === 0 ? '#ccc' : '#ddd';
+            let strokeColor = index % 5 === 0 ? '#dbdbdb' : '#ebebeb';
             return <Line points={line} stroke={strokeColor}></Line>
         });
     }
 
     public static renderShapeComponent(shape: ICanvasShape, isSelectedShape: boolean, containerExpandCallback: (e, shape: ICanvasShape) => void) {
         switch (shape.shape) {
+            case "Loop":
+                return [
+                    <Rect cornerRadius={[5,0,5,5]} width={shape.width} height={shape.height} stroke={CanvasSettings.shapeStroke} fill={isSelectedShape ? CanvasSettings.selectedShapeBackground : CanvasSettings.shapeBackground} ></Rect>,
+                    <Rect cornerRadius={[5,5,0,0]} x={shape.width - 50} y={-20} width={50} height={20} stroke={CanvasSettings.shapeStroke} fill={isSelectedShape ? CanvasSettings.selectedShapeBackground : CanvasSettings.shapeBackground} onClick={(e) => containerExpandCallback(e, shape)}></Rect>,
+                    <Arrow points={[shape.width - 20, -5, shape.width - 10, -5, shape.width - 10, -15, shape.width - 40, -15, shape.width - 40, -5, shape.width - 30, -5]} stroke={CanvasSettings.shapeStroke} pointerLength={4} pointerWidth={4}  fill={CanvasSettings.textColor}  onClick={(e) => containerExpandCallback(e, shape)}></Arrow>
+                ];
+
             case "Container":
                 return [
-                    <Rect width={shape.width} height={shape.height} stroke={CanvasSettings.shapeStroke} fill={isSelectedShape ? CanvasSettings.selectedShapeBackground : CanvasSettings.shapeBackground} ></Rect>,
-                    <Rect x={shape.width - 50} y={-20} width={50} height={20} stroke={CanvasSettings.shapeStroke} fill={isSelectedShape ? CanvasSettings.selectedShapeBackground : CanvasSettings.shapeBackground}></Rect>,
+                    <Rect cornerRadius={[5,0,5,5]} width={shape.width} height={shape.height} stroke={CanvasSettings.shapeStroke} fill={isSelectedShape ? CanvasSettings.selectedShapeBackground : CanvasSettings.shapeBackground} ></Rect>,
+                    <Rect cornerRadius={[5,5,0,0]} x={shape.width - 50} y={-20} width={50} height={20} stroke={CanvasSettings.shapeStroke} fill={isSelectedShape ? CanvasSettings.selectedShapeBackground : CanvasSettings.shapeBackground}></Rect>,
                     <Text x={shape.width - 50} y={-20} width={50} height={20} text={"..."} align="center" verticalAlign="middle" fontSize={18} fontFamily="Calibri" fill={CanvasSettings.textColor} onClick={(e) => containerExpandCallback(e, shape)}></Text>
                 ];
 
             case "Rectangle":
-                return <Rect width={shape.width} height={shape.height} stroke={CanvasSettings.shapeStroke} fill={isSelectedShape ? CanvasSettings.selectedShapeBackground : CanvasSettings.shapeBackground} ></Rect>
+                return <Rect cornerRadius={5} width={shape.width} height={shape.height} stroke={CanvasSettings.shapeStroke} fill={isSelectedShape ? CanvasSettings.selectedShapeBackground : CanvasSettings.shapeBackground} ></Rect>
 
             case "Ellipse":
                 let radiusX = shape.width / 2;
