@@ -21,7 +21,9 @@ The project also use Bootstrap, a framework providing basic UI components buildi
 
 # Deployment
 
-The solution is configured to work in a docker container and the image is published on [docker hub](https://hub.docker.com/repository/docker/vlx09/def-pipe-designer). A docker-compose.yml example is available at the root of the repository. 
+The solution is configured to work in a docker container and docker-compose.yml example is available at the root of the repository. 
+
+*A docker image will be soon published on docker hub*
 
 ## Environment
 
