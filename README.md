@@ -21,13 +21,19 @@ The project also use Bootstrap, a framework providing basic UI components buildi
 
 # Deployment
 
-The solution is configured to work in a docker container and docker-compose.yml example is available at the root of the repository. 
+The solution is configured to work in a docker container, the build configuration is located in the [Dockerfile](./Dockerfile) and a [docker-compose.yml](./docker-compose.yml) is available at the root of the repository.
 
-*A docker image will be soon published on docker hub*
+After setting the environement variables required bellow, run `docker-compose up` to build the project and start the container. The application will be reachable on the port 80. 
+
+ℹ️ *An official docker image will be soon published on docker hub*
+
+For infomation how to configure or use docker, see the [official documentation](https://docs.docker.com/).
 
 ## Environment
 
 ### Docker
+
+In the [docker-compose.yml](./docker-compose.yml), change the following variables
 
 | Variable | Description |
 |---|---|
@@ -36,7 +42,7 @@ The solution is configured to work in a docker container and docker-compose.yml 
 
 ### ReactJS
 
-For the frontend, you need to add a .env file in `DataCloud.PipelineDesigner.WebClient/ClientApp` and set the following variables:
+For the frontend, you need to add a `.env` file in [DataCloud.PipelineDesigner.WebClient/ClientApp](./DataCloud.PipelineDesigner.WebClient/ClientApp) and set the following variables:
 
 | Variable | Description |
 |---|---|
@@ -44,14 +50,14 @@ For the frontend, you need to add a .env file in `DataCloud.PipelineDesigner.Web
 |REACT_APP_KEYCLOAK_REALM| KeyCloak realm  |
 |REACT_APP_KEYCLOAK_CLIENT_ID| KeyCloak client id |
 
-A `.env.example` file is available for example.
+A [.env.example](DataCloud.PipelineDesigner.WebClient/ClientApp/.env.example) file is available for example.
 
 # C# Environment
 
 ## Toolings
 
 For both Windows and MacOS, install the following:
-- [NodeJS 14.16.0](https://nodejs.org/de/blog/release/v14.16.0/)
+- [NodeJS 16.15.0](https://nodejs.org/de/blog/release/v16.15.0/)
 
 ### Windows
 
