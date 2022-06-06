@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace DataCloud.PipelineDesigner.WebClient.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/templates")]
     [ApiController]
     public class TemplatesController : ControllerBase
     {
@@ -25,6 +25,11 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             //TODO: Update this to use dependency injection
             templateService = services;
         }
+
+        /// <summary>
+        /// Add/Update a template
+        /// </summary>
+        /// <response code="200">New template</response>
         [HttpPost]
         public async Task<ApiResult<Template>> AddOrUpdateTemplateAsync([FromBody] Template template)
         {
@@ -40,6 +45,10 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             }
         }
 
+        /// <summary>
+        /// Get Available template
+        /// </summary>
+        /// <response code="200">List of template</response>
         [HttpGet]
         public async Task<ApiResult<List<Template>>> GetAvailableTemplates()
         {
@@ -54,6 +63,10 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete a template
+        /// </summary>
+        /// <response code="200">Success</response>
         [HttpDelete("{id}")]
         public async Task<ApiResult<bool>> DeleteTemplate(String id)
         {

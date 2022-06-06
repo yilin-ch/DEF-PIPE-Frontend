@@ -13,11 +13,12 @@ using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace DataCloud.PipelineDesigner.WebClient.Controllers
 {
-    //[Authorize]
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/repo")]
     [ApiController]
     public class RepoController : ControllerBase
     {
@@ -33,6 +34,10 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             dslService = new DSLService();
         }
 
+        /// <summary>
+        /// Search for puclic workflow
+        /// </summary>
+        /// <response code="200">List of public workflow matching the query</response>
         [HttpGet("s")]
         public async Task<ApiResult<List<PublicRepo>>> SearchRepo([FromQuery] string query)
         {
@@ -47,6 +52,10 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             }
         }
 
+        /// <summary>
+        /// Get a specific workflow
+        /// </summary>
+        /// <response code="200">List of public repo matching the query</response>
         [HttpGet]
         public async Task<ApiResult<Template>> ImportRepo([FromQuery] string user, [FromQuery] string workflowName)
         {
@@ -62,6 +71,10 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             }
         }
 
+        /// <summary>
+        /// Get user workflows
+        /// </summary>
+        /// <response code="200">List workflow in the user's repository</response>
         [HttpGet("{user}")]
         public async Task<ApiResult<List<Template>>> GetAvailableRepo(String user)
         {
@@ -83,6 +96,12 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             }
         }
 
+
+
+        /// <summary>
+        /// Add/update workflow
+        /// </summary>
+        /// <response code="200">New workflow</response>
         [HttpPost("{user}")]
         public async Task<ApiResult<Template>> AddOrUpdateRepoAsync([FromBody] Template template, string user)
         {
@@ -114,6 +133,11 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Delete workflow
+        /// </summary>
+        /// <response code="200">Success</response>
         [HttpDelete("{user}/{id}")]
         public async Task<ApiResult<bool>> DeleteTemplate(String user, String id)
         {
@@ -131,6 +155,32 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         }
 
 
+        /// <summary>
+        /// Import DSL
+        /// </summary>
+        /// <remarks>
+        /// Swagger doesn't allow a correct formating (newline, tab), try the request on postman
+        /// -> = tab (\t)
+        /// 
+        /// Pipeline name {\
+        ///->   ->  steps:\
+        ///->   ->  -	Extract\
+        ///->   ->  implementation: docker\
+        ///->   ->  image: def/def-extract\
+        ///->   ->  environmentParameters: {\
+        ///->   ->  ->  pwd = xxx\
+        ///->   ->  }\
+        ///->   ->  resourceProvider: External\
+        ///->   ->  -	Filter\
+        ///->   ->  implementation: docker\
+        ///->   ->  image: def/def-filter\
+        ///->   ->  environmentParameters: {\
+        ///->   ->  ->  pwd = xxx\
+        ///->   ->  }\
+        ///->   ->  resourceProvider: External\
+        ///}
+        /// </remarks>
+        /// <response code="200"></response>
         [HttpPost("{user}/import")]
         public async Task<ApiResult<bool>> ImportDsl([FromForm] string dsl, String user)
         {

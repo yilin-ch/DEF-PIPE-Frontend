@@ -2,6 +2,7 @@
 using DataCloud.PipelineDesigner.Services;
 using DataCloud.PipelineDesigner.Services.Interfaces;
 using DataCloud.PipelineDesigner.WorkflowModel.DSL;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace DataCloud.PipelineDesigner.WebClient.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/export")]
     [ApiController]
     public class ExportController : ControllerBase
     {
@@ -26,13 +27,20 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             workflowService = new WorkflowService();
         }
 
-        [Route("dsl/available")]
+        /// <summary>
+        /// DEPRECATED
+        /// </summary>
+        [HttpGet("dsl/available")]
         public List<DSLInfo> GetAvailableDSL()
         {
             return dslService.GetAvailableDSL();
         }
 
-        [Route("dsl"), HttpPost]
+        /// <summary>
+        /// Transform workflow to dsl
+        /// </summary>
+        /// <response code="200">Workflow in DSL format</response>
+        [HttpPost("dsl")]
         public string ExportToDSL([FromBody] Canvas canvas)
         {
             try

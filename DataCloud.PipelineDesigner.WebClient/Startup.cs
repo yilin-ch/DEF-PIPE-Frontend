@@ -14,6 +14,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using DataCloud.PipelineDesigner.WebClient.Controllers.Auth;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System.IO;
 
 namespace DataCloud.PipelineDesigner.WebClient
 {
@@ -69,11 +72,42 @@ namespace DataCloud.PipelineDesigner.WebClient
 
             services.AddSingleton<IAuthorizationHandler, OwnershipAuthHandler>();
 
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "DEF-PIPE",
+                    Description = "For the protected end points, you need to genereate an access token (e.g. using postman) and provide it by opening \"Authorize\"",
+                   
+                    
+                });
+                options.OperationFilter<SwaggerAuthOperationFilter>();
+                
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Enter you your Keyclaok bearer token in the format bellow (don't forget the \"Bearer\")\n\n Bearer YOUR_ACCESS_TOKEN",
+                });
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                c.RoutePrefix = "docs";
+            });
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
