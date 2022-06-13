@@ -11,10 +11,21 @@ using static DataCloud.PipelineDesigner.Services.Constants;
 namespace DataCloud.PipelineDesigner.Services
 {
     public class CanvasService
+
+
     {
-         public static CanvasShapeTemplate TransformDslToCanvas(Dsl dsl)
+
+        public static CanvasShapeTemplate TransformDslToCanvas(Dsl dsl)
         {
-            CanvasShapeTemplate template = new CanvasShapeTemplate(dsl.Name, "", "Imported");
+            CanvasShapeTemplate pipeline = TransformPipelineToCanvas(dsl.Pipeline, dsl.SubPipelines);
+
+
+            return pipeline;
+        }
+
+        private static CanvasShapeTemplate TransformPipelineToCanvas(Pipeline pipeline, Pipeline[] subPipelines)
+        {
+            CanvasShapeTemplate template = new CanvasShapeTemplate(pipeline.Name, "", "Imported");
             template.Properties = new List<CanvasElementProperty>();
             var startGUID = Guid.NewGuid().ToString();
             var endGUID = Guid.NewGuid().ToString();
@@ -42,32 +53,13 @@ namespace DataCloud.PipelineDesigner.Services
             var lastShape = start;
 
 
-            foreach (Step step in dsl.Steps)
+            foreach (Step step in pipeline.Steps)
             {
-
-               
 
                 var guid = Guid.NewGuid().ToString();
 
-                var shape = new CanvasShape
-                {
-                    ID = guid,
-                    Name = step.Name,
-                    Shape = BuiltyInCanvasShape.Rectangle,
-                    ConnectionPoints = new List<CanvasShapeConnectionPoint>() {
-                        new CanvasShapeConnectionPoint { Id = "1", Position = new CanvasPosition { X = 0, Y = 100 }, Type= CanvasConnectionPointType.Input },
-                        new CanvasShapeConnectionPoint { Id = "2", Position = new CanvasPosition { X = 300, Y = 100 }, Type = CanvasConnectionPointType.Output }
-                    },
-                    Position = NextPositon(lastShape),
-                    Type = CanvasElementType.Shape,
-                    Width = 300,
-                    Height = 200,
-                    Parameters = new CanvasParameters { 
-                        Implementation = step.Implementation,
-                        Image = step.Image,
-                        ResourceProvider = step.ResourceProvider,
-                        EnvironmentParameters = step.EnvParams.Select(e => new EnvironmentParameter { Key = e.Key, Value = e.Value }).ToList()                        }
-                };
+                var shape = CreateStepShape(guid, step, lastShape, subPipelines);
+
 
                 template.Elements.Add(shape);
 
@@ -118,6 +110,57 @@ namespace DataCloud.PipelineDesigner.Services
 
             return template;
         }
+        private static CanvasShape CreateStepShape(String guid, Step step, CanvasShape lastShape, Pipeline[] subPipelines)
+        {
+            var subPipeline = subPipelines.FirstOrDefault(x => step.Name.Contains(x.Name));
+
+            if (subPipeline == null)
+            {
+                return new CanvasShape
+                {
+                    ID = guid,
+                    Name = step.Name,
+                    Shape = BuiltyInCanvasShape.Rectangle,
+                    ConnectionPoints = new List<CanvasShapeConnectionPoint>() {
+                        new CanvasShapeConnectionPoint { Id = "1", Position = new CanvasPosition { X = 0, Y = 100 }, Type= CanvasConnectionPointType.Input },
+                        new CanvasShapeConnectionPoint { Id = "2", Position = new CanvasPosition { X = 300, Y = 100 }, Type = CanvasConnectionPointType.Output }
+                    },
+                    Position = NextPositon(lastShape),
+                    Type = CanvasElementType.Shape,
+                    Width = 300,
+                    Height = 200,
+                    Parameters = new CanvasParameters
+                    {
+                        Implementation = step.Implementation,
+                        Image = step.Image,
+                        ResourceProvider = step.ResourceProvider,
+                        EnvironmentParameters = step.EnvParams?.Select(e => new EnvironmentParameter { Key = e.Key, Value = e.Value }).ToList()
+                    }
+                };
+            }
+            else
+            {
+                var nestedCanvas = TransformPipelineToCanvas(subPipeline, subPipelines);
+                return new CanvasShape
+                {
+                    ID = guid,
+                    Name = subPipeline.Name,
+                    Shape = BuiltyInCanvasShape.Container,
+                    ConnectionPoints = new List<CanvasShapeConnectionPoint>() {
+                        new CanvasShapeConnectionPoint { Id = "1", Position = new CanvasPosition { X = 0, Y = 100 }, Type = CanvasConnectionPointType.Input },
+                        new CanvasShapeConnectionPoint { Id = "2", Position = new CanvasPosition { X = 300, Y = 100 }, Type = CanvasConnectionPointType.Output }
+                    },
+                    Position = NextPositon(lastShape),
+                    Type = CanvasElementType.Shape,
+                    Width = 300,
+                    Height = 200,
+                    Elements = nestedCanvas.Elements,
+                };
+            }
+
+
+            
+        }
 
         private static CanvasPosition NextPositon(CanvasShape cs)
         {
@@ -128,6 +171,8 @@ namespace DataCloud.PipelineDesigner.Services
 
             return nextPositon;
         }
+
+
 
     }
 }

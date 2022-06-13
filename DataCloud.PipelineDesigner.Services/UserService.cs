@@ -73,12 +73,13 @@ namespace DataCloud.PipelineDesigner.Services
 
             return _userPost.UpdateOneAsync(
                     Builders<BsonDocument>.Filter.Eq("Username", user) ,
-                    Builders<BsonDocument>.Update.AddToSet("Templates", document));
+                    Builders<BsonDocument>.Update.AddToSet("Templates", document),
+                     new UpdateOptions { IsUpsert = true });
         }
 
         public Task<User> GetRepoAsync(string user)
         {
-            return _user.Find(u => u.Username == user).FirstAsync();
+            return _user.Find(u => u.Username == user).FirstOrDefaultAsync();
         }
 
         public Task<User> DeleteTemplate(string user, string id)

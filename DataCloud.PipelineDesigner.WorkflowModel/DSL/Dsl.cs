@@ -8,10 +8,24 @@ namespace DataCloud.PipelineDesigner.WorkflowModel.DSL
 {
     public class Dsl
     {
+        public Pipeline Pipeline { get; set; }
+        public Pipeline[] SubPipelines { get; set; }
+        public Provider[] Providers { get; set; }
+
+        public Dsl()
+        {
+            Pipeline = new Pipeline();
+        }
+
+    }
+
+    public class Pipeline
+    {
         public string Name { get; set; }
         public Step[] Steps { get; set; }
 
     }
+
 
     public class Step
     {
@@ -35,4 +49,15 @@ namespace DataCloud.PipelineDesigner.WorkflowModel.DSL
 
         public Dictionary<string, string> Requirements { get; set; }
     }
+
+    public class Provider
+    {
+        public String Type { get; set; }
+        public String Reference { get; set; }
+        public String Name { get; set; }
+        public String ProviderLocation { get; set; }
+
+    }
+
+
 }

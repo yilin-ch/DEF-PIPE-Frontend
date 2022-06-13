@@ -2,6 +2,7 @@
 using DataCloud.PipelineDesigner.Services.Interfaces;
 using DataCloud.PipelineDesigner.WorkflowModel;
 using DataCloud.PipelineDesigner.WorkflowModel.DSL;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,13 +19,13 @@ namespace DataCloud.PipelineDesigner.Services
             workflowTransformer = new WorkflowTransformer();
         }
 
-        public Workflow TransformCanvasToWorkflow(Canvas canvas)
+        public List<Workflow> TransformCanvasToWorkflow(Canvas canvas)
         {
-            return workflowTransformer.GenerateWorkflow(canvas);    
+            return workflowTransformer.GenerateWorkflows(new List<Workflow>(), new List<Canvas> { canvas});    
         }
-        public Dsl TransformWorkflowToDsl(Workflow workflow, string name)
+        public Dsl TransformWorkflowToDsl(List<Workflow> workflow)
         {
-            return workflowTransformer.GenerateDsl(workflow, name);    
+            return workflowTransformer.GenerateDsl(workflow);    
         }
     }
 }

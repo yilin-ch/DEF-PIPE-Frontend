@@ -12,6 +12,7 @@ namespace DataCloud.PipelineDesigner.Services
     {
         public Workflow Workflow { get; set; }
         public Dsl Dsl { get; set; }
+        public StringBuilder DslBuilder { get; set; }
         public SimpleDSLTransfomer()
         {            
         }
@@ -21,15 +22,26 @@ namespace DataCloud.PipelineDesigner.Services
         {
             Dsl = dsl;
 
-            StringBuilder dslBuilder = new StringBuilder();
+            DslBuilder = new StringBuilder();
 
-            dslBuilder.AppendLine("Pipeline " + dsl.Name + " {");
-            dslBuilder.AppendLine(Identation(0) + "steps:");
-            GenerateWorkflowSteps(dslBuilder, dsl.Steps, 0);
-            dslBuilder.AppendLine("}");
+            DslBuilder.AppendLine("Pipeline " + dsl.Pipeline.Name + " {");
+            DslBuilder.AppendLine(Identation(0) + "steps:");
+            GenerateWorkflowSteps(DslBuilder, dsl.Pipeline.Steps, 0);
+            DslBuilder.AppendLine("}");
 
-            return dslBuilder.ToString();
+            foreach (var item in dsl.SubPipelines)
+            {
+
+                DslBuilder.AppendLine("SubPipeline " + item.Name + " {");
+                DslBuilder.AppendLine(Identation(0) + "steps:");
+                GenerateWorkflowSteps(DslBuilder, item.Steps, 0);
+                DslBuilder.AppendLine("}");
+            }
+
+            return DslBuilder.ToString();
         }
+
+
 
         private void GenerateWorkflowSteps(StringBuilder dslBuilder, Step[] steps, int level = 0)
         {

@@ -20,7 +20,25 @@ namespace DataCloud.PipelineDesigner.Services
 
         [Token(Example = "Pipeline")]
         Pipeline,
-                
+
+        [Token(Example = "SubPipeline")]
+        SubPipeline,
+
+        [Token(Example = "CloudProvider")]
+        CloudProvider,
+
+        [Token(Example = "EdgeProvider")]
+        EdgeProvider,
+
+        [Token(Example = "FogProvider")]
+        FogProvider,
+
+        [Token(Example = "provider-location: ")]
+        ProviderLocation,
+
+        [Token(Example = "name: ")]
+        ProviderName,
+
         [Token(Example = "{")]
         LBracket,
                 

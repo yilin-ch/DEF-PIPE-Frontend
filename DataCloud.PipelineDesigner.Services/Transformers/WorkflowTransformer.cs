@@ -1,6 +1,7 @@
 ﻿using DataCloud.PipelineDesigner.CanvasModel;
 using DataCloud.PipelineDesigner.WorkflowModel;
 using DataCloud.PipelineDesigner.WorkflowModel.DSL;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,40 @@ namespace DataCloud.PipelineDesigner.Services
 {
     public class WorkflowTransformer
     {
+
+        public List<Workflow> GenerateWorkflows(List<Workflow> workflows, List<Canvas> canvas)
+        {
+
+            if(canvas.Count == 0)
+            {
+                return workflows;
+            }
+
+            var newCanvas = new Canvas();
+            var currentCanvas = canvas[0];
+            canvas.RemoveAt(0);
+
+            foreach (var item in currentCanvas.Elements)
+            {
+                if (item.Type == CanvasElementType.Shape)
+                {
+                    var canvasShape = JsonConvert.DeserializeObject<CanvasShape>(JsonConvert.SerializeObject(item));
+                    newCanvas.Elements.Add(canvasShape);
+                    if (canvasShape.Elements.Count > 0)
+                        canvas.Add(JsonConvert.DeserializeObject<Canvas>(JsonConvert.SerializeObject(item)));
+                }
+                else
+                    newCanvas.Elements.Add(JsonConvert.DeserializeObject<CanvasConnector>(JsonConvert.SerializeObject(item)));
+            }
+            var workflow = GenerateWorkflow(newCanvas);
+            workflow.Name = currentCanvas.Name;
+            workflows.Add(workflow);
+
+            return GenerateWorkflows(workflows, canvas);
+        }
         public Workflow GenerateWorkflow(Canvas canvas)
         {
+
             Workflow workflow = new Workflow();
 
             var startElement = canvas.Elements
@@ -33,7 +66,7 @@ namespace DataCloud.PipelineDesigner.Services
             var connectors = FindOutputConnectorsFromShape(canvas, currentShape);
             foreach (var connector in connectors)
             {
-                var nextShape = canvas.Elements.First(e => e.ID == connector.DestShapeId) as CanvasShape;
+                var nextShape = canvas.Elements?.First(e => e.ID == connector.DestShapeId) as CanvasShape;
                 if (nextShape.TemplateId?.ToLower() == Constants.BuiltInTemplateIDs.End.ToString().ToLower())
                 {
                     continue;
@@ -160,11 +193,25 @@ namespace DataCloud.PipelineDesigner.Services
             return canvasShape.Shape == Constants.BuiltyInCanvasShape.Database;
         }
 
-        public Dsl GenerateDsl(Workflow workflow, string name)
+        public Dsl GenerateDsl(List<Workflow> workflows)
         {
             Dsl dsl = new Dsl();
 
-            dsl.Name = name.Trim().Replace(" ", "_");
+            dsl.Pipeline = GeneratePipeline(workflows[0]);
+
+            var subPipelines = new List<Pipeline>();
+            foreach (var item in workflows.Skip(1))
+                subPipelines.Add(GeneratePipeline(item));
+
+            dsl.SubPipelines = subPipelines.ToArray();
+
+            return dsl;
+        }
+
+        public Pipeline GeneratePipeline(Workflow workflow)
+        {
+            Pipeline pipeline = new Pipeline();
+            pipeline.Name = workflow.Name; 
             List<Step> steps = new List<Step>();
 
             foreach (WorkflowElement element in workflow.Elements)
@@ -172,18 +219,17 @@ namespace DataCloud.PipelineDesigner.Services
                 Step step = new Step();
                 if (element.ElementType == WorkflowElementType.Action)
                     step.Name = (element as WorkflowAction).Title;
-                    step.Implementation = (element as WorkflowAction).Parameters?.Implementation;
-                    step.Image = (element as WorkflowAction).Parameters?.Image;
-                    step.ResourceProvider = (element as WorkflowAction).Parameters?.ResourceProvider;
-                    step.EnvParams = (element as WorkflowAction).Parameters?.EnvironmentParameters.ToDictionary((ep) => ep.Key, (ep) => ep.Value);
-                
-                    steps.Add(step);
+                step.Implementation = (element as WorkflowAction).Parameters?.Implementation;
+                step.Image = (element as WorkflowAction).Parameters?.Image;
+                step.ResourceProvider = (element as WorkflowAction).Parameters?.ResourceProvider;
+                step.EnvParams = (element as WorkflowAction).Parameters?.EnvironmentParameters?.ToDictionary((ep) => ep.Key, (ep) => ep.Value);
 
+                steps.Add(step);
 
             }
-            dsl.Steps = steps.ToArray();
+            pipeline.Steps = steps.ToArray();
 
-            return dsl;
+            return pipeline;
         }
     }
 }

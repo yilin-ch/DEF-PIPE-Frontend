@@ -29,7 +29,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
                 {
                     Implementation = canvasParameters.Implementation,
                     Image = canvasParameters.Image,
-                    EnvironmentParameters = canvasParameters.EnvironmentParameters.Select(ep => new EnvironmentParameter { Key = ep.Key, Value = ep.Value }).ToList(),
+                    EnvironmentParameters = canvasParameters.EnvironmentParameters?.Select(ep => new EnvironmentParameter { Key = ep.Key, Value = ep.Value }).ToList(),
                     ResourceProvider = canvasParameters.ResourceProvider,
                 };
             }

@@ -1,4 +1,4 @@
-﻿using DataCloud.PipelineDesigner.WorkflowModel;
+using DataCloud.PipelineDesigner.WorkflowModel;
 using DataCloud.PipelineDesigner.WorkflowModel.DSL;
 using System;
 using System.Collections.Generic;

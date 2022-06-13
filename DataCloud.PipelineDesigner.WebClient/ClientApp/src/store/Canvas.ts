@@ -184,10 +184,11 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                 templateGroups: templateService.getTemplateGroups(action.templates)
             };
         case 'REQUEST_REPO':
+            var repo = action.repo ? action.repo : [];
             return {
                 ...state,
-                repo: action.repo,
-                repoGroups: templateService.getTemplateGroups(action.repo),
+                repo: repo,
+                repoGroups: templateService.getTemplateGroups(repo),
                 username: action.username
             };
         case 'IMPORT_ELEMENTS':

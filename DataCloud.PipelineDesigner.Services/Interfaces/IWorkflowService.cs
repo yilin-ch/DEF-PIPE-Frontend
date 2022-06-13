@@ -11,8 +11,8 @@ namespace DataCloud.PipelineDesigner.Services.Interfaces
 {
     public interface IWorkflowService
     {
-        Workflow TransformCanvasToWorkflow(Canvas canvas);
+        List<Workflow> TransformCanvasToWorkflow(Canvas canvas);
 
-        Dsl TransformWorkflowToDsl(Workflow workflow, string name);
+        Dsl TransformWorkflowToDsl(List<Workflow> workflow);
     }
 }

@@ -75,6 +75,10 @@ export class TemplateService {
             TemplateService.saveTemplateTimeoutHandle = null;
             fetch(`/api/repo/` + username + "/" + repoId, {
                 method: "DELETE",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${KeycloakService.getToken()}`,
+                }
             })
         }, 500);
     }

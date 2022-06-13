@@ -1,4 +1,4 @@
-﻿using DataCloud.PipelineDesigner.Repositories.Models;
+using DataCloud.PipelineDesigner.Repositories.Models;
 using DataCloud.PipelineDesigner.Services.Interfaces;
 using DataCloud.PipelineDesigner.WebClient.Models;
 using DataCloud.PipelineDesigner.Services;
@@ -144,7 +144,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             try
             {
 
-                await userService.DeleteTemplate(user, id);
+                var result = await userService.DeleteTemplate(user, id);
 
                 return ApiHelper.CreateSuccessResult(true);
             }
@@ -189,7 +189,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
                 var d = dslService.DeserializeDsl(dsl);
                 var r = CanvasService.TransformDslToCanvas(d);
 
-                var template = new Template { Name = d.Name, Category = "Imported", Id = Guid.NewGuid().ToString(), CanvasTemplate = r };
+                var template = new Template { Name = d.Pipeline.Name, Category = "Imported", Id = Guid.NewGuid().ToString(), CanvasTemplate = r };
 
                 var result = await userService.AddRepoAsync(template, user);
 

@@ -45,17 +45,9 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         {
             try
             {
-                var newCanvas = new Canvas();
-                foreach (var item in canvas.Elements)
-                {
-                    if (item.Type == CanvasElementType.Connector)
-                        newCanvas.Elements.Add(JsonConvert.DeserializeObject<CanvasConnector>(JsonConvert.SerializeObject(item)));
-                    else
-                        newCanvas.Elements.Add(JsonConvert.DeserializeObject<CanvasShape>(JsonConvert.SerializeObject(item)));
-                }
 
-                var workflow = workflowService.TransformCanvasToWorkflow(newCanvas);
-                var dsl = workflowService.TransformWorkflowToDsl(workflow, canvas.Name);
+                var workflow = workflowService.TransformCanvasToWorkflow(canvas);
+                var dsl = workflowService.TransformWorkflowToDsl(workflow);
 
                 return dslService.SerializeDsl(dsl);
             }
