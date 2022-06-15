@@ -6,14 +6,16 @@ using System.Linq;
 using TokenParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, object>;
 using StringParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, string>;
 using KeyvalueParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, System.Collections.Generic.KeyValuePair<string, string>>;
-using EnvParamsParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, System.Collections.Generic.Dictionary<string, string>>;
+using EnvironmentParameterParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, System.Collections.Generic.Dictionary<string, string>>;
+using RequirementsSubTypeParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, DataCloud.PipelineDesigner.WorkflowModel.DSL.RequirementsSubType>;
 using ExecutionRequParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, DataCloud.PipelineDesigner.WorkflowModel.DSL.ExecutionRequirements>;
 using ExecutionRequsParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, DataCloud.PipelineDesigner.WorkflowModel.DSL.ExecutionRequirements[]>;
 using StepParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, DataCloud.PipelineDesigner.WorkflowModel.DSL.Step>;
-using StepsParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, DataCloud.PipelineDesigner.WorkflowModel.DSL.Step[]>;
-using ProviderParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, DataCloud.PipelineDesigner.WorkflowModel.DSL.Provider>;
+using ImplementationParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, DataCloud.PipelineDesigner.WorkflowModel.DSL.Implementation>;
+using ResourceProviderParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, DataCloud.PipelineDesigner.WorkflowModel.DSL.ResourceProvider>;
+using CommunicationMediumParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, DataCloud.PipelineDesigner.WorkflowModel.DSL.CommunicationMedium>;
 using PiplineParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, DataCloud.PipelineDesigner.WorkflowModel.DSL.Pipeline>;
-using RootParser = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, DataCloud.PipelineDesigner.WorkflowModel.DSL.Dsl>;
+using DSLModel = Superpower.TokenListParser<DataCloud.PipelineDesigner.Services.DSlToken, DataCloud.PipelineDesigner.WorkflowModel.DSL.Dsl>;
 using DataCloud.PipelineDesigner.WorkflowModel.DSL;
 using System.Collections.Generic;
 
@@ -35,121 +37,142 @@ namespace DataCloud.PipelineDesigner.Services
             from name in TextContent
             select (string)name;
 
-        public static StringParser StepName =>
-            from stepName in TextContent.Many()
-            select string.Join(" ", stepName);
+        public static StringParser StepType =>
+            from stepType in Token.EqualTo(DSlToken.StepType)
+            select stepType.ToStringValue();
 
-        public static StringParser StepImplementation =>
-            from impl in Token.EqualTo(DSlToken.Implem)
-            from stepImpl in TextContent.Many()
-            select string.Join(" ", stepImpl);
+        public static ImplementationParser StepImplementation =>
+            from implementationToken in Token.EqualTo(DSlToken.Implementation)
+            from _ in Token.EqualTo(DSlToken.Colon)
+            from stepImplementation in Token.EqualTo(DSlToken.StepImplementation)
+            from imageToken in Token.EqualTo(DSlToken.Image)
+            from __ in Token.EqualTo(DSlToken.Colon)
+            from image in String
+            select new Implementation {Type= stepImplementation.ToStringValue(), ImageName = image };
 
-        public static StringParser StepImage =>
-            from image in Token.EqualTo(DSlToken.Image)
-            from stepImage in TextContent.Many()
-            select string.Join(" ", stepImage);
 
         public static StringParser StepResource =>
-            from rsrc in Token.EqualTo(DSlToken.Resrc)
+            from rsrc in Token.EqualTo(DSlToken.ResourceProvider)
+            from _ in Token.EqualTo(DSlToken.Colon)
             from stepRsrc in TextContent.Many()
             select string.Join(" ", stepRsrc);
 
 
         public static StringParser StepPrevious =>
-            from prev in Token.EqualTo(DSlToken.Prev)
+            from prev in Token.EqualTo(DSlToken.Previous)
+            from colon in Token.EqualTo(DSlToken.Colon)
             from setpPrev in TextContent.Many()
             select string.Join(" ", setpPrev);
 
 
 
         public static KeyvalueParser Envs =>
-            from value in Token.EqualTo(DSlToken.Text)
-            select new KeyValuePair<string, string>(value.ToStringValue().Split("=")[0], value.ToStringValue().Split("=")[1]);
+            from key in String
+            from _ in Token.EqualTo(DSlToken.Colon)
+            from value in String
+            from comma in Token.EqualTo(DSlToken.Comma).Optional()
+            select new KeyValuePair<string, string>(key, value);
 
-        public static EnvParamsParser StepEnvParam =>
-            from parm in Token.EqualTo(DSlToken.EnvParam)
+        public static EnvironmentParameterParser EnvironmentParameter =>
+            from envParmasToken in Token.EqualTo(DSlToken.EnvironmentParameter)
+            from _ in Token.EqualTo(DSlToken.Colon)
             from start in Token.EqualTo(DSlToken.LBracket)
-            from env in Envs.Many()
+            from envs in Envs.Many()
             from end in Token.EqualTo(DSlToken.RBrracket)
-            select env.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value);
+            select envs.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value);
 
-        public static KeyvalueParser ExecSpec =>
-            from value in TextContent.Many()
-            select new KeyValuePair<string, string>(value[0], value[1]);
+        public static KeyvalueParser RequirementVariable =>
+            from spec in Token.EqualTo(DSlToken.RequirementVariable)
+            from _ in Token.EqualTo(DSlToken.Colon)
+            from value in String
+            select new KeyValuePair<string, string>(spec.ToStringValue(), value);
 
-        public static ExecutionRequParser Req =>
-            from type in TextContent
-            from subtype in TextContent
-            from start in Token.EqualTo(DSlToken.LBracket)
-            from spec in ExecSpec.Many()
-            from end in Token.EqualTo(DSlToken.RBrracket)
-            select new ExecutionRequirements { Type = type, SubType = subtype, Requirements = spec.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value)};
+        public static RequirementsSubTypeParser RequirementSubType =>
+            from subtype in Token.EqualTo(DSlToken.RequirementSubType)
+            from _ in Token.EqualTo(DSlToken.Colon)
+            from vaiables in RequirementVariable.Many()
+            select new RequirementsSubType { SubType= subtype.ToStringValue(), Requirements = vaiables.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value) };
+
+        public static ExecutionRequParser RequirementType =>
+            from RequirementType in Token.EqualTo(DSlToken.RequirementType)
+            from _ in Token.EqualTo(DSlToken.Colon)
+            from req in RequirementSubType.Many()
+            select new ExecutionRequirements { Type = RequirementType.ToStringValue(), SubTypeRequirements= req};
 
         public static ExecutionRequsParser StepExecReq =>
-            from exec in Token.EqualTo(DSlToken.ExecRequ)
-            from req in Req.Many()
+            from exec in Token.EqualTo(DSlToken.ExecutionRequirement)
+            from _ in Token.EqualTo(DSlToken.Colon)
+            from req in RequirementType.Many()
             select req;
 
         static StepParser Step { get; } =
-            from _ in Token.EqualTo(DSlToken.StepSign).Optional()
-            from name in StepName
-            from implementation in StepImplementation
-            from image in StepImage.OptionalOrDefault()
-            from env in StepEnvParam.OptionalOrDefault()
-            from execRequ in StepExecReq.OptionalOrDefault()
+            from startStepToken in Token.EqualTo(DSlToken.StartStep)
+            from stepType in Token.EqualTo(DSlToken.StepType)
+            from step in Token.EqualTo(DSlToken.Step) // step | subPipline
+            from name in String
+            from implementation in StepImplementation.OptionalOrDefault()
+            from env in EnvironmentParameter.OptionalOrDefault()
             from resource in StepResource.OptionalOrDefault()
             from previous in StepPrevious.OptionalOrDefault()
-            select new Step { Name = name, Implementation = implementation, Image = image, ResourceProvider = resource, Previous = previous, ExecRequirements = execRequ , EnvParams= env };
+            from execRequ in StepExecReq.OptionalOrDefault()
+            select new Step { Name = name, Implementation = implementation, ResourceProvider = resource, Previous = previous, ExecRequirements = execRequ , EnvParams= env };
 
-        static StepsParser Steps { get; } =
-            from stepSign in Token.EqualTo(DSlToken.Steps)
-            from steps in Step.Many()
-            select steps;
 
-        static ProviderParser Provider { get; } =
-            from type in Token.EqualTo(DSlToken.CloudProvider)
-                            .Or(Token.EqualTo(DSlToken.FogProvider))
-                            .Or(Token.EqualTo(DSlToken.EdgeProvider))
-            from reference in TextContent
+        static ResourceProviderParser Provider { get; } =
+            from resourceProvider in Token.EqualTo(DSlToken.ResourceProviderDefinition)
+            from name in TextContent
             from start in Token.EqualTo(DSlToken.LBracket)
-            from nameToken in Token.EqualTo(DSlToken.ProviderName)
-            from name in String
             from LocationToken in Token.EqualTo(DSlToken.ProviderLocation)
+            from _ in Token.EqualTo(DSlToken.Colon)
             from pl in String
+            from mapingToken in Token.EqualTo(DSlToken.MappingLocation)
+            from __ in Token.EqualTo(DSlToken.Colon)
+            from mapping in String
             from end in Token.EqualTo(DSlToken.RBrracket)
-            select new Provider { Type = type.ToStringValue(), Reference= reference, Name = name, ProviderLocation = pl};
+            select new ResourceProvider { Provider = resourceProvider.ToStringValue(), name= name, MappingLocation = mapping, ProviderLocation = pl};
 
-        static PiplineParser SubPipeline { get; } =
+        static PiplineParser SubPipelineDefinition { get; } =
              from begin in Token.EqualTo(DSlToken.SubPipeline)
              from name in PipelineName
              from lBracke in Token.EqualTo(DSlToken.LBracket)
-             from steps in Steps
+             from steps in Step.Many()
              from _ in Token.EqualTo(DSlToken.RBrracket)
              select new Pipeline { Name = name, Steps = steps };
 
-        static PiplineParser MainPipeline { get; } =
-         from begin in Token.EqualTo(DSlToken.Pipeline)
-         from name in PipelineName
-         from lBracke in Token.EqualTo(DSlToken.LBracket)
-         from steps in Steps
-         from _ in Token.EqualTo(DSlToken.RBrracket)
-         select new Pipeline { Name = name, Steps = steps };
+        static CommunicationMediumParser CommunicationMedium { get; } =
+            from medium in Token.EqualTo(DSlToken.Medium)
+            from communicationMediumType in Token.EqualTo(DSlToken.CommunicationMediumTypes)
+            select new CommunicationMedium { Type=communicationMediumType.ToStringValue()};
+
+        static PiplineParser Pipeline { get; } =
+             from pipelineToken in Token.EqualTo(DSlToken.Pipeline)
+             from name in PipelineName
+             from lBracke in Token.EqualTo(DSlToken.LBracket)
+             from communicationMediumToken in Token.EqualTo(DSlToken.CommunicationMedium)
+             from colonC in Token.EqualTo(DSlToken.Colon)
+             from communicationMedium in CommunicationMedium
+             from env in EnvironmentParameter.OptionalOrDefault()
+             from setpsToken in Token.EqualTo(DSlToken.Steps)
+             from colonS in Token.EqualTo(DSlToken.Colon)
+             from steps in Step.Many()
+             from _ in Token.EqualTo(DSlToken.RBrracket)
+             select new Pipeline { Name = name, Steps = steps, CommunicationMedium= communicationMedium };
 
 
-        static RootParser Dsl { get; } =
-            from pipe in MainPipeline
-            from subPipelines in SubPipeline.Many().OptionalOrDefault()
+        static DSLModel Dsl { get; } =
+            from pipeline in Pipeline
+            from subPipelines in SubPipelineDefinition.Many().OptionalOrDefault()
             from providers in Provider.Many().OptionalOrDefault()
-            select new Dsl { Pipeline = pipe, SubPipelines = subPipelines, Providers= providers};
+            select new Dsl { Pipeline = pipeline, SubPipelines = subPipelines, ResourceProvider = providers};
 
 
-        static RootParser Pipeline { get; } = Dsl.AtEnd();
+        static DSLModel DSLModel { get; } = Dsl.AtEnd();
 
 
 
         public static bool TryParse(TokenList<DSlToken> tokens, out Dsl expr, out string error, out Position errorPosition)
         {
-            var result = Pipeline(tokens);
+            var result = DSLModel(tokens);
             if (!result.HasValue)
             {
                 expr = null;

@@ -18,63 +18,99 @@ namespace DataCloud.PipelineDesigner.Services
         [Token(Example = ")")]
         RParen,
 
+        [Token(Example = ",")]
+        Comma,
+
         [Token(Example = "Pipeline")]
         Pipeline,
+
+        [Token(Example = "communicationMedium")]
+        CommunicationMedium,
+
+        [Token(Example = "medium")]
+        Medium,
+
+        [Token(Example = " MESSAGE_QUEUE | DISTRIBUTED_FILE_SYSTEM | WEB_SERVICE ")]
+        CommunicationMediumTypes,
 
         [Token(Example = "SubPipeline")]
         SubPipeline,
 
-        [Token(Example = "CloudProvider")]
-        CloudProvider,
-
-        [Token(Example = "EdgeProvider")]
-        EdgeProvider,
-
-        [Token(Example = "FogProvider")]
-        FogProvider,
-
-        [Token(Example = "provider-location: ")]
+        [Token(Example = "providerLocation:")]
         ProviderLocation,
 
-        [Token(Example = "name: ")]
-        ProviderName,
+        [Token(Example = "mappingLocation:")]
+        MappingLocation,
 
         [Token(Example = "{")]
         LBracket,
                 
         [Token(Example = "}")]
         RBrracket,
-                        
-        Equal,
-        [Token(Example = "steps:")]
-        Steps,
-                
-        [Token(Example = "-\t")]
-        StepSign,
         
         [Token(Example = ":")]
         Colon,
-                
-        [Token(Example = "image: ")]
+
+        [Token(Example = "steps")]
+        Steps,
+
+        [Token(Example = "-")]
+        StartStep,
+
+        [Token(Example = "step | subPipeline")]
+        Step,
+
+        [Token(Example = " data-source | data-processing | data-sink ")]
+        StepType,
+
+        [Token(Example = "image:")]
         Image,
                 
-        [Token(Example = "implementation: ")]
-        Implem,
+        [Token(Example = "implementation")]
+        Implementation,
                 
-        [Token(Example = "environmentParameters: ")]
-        EnvParam,
+        [Token(Example = "ContainerImplementation | ")]
+        StepImplementation,
+                
+        [Token(Example = "environmentParameters")]
+        EnvironmentParameter,
            
-        [Token(Example = "executionRequirements: ")]
-        ExecRequ,
-           
-        [Token(Example = "resourceProvider: ")]
-        Resrc,
-           
-        [Token(Example = "previous: ")]
-        Prev,
+        [Token(Example = "resourceProvider")]
+        ResourceProvider,
+
+        [Token(Example = "CloudProvider, EdgeProvider, FogProvider")]
+        ResourceProviderDefinition,
+
+        [Token(Example = "previous")]
+        Previous,
+
+        [Token(Example = "executionRequirement")]
+        ExecutionRequirement,
+
+        [Token(Example = "hardRequirements | softRequirements")]
+        RequirementType,
+
+        [Token(Example = "horizontalScale | verticalScale | qualitativeRequirement | quantitativeRequirement")]
+        RequirementSubType,
+
+        [Token(Example = "quantitativeRequirement:")]
+        QuantitativeRequirement,
+
+        [Token(Example = "min-instance | max-instance | ...")]
+        RequirementVariable,
 
         [Token(Example = "\r")]
         Return,
+
+
+
+
+        [Token(Example = "foo:, bar: -> all the other key with colon")]
+        Key,
+
+
+
+
 
         Text
 

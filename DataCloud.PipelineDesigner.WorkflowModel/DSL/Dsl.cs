@@ -10,7 +10,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel.DSL
     {
         public Pipeline Pipeline { get; set; }
         public Pipeline[] SubPipelines { get; set; }
-        public Provider[] Providers { get; set; }
+        public ResourceProvider[] ResourceProvider{ get; set; }
 
         public Dsl()
         {
@@ -23,6 +23,13 @@ namespace DataCloud.PipelineDesigner.WorkflowModel.DSL
     {
         public string Name { get; set; }
         public Step[] Steps { get; set; }
+        public CommunicationMedium CommunicationMedium { get; set;}
+
+    }
+
+    public class CommunicationMedium
+    {
+        public string Type { get; set; }
 
     }
 
@@ -30,9 +37,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel.DSL
     public class Step
     {
         public string Name { get; set; }
-        public string Implementation { get; set; }
-
-        public string Image { get; set; }
+        public Implementation Implementation { get; set; }
 
         public  Dictionary<string, string> EnvParams { get; set; }
 
@@ -42,20 +47,33 @@ namespace DataCloud.PipelineDesigner.WorkflowModel.DSL
         public string Previous { get; set; }
     }
 
+    public class Implementation
+    {
+        public string Type { get; set; }
+
+        public String ImageName { get; set; }
+    }
+
     public class ExecutionRequirements
     {
         public string Type { get; set; }
+
+        public RequirementsSubType[] SubTypeRequirements { get; set; }
+    }
+
+    public class RequirementsSubType
+    {
         public string SubType { get; set; }
 
         public Dictionary<string, string> Requirements { get; set; }
     }
 
-    public class Provider
+    public class ResourceProvider
     {
-        public String Type { get; set; }
-        public String Reference { get; set; }
-        public String Name { get; set; }
+        public String Provider { get; set; }
+        public String name { get; set; }
         public String ProviderLocation { get; set; }
+        public String MappingLocation { get; set; }
 
     }
 
