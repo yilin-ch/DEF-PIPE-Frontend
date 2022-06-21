@@ -155,7 +155,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                 elements: r.canvasTemplate.elements || []
             };
 
-            this.props.addElement(newShape);
+            this.props.addElement(newShape, r.resourceProviders);
         }).catch(e => {
             console.error(e);
             this.setState({
@@ -188,7 +188,8 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                 properties: [],
                 width: 200,
                 height: 100
-            }
+            },
+            resourceProviders: null
         });
 
         this.saveAsName = "";
@@ -221,7 +222,8 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                 width: 200,
                 height: 100
             },
-            public: this.saveAsRepoPublic
+            public: this.saveAsRepoPublic,
+            resourceProviders: this.props.providers
         });
 
         this.saveAsName = "";
@@ -336,7 +338,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
             position: dropPosition
         };
 
-        this.props.addElement(newShape);
+        this.props.addElement(newShape, template.resourceProviders);
         this.props.dropTemplate();
     }
 

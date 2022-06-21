@@ -1,10 +1,25 @@
 import { Action, Reducer } from 'redux';
-import { ICanvasElement, ICanvasShapeTemplateGroup, ICanvasShapeTemplate, ICanvasShapeConnectionPoint, ICanvasShape, ICanvasConnector, ICanvasElementType, ICanvasPosition, ICanvasConnectionPointType, IDSLInfo, ApiResult, IAPiTemplate } from '../models';
+import {
+    ICanvasElement,
+    ICanvasShapeTemplateGroup,
+    ICanvasShapeTemplate,
+    ICanvasShapeConnectionPoint,
+    ICanvasShape,
+    ICanvasConnector,
+    ICanvasElementType,
+    ICanvasPosition,
+    ICanvasConnectionPointType,
+    IDSLInfo,
+    ApiResult,
+    IAPiTemplate,
+    IResourceProvider
+} from '../models';
 import { TemplateService } from '../services/TemplateService';
 import { v4 as uuidv4 } from 'uuid';
 import { AppThunkAction } from '.';
 import { useParams } from 'react-router-dom';
 import KeycloakService from "../services/KeycloakService";
+import {act} from "react-dom/test-utils";
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
@@ -17,6 +32,7 @@ export interface CanvasState {
 
     shapeExpandStack: Array<ICanvasShape>;
     currentRootShape: ICanvasShape;
+    providers: Array<IResourceProvider>;
     tempRootShape: ICanvasShape;
     tempshapeExpandStack: Array<ICanvasShape>;
     //templates: Array<ICanvasShapeTemplate> | null;
@@ -39,7 +55,7 @@ export interface CanvasState {
 // Use @typeName and isActionType for type detection that works even after serialization/deserialization.
 
 export interface ImportElementsAction { type: 'IMPORT_ELEMENTS', elements: Array<ICanvasElement> }
-export interface AddElementAction { type: 'ADD_ELEMENT', element: ICanvasElement }
+export interface AddElementAction { type: 'ADD_ELEMENT', element: ICanvasElement, providers: Array<IResourceProvider> }
 export interface RemoveElementAction { type: 'REMOVE_ELEMENT', elementId: string }
 export interface UpdateElementAction { type: 'UPDATE_ELEMENT', element: ICanvasElement }
 export interface SelectElementAction { type: 'SELECT_ELEMENT', element: ICanvasElement }
@@ -50,6 +66,7 @@ export interface SelectTemplateAction { type: 'SELECT_TEMPLATE', template: IAPiT
 export interface DragTemplateAction { type: 'DRAG_TEMPLATE', template: IAPiTemplate }
 export interface DropTemplateAction { type: 'DROP_TEMPLATE' }
 export interface AddRepoAction { type: 'ADD_REPO', repo: IAPiTemplate }
+export interface UpdateProvidersAction { type: 'UPDATE_PROVIDERS', providers: Array<IResourceProvider> }
 export interface RemoveRepoAction { type: 'REMOVE_REPO', repo: IAPiTemplate }
 export interface EditRepoAction { type: 'EDIT_REPO', repo: IAPiTemplate }
 export interface CancelEditRepoAction { type: 'CANCEL_EDIT_REPO'}
@@ -68,7 +85,7 @@ export interface RequestRepo { type: 'REQUEST_REPO', repo: Array<IAPiTemplate>, 
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
 export type KnownAction = ImportElementsAction | AddElementAction | RemoveElementAction | SelectElementAction | DeselectElementAction | UpdateElementAction | SelectConnectionPointAction |
-    FilterTemplatesAction | SelectTemplateAction | AddTemplateAction | AddRepoAction | RemoveRepoAction | EditRepoAction | CancelEditRepoAction | UpdateTemplateAction | SaveTemplateAction | RemoveTemplateAction | DragTemplateAction | DropTemplateAction |
+    FilterTemplatesAction | SelectTemplateAction | AddTemplateAction | AddRepoAction | RemoveRepoAction | UpdateProvidersAction |  EditRepoAction | CancelEditRepoAction | UpdateTemplateAction | SaveTemplateAction | RemoveTemplateAction | DragTemplateAction | DropTemplateAction |
     UpdateMousePosition | ExpandContainer | CollapseContainer | SelectTab | RequestDSL | RequestTemplates | RequestRepo;
 
 // ----------------
@@ -77,19 +94,19 @@ export type KnownAction = ImportElementsAction | AddElementAction | RemoveElemen
 
 export const actionCreators = {
     importElements: (elements: Array<ICanvasElement>) => ({ type: 'IMPORT_ELEMENTS', elements: elements } as ImportElementsAction),
-    addElement: (element: ICanvasElement) => ({ type: 'ADD_ELEMENT', element: element } as AddElementAction),
+    addElement: (element: ICanvasElement, providers: Array<IResourceProvider>) => ({ type: 'ADD_ELEMENT', element: element, providers: providers } as AddElementAction),
     removeElement: (elementId: string) => ({ type: 'REMOVE_ELEMENT', elementId: elementId } as RemoveElementAction),
     updateElement: (element: ICanvasElement) => ({ type: 'UPDATE_ELEMENT', element: element } as UpdateElementAction),
     selectElement: (element: ICanvasElement) => ({ type: 'SELECT_ELEMENT', element: element } as SelectElementAction),
     deselectElement: () => ({ type: 'DESELECT_ELEMENT' } as DeselectElementAction),
     selectConnectionPoint: (element: ICanvasElement, point: ICanvasShapeConnectionPoint) => ({ type: 'SELECT_CONNECTIONPOINT', element: element, point: point } as SelectConnectionPointAction),
     updateMousePosition: (position: ICanvasPosition) => ({ type: 'UPDATE_MOUSE_POSITION', position: position }),
-
     selectTemplate: (template: IAPiTemplate) => ({ type: 'SELECT_TEMPLATE', template: template } as SelectTemplateAction),
     dragTemplate: (template: IAPiTemplate) => ({ type: 'DRAG_TEMPLATE', template: template } as DragTemplateAction),
     dropTemplate: () => ({ type: 'DROP_TEMPLATE' } as DropTemplateAction),
     addTemplate: (template: IAPiTemplate) => ({ type: 'ADD_TEMPLATE', template: template } as AddTemplateAction),
     addRepo: (template: IAPiTemplate) => ({ type: 'ADD_REPO', repo: template } as AddRepoAction),
+    updateProviders: (providers: Array<IResourceProvider>) => ({ type: 'UPDATE_PROVIDERS', providers: providers } as UpdateProvidersAction),
     removeRepo: (template: IAPiTemplate) => ({ type: 'REMOVE_REPO', repo: template } as RemoveRepoAction),
     editRepo: (template: IAPiTemplate) => ({ type: 'EDIT_REPO', repo: template } as EditRepoAction),
     cancelEditRepo: () => ({ type: 'CANCEL_EDIT_REPO'} as CancelEditRepoAction),
@@ -166,6 +183,7 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
             draggedTemplate: null,
             selectedTab: '1',
             availableDSLs: null,
+            providers: []
         };
     }
 
@@ -202,9 +220,22 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                 selectedElement: null
             };
         case 'ADD_ELEMENT':
+
+            var providers = action.providers != null ? action.providers : new Array<IResourceProvider>();
+            var mergedProvider =  state.providers ? state.providers.concat(providers) : providers
+            var uniqueProvider = mergedProvider.reduce((unique, o) => {
+                if(!unique.some(obj => obj.name === o.name)) {
+                    unique.push(o);
+                }
+                return unique;
+            },[]);
+
             return {
                 ...state,
-                currentRootShape: { ...state.currentRootShape, elements: state.currentRootShape.elements.concat(action.element) }
+                currentRootShape: {
+                    ...state.currentRootShape,
+                    elements: state.currentRootShape.elements.concat(action.element)},
+                providers: uniqueProvider
             };
         case 'REMOVE_ELEMENT':
             let elementsToRemove: Array<ICanvasElement> = state.currentRootShape.elements.filter(ele => ele.id === action.elementId);
@@ -352,6 +383,12 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                 ...state,
                 repoGroups: addUpdatedGroups,
                 selectedTemplate: action.repo
+            };
+        case 'UPDATE_PROVIDERS':
+            console.log(action.providers)
+            return {
+                ...state,
+                //providers:  action.providers ? action.providers : [],
             };
         case 'EDIT_REPO':
             var elements = action.repo.canvasTemplate.elements.map((e) => e);

@@ -49,6 +49,14 @@ export interface ICanvasConnector extends ICanvasElement {
     destConnectionPointId: string;
 }
 
+export interface IResourceProvider {
+    provider?: string;
+    name?: string;
+    providerLocation?: string;
+    mappingLocation?: string;
+
+}
+
 export interface IAPiTemplate {
     _id?: string;
     id: string;
@@ -56,6 +64,7 @@ export interface IAPiTemplate {
     description: string;
     category: string;
     canvasTemplate: ICanvasShapeTemplate;
+    resourceProviders: Array<IResourceProvider>
     public?: boolean;
 }
 

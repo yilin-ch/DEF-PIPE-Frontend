@@ -10,7 +10,6 @@ namespace DataCloud.PipelineDesigner.Services.Interfaces
 {
     public interface IDSLService
     {
-        List<DSLInfo> GetAvailableDSL();
         public string SerializeDsl(Dsl workflow);
 
         public Dsl DeserializeDsl(String dsl);

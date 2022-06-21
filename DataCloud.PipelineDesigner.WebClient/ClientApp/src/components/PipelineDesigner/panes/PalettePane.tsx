@@ -35,7 +35,7 @@ class PalettePane extends React.PureComponent<PaletteProps> {
             elements: template.canvasTemplate.elements || []
         };
 
-        this.props.addElement(newShape);
+        this.props.addElement(newShape, template.resourceProviders);
     }
 
     onTemplateEdit(template: IAPiTemplate) {

@@ -27,6 +27,7 @@ namespace DataCloud.PipelineDesigner.Repositories.Models
         public DateTimeOffset ModifiedAt { get; set; }
         public String? SourceTemplateId { get; set; }
         public dynamic CanvasTemplate { get; set; }
+        public dynamic ResourceProviders { get; set; }
         public Boolean Public { get; set; }
 
         public Template()

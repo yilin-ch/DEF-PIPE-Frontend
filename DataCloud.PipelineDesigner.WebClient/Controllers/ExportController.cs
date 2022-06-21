@@ -28,15 +28,6 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         }
 
         /// <summary>
-        /// DEPRECATED
-        /// </summary>
-        [HttpGet("dsl/available")]
-        public List<DSLInfo> GetAvailableDSL()
-        {
-            return dslService.GetAvailableDSL();
-        }
-
-        /// <summary>
         /// Transform workflow to dsl
         /// </summary>
         /// <response code="200">Workflow in DSL format</response>

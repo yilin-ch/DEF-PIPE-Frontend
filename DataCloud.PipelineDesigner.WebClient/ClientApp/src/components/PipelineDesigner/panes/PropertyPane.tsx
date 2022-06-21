@@ -1,16 +1,18 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import {Form, FormGroup, Input, Label} from 'reactstrap';
+import '../../select2.min.css';
 import {
     IAPiTemplate, ICanvasConnectionPointType,
     ICanvasElementProperty,
     ICanvasElementPropertyType,
     ICanvasElementType,
-    ICanvasShape, ICanvasShapeTemplate
+    ICanvasShape, ICanvasShapeTemplate, IResourceProvider
 } from '../../../models';
 import {ApplicationState} from '../../../store';
 import * as CanvasStore from '../../../store/Canvas';
 import {JSONEditor, Schema} from "react-schema-based-json-editor";
+import schemas from './schemas.json'
 
 interface MyState {
     initialValue: Object,
@@ -31,58 +33,31 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
         }
     }
 
+    static getSchema(providers: IResourceProvider[]): Schema {
+        var schema: Schema = schemas["params"] as Schema;
+        schema["properties"]["resourceProvider"]["enum"] = providers.map(provider => provider.name);
 
-    schema: Schema = {
-        type: "object",
-        "title": "Parameters",
-        properties: {
-            "implementation": {
-                "title": "Implementation",
-                "type": "string",
-            },
-            "image": {
-                "title": "Image",
-                "type": "string",
-            },
-            "environmentParameters": {
-                "title": "Env. Parameters",
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "title": "key-value",
-                    "properties": {
-                        "key": {
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "string"
-                        }
-                    },
-                    "required": [
-                        "key",
-                        "value"
-                    ]
-                }
-            },
-            "resourceProvider": {
-                "type": "string",
-                "title": "Resource Provider"
-            },
-        },
-        "required": [
-            "data_source_step",
-            "impl_edit",
-            "implementation",
-            "image",
-            "environmentParameters",
-            "resourceProvider"
-        ]
-    }
+        return schema;
+    };
+
+    static getProviderSchema(): Schema {
+        var schema: Schema = schemas["providers"] as Schema;
+        return schema;
+    };
 
     private updatePropertyValue = (value: any, isValid: boolean) => {
         this.setState({
             updateValue: value
         })
+    };
+
+    private updateProviderValue = (value: any, isValid: boolean) => {
+        console.log(isValid)
+        console.log(value)
+        if(isValid){
+            this.props.updateProviders(value.providers as Array<IResourceProvider>);
+        }
+
     };
 
     private savePropertyValue = () => {
@@ -158,13 +133,23 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
                         {selectedShape.properties?.length < 0 ?
                             null
                             : <JSONEditor
-                                schema={this.schema}
+                                schema={PropertyPane.getSchema(this.props.providers)}
                                 initialValue={(selectedShape as ICanvasShape).parameters}
                                 updateValue={this.updatePropertyValue}
                                 theme="bootstrap5"
                                 icon="bootstrap-icons"/>}
                     </React.Fragment>
-                    : null}
+                    :
+                    <React.Fragment>
+                        {this.props.providers ?
+                            <JSONEditor
+                                schema={PropertyPane.getProviderSchema()}
+                                initialValue={{providers: this.props.providers}}
+                                updateValue={this.updateProviderValue}
+                                theme="bootstrap5"
+                                icon="bootstrap-icons"/>
+                            : null}
+                    </React.Fragment>}
             </React.Fragment>
         );
     }
