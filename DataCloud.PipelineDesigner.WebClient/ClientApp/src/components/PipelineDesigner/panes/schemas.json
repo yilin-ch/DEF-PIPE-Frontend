@@ -3,7 +3,7 @@
     "type": "object",
     "title": "Parameters",
     "properties": {
-      "stepTypes": {
+      "stepType": {
         "title": "Step type",
         "type": "string",
         "enum": [
@@ -50,7 +50,7 @@
       },
       "resourceProvider": {
         "title": "Resource Provider",
-        "type": "array",
+        "type": "string",
         "items": {
           "type": "string"
         },
@@ -163,10 +163,9 @@
       }
     },
     "required": [
-      "stepTypes",
+      "stepType",
       "name",
       "stepImplementation",
-      "impl_edit",
       "implementation",
       "image",
       "environmentParameters",

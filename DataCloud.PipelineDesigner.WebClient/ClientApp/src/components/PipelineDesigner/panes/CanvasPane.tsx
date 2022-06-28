@@ -307,6 +307,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
     }
 
     exportCanvasAsDSL() {
+        this.props.currentRootShape.resourceProviders = this.props.providers
         this.canvasService.exportAsDSL(this.props.currentRootShape);
     }
 

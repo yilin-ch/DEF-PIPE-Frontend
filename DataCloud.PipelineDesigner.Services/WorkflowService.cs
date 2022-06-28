@@ -23,9 +23,9 @@ namespace DataCloud.PipelineDesigner.Services
         {
             return workflowTransformer.GenerateWorkflows(new List<Workflow>(), new List<Canvas> { canvas});    
         }
-        public Dsl TransformWorkflowToDsl(List<Workflow> workflow)
+        public Dsl TransformWorkflowToDsl(List<Workflow> workflow, List<CanvasProvider> providers)
         {
-            return workflowTransformer.GenerateDsl(workflow);    
+            return workflowTransformer.GenerateDsl(workflow, providers);    
         }
     }
 }

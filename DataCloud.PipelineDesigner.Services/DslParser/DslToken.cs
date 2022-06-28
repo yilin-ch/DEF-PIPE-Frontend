@@ -5,6 +5,8 @@ namespace DataCloud.PipelineDesigner.Services
 {
     public enum DSlToken
     {
+        [Token(Example = "'")]
+        Apostrophe,
 
         [Token(Example = "*")]
         Asterisk,

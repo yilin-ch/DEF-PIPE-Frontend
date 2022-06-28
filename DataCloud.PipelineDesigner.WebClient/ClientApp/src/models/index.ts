@@ -33,6 +33,7 @@ export interface ICanvasShape extends ICanvasElement {
     connectionPoints: Array<ICanvasShapeConnectionPoint>;
     canHaveChildren?: boolean;
     elements?: Array<ICanvasElement>;
+    resourceProviders?: Array<IResourceProvider>
 }
 
 export interface ICanvasShapeConnectionPoint {

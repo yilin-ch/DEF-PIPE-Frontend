@@ -38,7 +38,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             {
 
                 var workflow = workflowService.TransformCanvasToWorkflow(canvas);
-                var dsl = workflowService.TransformWorkflowToDsl(workflow);
+                var dsl = workflowService.TransformWorkflowToDsl(workflow, canvas.ResourceProviders);
 
                 return dslService.SerializeDsl(dsl);
             }

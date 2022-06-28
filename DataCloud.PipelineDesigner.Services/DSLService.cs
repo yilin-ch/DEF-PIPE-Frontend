@@ -15,18 +15,18 @@ namespace DataCloud.PipelineDesigner.Services
 
         public DSLService()
         {
-            //TODO: Update this to use dependency injection
-            dslTransformer = new SimpleDSLTransfomer();
+            
         }
 
-        public string SerializeDsl(Dsl workflow)
+        public string SerializeDsl(Dsl dsl)
         {
-            return dslTransformer.Transform(workflow);
+            dslTransformer = new DSLTransfomer(dsl);
+            return dslTransformer.Transform();
         }
 
         public Dsl DeserializeDsl(String dsl)
         {
-            return dslTransformer.Transform(dsl);
+            return DSLTransfomer.Parse(dsl);
         }
 
       

@@ -29,9 +29,18 @@ namespace DataCloud.PipelineDesigner.Services
             Token.EqualTo(DSlToken.Text)
             .Select(n => n.ToStringValue());
 
+        public static StringParser EscaptedTextContent =>
+        Token.EqualTo(DSlToken.Text).Or(Token
+            .EqualTo(DSlToken.Colon))
+        .Select(n => n.ToStringValue());
+
         public static StringParser String =>
         from String in TextContent.Many()
         select string.Join(" ", String);
+
+        public static StringParser DelimitedString =>
+        from String in EscaptedTextContent.Many().Between(Token.EqualTo(DSlToken.Apostrophe), Token.EqualTo(DSlToken.Apostrophe))
+        select string.Join("", String);
 
         public static StringParser PipelineName =>
             from name in TextContent
@@ -47,7 +56,7 @@ namespace DataCloud.PipelineDesigner.Services
             from stepImplementation in Token.EqualTo(DSlToken.StepImplementation)
             from imageToken in Token.EqualTo(DSlToken.Image)
             from __ in Token.EqualTo(DSlToken.Colon)
-            from image in String
+            from image in DelimitedString
             select new Implementation {Type= stepImplementation.ToStringValue(), ImageName = image };
 
 
@@ -69,7 +78,7 @@ namespace DataCloud.PipelineDesigner.Services
         public static KeyvalueParser Envs =>
             from key in String
             from _ in Token.EqualTo(DSlToken.Colon)
-            from value in String
+            from value in DelimitedString
             from comma in Token.EqualTo(DSlToken.Comma).Optional()
             select new KeyValuePair<string, string>(key, value);
 
@@ -90,8 +99,8 @@ namespace DataCloud.PipelineDesigner.Services
         public static RequirementsSubTypeParser RequirementSubType =>
             from subtype in Token.EqualTo(DSlToken.RequirementSubType)
             from _ in Token.EqualTo(DSlToken.Colon)
-            from vaiables in RequirementVariable.Many()
-            select new RequirementsSubType { SubType= subtype.ToStringValue(), Requirements = vaiables.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value) };
+            from variable in RequirementVariable.Many()
+            select new RequirementsSubType { SubType= subtype.ToStringValue(), Requirements = variable.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value) };
 
         public static ExecutionRequParser RequirementType =>
             from RequirementType in Token.EqualTo(DSlToken.RequirementType)
@@ -108,14 +117,14 @@ namespace DataCloud.PipelineDesigner.Services
         static StepParser Step { get; } =
             from startStepToken in Token.EqualTo(DSlToken.StartStep)
             from stepType in Token.EqualTo(DSlToken.StepType)
-            from step in Token.EqualTo(DSlToken.Step) // step | subPipline
+            from type in Token.EqualTo(DSlToken.Step) // step | subPipline
             from name in String
             from implementation in StepImplementation.OptionalOrDefault()
             from env in EnvironmentParameter.OptionalOrDefault()
             from resource in StepResource.OptionalOrDefault()
             from previous in StepPrevious.OptionalOrDefault()
             from execRequ in StepExecReq.OptionalOrDefault()
-            select new Step { Name = name, Implementation = implementation, ResourceProvider = resource, Previous = previous, ExecRequirements = execRequ , EnvParams= env };
+            select new Step { Name = name, Type = type.ToStringValue(),  StepType=stepType.ToStringValue(), Implementation = implementation, ResourceProvider = resource, Previous = null, ExecRequirements = execRequ , EnvParams= env };
 
 
         static ResourceProviderParser Provider { get; } =
@@ -124,12 +133,12 @@ namespace DataCloud.PipelineDesigner.Services
             from start in Token.EqualTo(DSlToken.LBracket)
             from LocationToken in Token.EqualTo(DSlToken.ProviderLocation)
             from _ in Token.EqualTo(DSlToken.Colon)
-            from pl in String
+            from pl in DelimitedString
             from mapingToken in Token.EqualTo(DSlToken.MappingLocation)
             from __ in Token.EqualTo(DSlToken.Colon)
-            from mapping in String
+            from mapping in DelimitedString
             from end in Token.EqualTo(DSlToken.RBrracket)
-            select new ResourceProvider { Provider = resourceProvider.ToStringValue(), name= name, MappingLocation = mapping, ProviderLocation = pl};
+            select new ResourceProvider { Provider = resourceProvider.ToStringValue(), Name= name, MappingLocation = mapping, ProviderLocation = pl};
 
         static PiplineParser SubPipelineDefinition { get; } =
              from begin in Token.EqualTo(DSlToken.SubPipeline)
@@ -172,6 +181,8 @@ namespace DataCloud.PipelineDesigner.Services
 
         public static bool TryParse(TokenList<DSlToken> tokens, out Dsl expr, out string error, out Position errorPosition)
         {
+
+            
             var result = DSLModel(tokens);
             if (!result.HasValue)
             {

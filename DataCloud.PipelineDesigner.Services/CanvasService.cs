@@ -131,9 +131,10 @@ namespace DataCloud.PipelineDesigner.Services
                     Height = 200,
                     Parameters = new CanvasParameters
                     {
-                        Implementation = step.Implementation,
-                        Image = step.Image,
+                        Image = step.Implementation.ImageName,
                         ResourceProvider = step.ResourceProvider,
+                        StepType = step.StepType,
+                        StepImplementation = step.Implementation.Type,
                         EnvironmentParameters = step.EnvParams?.Select(e => new EnvironmentParameter { Key = e.Key, Value = e.Value }).ToList()
                     }
                 };

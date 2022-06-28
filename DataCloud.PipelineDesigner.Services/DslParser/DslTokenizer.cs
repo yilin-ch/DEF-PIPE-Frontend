@@ -13,6 +13,7 @@ namespace DataCloud.PipelineDesigner.Services
             .Match(Character.EqualTo('}'), DSlToken.RBrracket)
             .Match(Character.EqualTo('*'), DSlToken.Asterisk)
             .Match(Character.EqualTo('/'), DSlToken.Slash)
+            .Match(Character.EqualTo('\''), DSlToken.Apostrophe)
             .Match(Span.EqualTo("Pipeline"), DSlToken.Pipeline)
             .Match(Span.EqualTo("SubPipeline"), DSlToken.SubPipeline)
 
@@ -67,10 +68,6 @@ namespace DataCloud.PipelineDesigner.Services
             .Match(Span.EqualTo("cpu-frequency"), DSlToken.RequirementVariable)
             .Match(Span.EqualTo("cpu-no-core"), DSlToken.RequirementVariable)
             .Match(Span.EqualTo("gpu-availability"), DSlToken.RequirementVariable)
-            
-            
-            .Match(Span.EqualTo("//"), DSlToken.RequirementVariable)
-
             .Match(Character.EqualTo(','), DSlToken.Comma)
             .Match(Character.EqualTo(':'), DSlToken.Colon)
             .Match(Span.WithoutAny(StringSeparator), DSlToken.Text)
@@ -84,7 +81,7 @@ namespace DataCloud.PipelineDesigner.Services
 
         public static bool StringSeparator(char c)
         {
-            if (char.IsWhiteSpace(c) || c.Equals(':') || c.Equals(','))
+            if (char.IsWhiteSpace(c) || c.Equals(':') || c.Equals(',') || c.Equals('\''))
                 return true;
             else
                 return false;

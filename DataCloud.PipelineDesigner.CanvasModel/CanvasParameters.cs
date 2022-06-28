@@ -12,6 +12,8 @@ namespace DataCloud.PipelineDesigner.CanvasModel
         public string Image { get; set; }
         public List<EnvironmentParameter> EnvironmentParameters { get; set; }
         public string ResourceProvider  { get; set; }
+        public string StepType  { get; set; }
+        public string StepImplementation { get; set; }
     }
 
     public class EnvironmentParameter

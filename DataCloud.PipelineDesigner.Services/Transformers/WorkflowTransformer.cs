@@ -193,7 +193,7 @@ namespace DataCloud.PipelineDesigner.Services
             return canvasShape.Shape == Constants.BuiltyInCanvasShape.Database;
         }
 
-        public Dsl GenerateDsl(List<Workflow> workflows)
+        public Dsl GenerateDsl(List<Workflow> workflows, List<CanvasProvider> providers)
         {
             Dsl dsl = new Dsl();
 
@@ -201,14 +201,21 @@ namespace DataCloud.PipelineDesigner.Services
 
             var subPipelines = new List<Pipeline>();
             foreach (var item in workflows.Skip(1))
-                subPipelines.Add(GeneratePipeline(item));
+                subPipelines.Add(GeneratePipeline(item, true));
 
             dsl.SubPipelines = subPipelines.ToArray();
+
+            dsl.ResourceProvider = providers.Select(p => new ResourceProvider { 
+                Provider = p.Provider,
+                MappingLocation = p.MappingLocation,
+                Name = p.name,
+                ProviderLocation = p.ProviderLocation,
+            }).ToArray();  
 
             return dsl;
         }
 
-        public Pipeline GeneratePipeline(Workflow workflow)
+        public Pipeline GeneratePipeline(Workflow workflow, bool isSubPipline = false)
         {
             Pipeline pipeline = new Pipeline();
             pipeline.Name = workflow.Name; 
@@ -217,10 +224,15 @@ namespace DataCloud.PipelineDesigner.Services
             foreach (WorkflowElement element in workflow.Elements)
             {
                 Step step = new Step();
+                step.StepType = (element as WorkflowAction).Parameters?.StepType;
+                step.Type = isSubPipline ? "subPipeline" : "step";
                 if (element.ElementType == WorkflowElementType.Action)
                     step.Name = (element as WorkflowAction).Title;
-                step.Implementation = (element as WorkflowAction).Parameters?.Implementation;
-                step.Image = (element as WorkflowAction).Parameters?.Image;
+                step.Implementation = new Implementation
+                {
+                    ImageName = (element as WorkflowAction).Parameters?.Image,
+                    Type = (element as WorkflowAction).Parameters?.StepImplementation,
+                };
                 step.ResourceProvider = (element as WorkflowAction).Parameters?.ResourceProvider;
                 step.EnvParams = (element as WorkflowAction).Parameters?.EnvironmentParameters?.ToDictionary((ep) => ep.Key, (ep) => ep.Value);
 
