@@ -13,10 +13,6 @@
         ],
         "propertyOrder": 1
       },
-      "name": {
-        "title": "Name",
-        "type": "string"
-      },
       "stepImplementation": {
         "title": "Step Implementation",
         "type": "string",

@@ -75,73 +75,38 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
         this.props.updateElement(updatedElement);
     }
 
-    renderProperty(prop: ICanvasElementProperty) {
-        if (!this.props.selectedElement) return null;
-        let propUniqueId = this.props.selectedElement.id + "-" + prop.name;
-
-        switch (prop.type) {
-            case ICanvasElementPropertyType.singleLineText:
-                return <FormGroup>
-                    <Label for={propUniqueId}>{prop.name}</Label>
-                    <Input type="text" name={propUniqueId} id={propUniqueId} value={prop.value}
-                           onChange={(e) => this.onPropertyChange(e, prop)}/>
-                </FormGroup>;
-            case ICanvasElementPropertyType.multiLineText:
-                return <FormGroup>
-                    <Label for={propUniqueId}>{prop.name}</Label>
-                    <Input type="textarea" name={propUniqueId} id={propUniqueId} value={prop.value}
-                           onChange={(e) => this.onPropertyChange(e, prop)} size={7}/>
-                </FormGroup>;
-            case ICanvasElementPropertyType.select:
-                return <FormGroup>
-                    <Label for={propUniqueId}>{prop.name}</Label>
-                    <Input type="select" name={propUniqueId} id={propUniqueId} value={prop.value}
-                           onChange={(e) => this.onPropertyChange(e, prop)}>
-                        {prop.options ? prop.options.map(op => <option>{op}</option>) : null}
-                    </Input>
-                </FormGroup>;
-        }
+    private updateStepName(name: string) {
+        var element = (this.props.selectedElement as ICanvasShape);
+        element.name = name;
+        this.props.updateElement(element)
     }
 
     public render() {
         let selectedShape = this.props.selectedElement && this.props.selectedElement.type === ICanvasElementType.Shape ? (this.props.selectedElement as ICanvasShape) : null;
+        console.log(selectedShape?.elements)
         return (
             <React.Fragment>
                 {selectedShape ?
                     <React.Fragment>
-                        <h3 className="property-pane-header">{selectedShape.name}</h3>
+                        <h3 className="property-pane-header">
+                            <div contentEditable="true" onKeyDown={e => e.keyCode == 13 ?? e.currentTarget.blur} onBlur={e => this.updateStepName(e.currentTarget.textContent)}>{selectedShape.name}</div>
+                        </h3>
                         <p className="property-pane-subheader">ID: {selectedShape.id}</p>
-                        <Form>
-                            {selectedShape.properties?.filter(p => p.allowEditing).map(prop => this.renderProperty(prop))}
-                        </Form>
-                        <td>
-                            <p className="btn btn-success saveButton" onClick={(e) => {
-                                this.savePropertyValue()
-                            }}>
-                                Save
-                            </p>
-                        </td>
-                        {/*<td>*/}
-                        {/*    <p className="btn btn-danger removeButton" onClick={(e) => {*/}
-                        {/*        this.setState({*/}
-                        {/*            updateValue: this.state.initialValue*/}
-                        {/*        });*/}
-                        {/*    }}>*/}
-                        {/*        Reset*/}
-                        {/*    </p>*/}
-                        {/*</td>*/}
-                        {selectedShape.properties?.length < 0 ?
+                        { selectedShape.elements?.length > 0 ?
                             null
                             : <JSONEditor
+                                key={selectedShape.id}
                                 schema={PropertyPane.getSchema(this.props.providers)}
                                 initialValue={(selectedShape as ICanvasShape).parameters}
                                 updateValue={this.updatePropertyValue}
                                 theme="bootstrap5"
-                                icon="bootstrap-icons"/>}
+                                icon="bootstrap-icons"
+                                
+                                />}
                     </React.Fragment>
                     :
-                    <React.Fragment>
-                        {this.props.providers ?
+                    <React.Fragment                    >
+                        {this.props.providers && this.props.currentRootShape.elements.length > 0 ?
                             <JSONEditor
                                 schema={PropertyPane.getProviderSchema()}
                                 initialValue={{providers: this.props.providers}}

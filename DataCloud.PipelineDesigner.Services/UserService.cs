@@ -82,6 +82,15 @@ namespace DataCloud.PipelineDesigner.Services
             return _user.Find(u => u.Username == user).FirstOrDefaultAsync();
         }
 
+        public BsonDocument GetRepoAsync(string user, string pipeline)
+        {
+            var u = _user.Find(u => u.Username == user).FirstOrDefault();
+
+            var p = u.Templates.Find(t => t.Name == pipeline);
+
+            return p.ToBsonDocument();
+        }
+
         public Task<User> DeleteTemplate(string user, string id)
         {
             var update = Builders<User>.Update.PullFilter(u => u.Templates,

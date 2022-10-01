@@ -8,8 +8,8 @@ export class CanvasRenderer {
         let lines: Array<Array<number>> = [];
         let canvasContainer = document.getElementById('canvas-container');
         if (canvasContainer) {
-            let canvasWidth = canvasContainer.scrollWidth;
-            let canvasHeight = canvasContainer.scrollHeight;
+            let canvasWidth = canvasContainer.scrollWidth*2;
+            let canvasHeight = canvasContainer.scrollHeight*2;
             let x = 0;
             while (x < canvasWidth) {
                 lines.push([x, 0, x, canvasHeight]);

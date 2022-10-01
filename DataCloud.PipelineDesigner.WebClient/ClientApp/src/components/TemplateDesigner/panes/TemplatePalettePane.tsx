@@ -36,7 +36,8 @@ class TemplatePalettePane extends React.PureComponent<TemplatePaletteProps> {
                 shape: "Rectangle",
                 properties: [],
                 connectionPoints: []
-            }
+            },
+            resourceProviders: []
         };
         this.props.addTemplate(template);
     }

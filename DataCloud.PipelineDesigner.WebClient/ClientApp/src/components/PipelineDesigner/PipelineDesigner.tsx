@@ -15,7 +15,7 @@ const PipelineDesigner = () => {
             <Col className="canvas-pane-container designer-pane">
                 <CanvasPane/>
             </Col>
-            <Col md="2" className="property-pane-container designer-pane">
+            <Col md="3" className="property-pane-container designer-pane">
                 <PropertyPane/>
             </Col>
         </Row>

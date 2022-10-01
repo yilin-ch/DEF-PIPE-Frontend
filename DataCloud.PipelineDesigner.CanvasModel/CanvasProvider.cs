@@ -8,9 +8,9 @@ namespace DataCloud.PipelineDesigner.CanvasModel
 {
     public class CanvasProvider
     {
-        public string Provider { get; set; }
+        public string provider { get; set; }
         public string name { get; set; }
-        public string ProviderLocation { get; set; }
-        public string MappingLocation { get; set; }
+        public string providerLocation { get; set; }
+        public string mappingLocation { get; set; }
     }
 }

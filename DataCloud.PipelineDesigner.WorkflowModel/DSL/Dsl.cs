@@ -78,7 +78,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel.DSL
                 "\n\t\t\t}" : "") +
                 (this.ResourceProvider != null ? "\n\t\t\tresourceProvider: " + this.ResourceProvider.ToString() : "") +
                 (this.ExecRequirements != null ? "\n\t\t\texecutionRequirement: " + string.Join("\n", this.ExecRequirements?.Select(e => e)): "") ;
-            //+ "\n\t\t\tprevious: [" + string.Join(", ", this.Previous?.Select(e => e)) + "]";
+                //+ "\n\t\t\tprevious: [" + string.Join(", ", this.Previous?.Select(e => e)) + "]";
         }
     }
 

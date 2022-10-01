@@ -14,6 +14,8 @@ using Newtonsoft.Json;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using DataCloud.PipelineDesigner.CanvasModel;
+using Newtonsoft.Json.Converters;
 
 namespace DataCloud.PipelineDesigner.WebClient.Controllers
 {
@@ -22,15 +24,17 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
     [ApiController]
     public class RepoController : ControllerBase
     {
-        Services.Interfaces.IUserService userService;
-        Services.Interfaces.IPublicRepoService pRepoService;
+        IUserService userService;
+        IPublicRepoService pRepoService;
+        IWorkflowService workflowService;
         private readonly IAuthorizationService authorizationService;
         IDSLService dslService;
         public RepoController(IUserService uService, IPublicRepoService prService, IAuthorizationService authService)
         {
             userService = uService;
             pRepoService = prService;
-            authorizationService= authService;
+            authorizationService = authService;
+            workflowService = new WorkflowService();
             dslService = new DSLService();
         }
 
@@ -199,6 +203,38 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             {
                 return ApiHelper.CreateFailedResult<bool>(e.Message);
             }
+        }
+
+        [HttpGet("export/{user}/{pipeline}")]
+        public async Task<ApiResult<string>>  ExportDsl(String user, String pipeline)
+        {
+            var authorizationResult = await authorizationService.AuthorizeAsync(User, user, "OwnershipPolicy");
+
+            if (!authorizationResult.Succeeded)
+            {
+                return ApiHelper.CreateFailedResult<String>("Forbiden");
+            }
+            try
+            {
+                var result = userService.GetRepoAsync(user, pipeline);
+                var template = BsonSerializer.Deserialize<Template>(result);
+                var canvasTemplate = (IDictionary<string, Object>)template.CanvasTemplate;
+                var objectElements = JsonConvert.SerializeObject(canvasTemplate["elements"]);
+                //var resourcesProviders = (IDictionary<string, Object>)template.ResourceProviders;
+                var objectResourceProviders = JsonConvert.SerializeObject(template.ResourceProviders);
+                List<CanvasElement> elements = JsonConvert.DeserializeObject<List<CanvasElement>>(objectElements);
+                List<CanvasProvider> providers = BsonSerializer.Deserialize<List<CanvasProvider>>(objectResourceProviders);
+                Canvas c = new Canvas { Name = template.Name, Elements = elements, ResourceProviders=providers };
+                var workflow = workflowService.TransformCanvasToWorkflow(c);
+                var dsl = workflowService.TransformWorkflowToDsl(workflow, c.ResourceProviders);
+
+                return ApiHelper.CreateSuccessResult(dslService.SerializeDsl(dsl));
+            }
+            catch (Exception e)
+            {
+                return ApiHelper.CreateFailedResult<String>(e.Message);
+            }
+        
         }
     }
 }

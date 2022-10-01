@@ -206,10 +206,10 @@ namespace DataCloud.PipelineDesigner.Services
             dsl.SubPipelines = subPipelines.ToArray();
 
             dsl.ResourceProvider = providers.Select(p => new ResourceProvider { 
-                Provider = p.Provider,
-                MappingLocation = p.MappingLocation,
+                Provider = p.provider,
+                MappingLocation = p.mappingLocation,
                 Name = p.name,
-                ProviderLocation = p.ProviderLocation,
+                ProviderLocation = p.providerLocation,
             }).ToArray();  
 
             return dsl;

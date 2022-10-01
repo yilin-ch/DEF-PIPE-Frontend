@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataCloud.PipelineDesigner.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataCloud.PipelineDesigner.Core", "DataCloud.PipelineDesigner.Core\DataCloud.PipelineDesigner.Core.csproj", "{01E1E8E6-B17F-44D3-8C47-5F80662DD9A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataCloud.PipelineDesigner.Tests", "Tests\DataCloud.PipelineDesigner.Tests.csproj", "{E4F4B1DA-F565-43AB-AF17-B4CED1BC6799}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{01E1E8E6-B17F-44D3-8C47-5F80662DD9A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01E1E8E6-B17F-44D3-8C47-5F80662DD9A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01E1E8E6-B17F-44D3-8C47-5F80662DD9A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4F4B1DA-F565-43AB-AF17-B4CED1BC6799}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4F4B1DA-F565-43AB-AF17-B4CED1BC6799}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4F4B1DA-F565-43AB-AF17-B4CED1BC6799}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4F4B1DA-F565-43AB-AF17-B4CED1BC6799}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,7 +5,7 @@
 
 # DEF-PIPE Frontend
 
-The DEF-PIPE Frontend is a graphic pipeline designer tool for defining Big Data pipelines and tranforming them to DSL. The pipeline designer test version is deployed and accessible at http://def-pipe.northeurope.azurecontainer.io
+The DEF-PIPE Frontend is a graphic pipeline designer tool for defining Big Data pipelines and tranforming them to DSL. The pipeline designer test version is deployed and accessible at https://crowdserv.sys.kth.se
 
 Because of several benefits such as ease of use, compability, and reusability, the web application approach was chosen to implement a pipeline designer.
 
