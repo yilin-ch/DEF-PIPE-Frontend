@@ -70,7 +70,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel.DSL
 
         public override string ToString()
         {
-            return "\t\t- " + this.StepType +" "+ this.Type + " " + this.Name +
+            return "\t\t- " + this.StepType +" "+ this.Type + " " + this.Name.Replace(' ', '_') +
                 "\n\t\t\t" + this.Implementation.ToString() +
                  (this.EnvParams != null ?
                 "\n\t\t\tenvironmentParameters: {\n" +
@@ -96,27 +96,30 @@ namespace DataCloud.PipelineDesigner.WorkflowModel.DSL
 
     public class ExecutionRequirements
     {
-        public string Type { get; set; }
+        public string Type { get; set; } //hardRequirements
 
         public RequirementsSubType[] SubTypeRequirements { get; set; }
 
         public override string ToString()
         {
-            return "\n\t\t\t\t" + this.Type + ":" +
-                "\t\t\t\t\t" + string.Join("\n", this.SubTypeRequirements?.Select(e => e));
+            return  (this.SubTypeRequirements != null ? "\n\t\t\t\t" + this.Type + ":" +
+                "\t\t\t\t\t" + string.Join("\n", this.SubTypeRequirements?.Select(e => e)) : "");
+             ;
         }
     }
 
     public class RequirementsSubType
     {
-        public string SubType { get; set; }
+        public string SubType { get; set; } // verticalScale
 
-        public Dictionary<string, string> Requirements { get; set; }
+        public Dictionary<string, string> Requirements { get; set; } //"min-instance": 1, ....
 
         public override string ToString()
         {
             return "\n\t\t\t\t\t" + this.SubType + ":\n" +
-                string.Join("\n", this.Requirements.Select(kv => "\t\t\t\t\t\t" + kv.Key + ": " + kv.Value).ToArray());
+                string.Join("\n", this.Requirements.Select(kv => "\t\t\t\t\t\t" + kv.Key + ": " + 
+                    (Boolean.TryParse(kv.Value, out bool b) ? Convert.ToInt32(b) : (Double.TryParse(kv.Value, out double num) ? num : "'"+kv.Value+ "'") ) 
+                ).ToArray());
         }
     }
 

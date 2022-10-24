@@ -6,6 +6,7 @@ import { ApplicationState } from '../../../store';
 import { ICanvasElementType, ICanvasShapeTemplate, ICanvasShape, IAPiTemplate } from '../../../models';
 import { v4 as uuidv4 } from 'uuid';
 
+
 type TemplatePaletteProps =
     CanvasStore.CanvasState &
     typeof CanvasStore.actionCreators;
@@ -31,11 +32,14 @@ class TemplatePalettePane extends React.PureComponent<TemplatePaletteProps> {
             description: "",
             category: group,
             canvasTemplate: {
-                width: 300,
-                height: 200,
+                width: 150,
+                height: 100,
                 shape: "Rectangle",
                 properties: [],
-                connectionPoints: []
+                connectionPoints: [
+                    { id: uuidv4(), position: { x: 0, y: 50 }, type:  0 },
+                    { id: uuidv4(), position: { x: 150, y: 50 }, type: 1 }
+                ]
             },
             resourceProviders: []
         };
@@ -52,7 +56,7 @@ class TemplatePalettePane extends React.PureComponent<TemplatePaletteProps> {
                         <p className="palette-group-header">{group.name} <Button className="addButton" onClick={(e) => this.onAddNewTemplate(group.name)}>Add</Button></p>
                         {group.items.map(item =>
                             <p className="palette-group-item" onClick={() => this.onTemplateClicked(item)}>
-                                {item.name}
+                                {item.name} {this.props.selectedTemplate?.id == item.id ? <i className="bi bi-pencil" style={{ padding: 5 }} /> : ""}
                             </p>
                         )}
                     </React.Fragment>

@@ -12,7 +12,7 @@ import {
 import {ApplicationState} from '../../../store';
 import * as CanvasStore from '../../../store/Canvas';
 import {JSONEditor, Schema} from "react-schema-based-json-editor";
-import schemas from './schemas.json'
+import schemas from '../../schemas.json';
 
 interface MyState {
     initialValue: Object,

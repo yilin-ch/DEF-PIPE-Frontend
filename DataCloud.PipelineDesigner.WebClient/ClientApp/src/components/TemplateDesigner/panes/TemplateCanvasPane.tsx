@@ -57,7 +57,7 @@ class TemplateCanvasPane extends React.PureComponent<TemplateCanvasProps> {
             width: template.canvasTemplate.width,
             height: template.canvasTemplate.height,
             shape: template.canvasTemplate.shape,
-            position: { x: 700, y: 500 }
+            position: { x: 300, y: 300 }
         };
 
         return this.renderCanvasShape(shape);

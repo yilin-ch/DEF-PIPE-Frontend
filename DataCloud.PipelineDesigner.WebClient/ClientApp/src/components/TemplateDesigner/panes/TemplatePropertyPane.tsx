@@ -5,12 +5,16 @@ import { ICanvasConnectionPointType, ICanvasElementProperty, ICanvasElementPrope
 import { ApplicationState } from '../../../store';
 import * as CanvasStore from '../../../store/Canvas';
 import { v4 as uuidv4 } from 'uuid';
+import { JSONEditor, Schema } from "react-schema-based-json-editor";
+import schemas from '../../schemas.json'
 
 type TemplatePropertyPaneProps =
     CanvasStore.CanvasState &
     typeof CanvasStore.actionCreators;
 
+
 class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps> {
+
 
     toggle(tab: string) {
         if (this.props.selectedTab !== tab) {
@@ -104,6 +108,12 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
         this.props.updateTemplate(updatedTemplate);
     }
 
+    onParametersUpdate = (value: any, isValid: boolean) => {
+        let updatedTemplate: IAPiTemplate = { ...this.props.selectedTemplate };
+        updatedTemplate.canvasTemplate.parameters = value;
+        this.props.updateTemplate(updatedTemplate);
+    };
+
     addConnectionPoint() {
         let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
         updatedTemplate.canvasTemplate.connectionPoints.push({
@@ -163,12 +173,19 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
         </React.Fragment >
     }
 
+    static getSchema(): Schema {
+        var schema: Schema = schemas["params"] as Schema;
+        schema["properties"]["resourceProvider"]["readonly"] = true;
+
+        return schema;
+    };
+
     public render() {
+        let selectedShape = (this.props.selectedTemplate?.canvasTemplate as ICanvasShape);
         return (
             <React.Fragment>
                 {this.props.selectedTemplate ?
                     <React.Fragment>
-                        <Form>
                             <h3 className="property-pane-header">
                                 Step Properties
                             </h3>
@@ -206,8 +223,14 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
                                     </FormGroup>
                                 </TabPane>
                                 <TabPane tabId="2">
-                                    {this.props.selectedTemplate.canvasTemplate.properties.map(prop => this.renderProperty(prop))}
-                                    <Button onClick={e => this.addProperty()}>Add Property</Button>
+                                    {<JSONEditor
+                                        key={this.props.selectedTemplate.id}
+                                        schema={TemplatePropertyPane.getSchema()}
+                                        initialValue={selectedShape.parameters}
+                                        updateValue={this.onParametersUpdate}
+                                        theme="bootstrap5"
+                                        icon="bootstrap-icons"
+                                    />}
                                 </TabPane>
                                 <TabPane tabId="3">
                                     {this.props.selectedTemplate.canvasTemplate.connectionPoints.map(point => this.renderConnectionPoint(point))}
@@ -228,7 +251,6 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
                                     Delete
                                 </p>
                             </td>
-                        </Form>
                     </React.Fragment>
                     : null}
             </React.Fragment>

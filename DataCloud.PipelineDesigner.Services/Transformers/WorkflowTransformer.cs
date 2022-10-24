@@ -1,7 +1,9 @@
 ﻿using DataCloud.PipelineDesigner.CanvasModel;
 using DataCloud.PipelineDesigner.WorkflowModel;
 using DataCloud.PipelineDesigner.WorkflowModel.DSL;
+using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +17,7 @@ namespace DataCloud.PipelineDesigner.Services
         public List<Workflow> GenerateWorkflows(List<Workflow> workflows, List<Canvas> canvas)
         {
 
-            if(canvas.Count == 0)
+            if (canvas.Count == 0)
             {
                 return workflows;
             }
@@ -205,12 +207,14 @@ namespace DataCloud.PipelineDesigner.Services
 
             dsl.SubPipelines = subPipelines.ToArray();
 
-            dsl.ResourceProvider = providers.Select(p => new ResourceProvider { 
+            dsl.ResourceProvider = providers?.Select(p => new ResourceProvider
+            {
                 Provider = p.provider,
                 MappingLocation = p.mappingLocation,
                 Name = p.name,
                 ProviderLocation = p.providerLocation,
-            }).ToArray();  
+
+            }).ToArray();
 
             return dsl;
         }
@@ -218,7 +222,7 @@ namespace DataCloud.PipelineDesigner.Services
         public Pipeline GeneratePipeline(Workflow workflow, bool isSubPipline = false)
         {
             Pipeline pipeline = new Pipeline();
-            pipeline.Name = workflow.Name; 
+            pipeline.Name = workflow.Name;
             List<Step> steps = new List<Step>();
 
             foreach (WorkflowElement element in workflow.Elements)
@@ -235,6 +239,30 @@ namespace DataCloud.PipelineDesigner.Services
                 };
                 step.ResourceProvider = (element as WorkflowAction).Parameters?.ResourceProvider;
                 step.EnvParams = (element as WorkflowAction).Parameters?.EnvironmentParameters?.ToDictionary((ep) => ep.Key, (ep) => ep.Value);
+
+
+                // Block to improve...
+                var hard = (JArray)(element as WorkflowAction).Parameters?.ExecutionRequirement?["hardRequirements"];
+
+
+
+                step.ExecRequirements = new ExecutionRequirements[2];
+
+                step.ExecRequirements[0] = new ExecutionRequirements
+                {
+                    Type = "hardRequirements",
+                    SubTypeRequirements = ((IEnumerable<dynamic>)hard)?.Select(e => {
+
+                        Dictionary<string, string> r = ((IEnumerable<KeyValuePair<string, JToken>>)e)
+                                            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
+
+                        Dictionary<string, string> r2 = ((IEnumerable<KeyValuePair<string, JToken>>)e).Skip(1)
+                                            .ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
+
+
+                        return new RequirementsSubType { SubType = r.First().Value, Requirements = r2 };
+                    }).ToArray()
+                };
 
                 steps.Add(step);
 

@@ -23,7 +23,6 @@ class PalettePane extends React.PureComponent<PaletteProps> {
         let newShape: ICanvasShape = {
             ...template.canvasTemplate,
             name: template.name,
-            properties: template.canvasTemplate.properties.map(p => ({...p})),
             id: uuidv4(),
             templateId: template.id,
             type: ICanvasElementType.Shape,

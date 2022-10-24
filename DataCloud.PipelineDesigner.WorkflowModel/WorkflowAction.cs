@@ -32,6 +32,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
                     ResourceProvider = canvasParameters.ResourceProvider,
                     StepType = canvasParameters.StepType,
                     StepImplementation = canvasParameters.StepImplementation,
+                    ExecutionRequirement = canvasParameters.ExecutionRequirement,
                 };
             }
 
@@ -48,6 +49,8 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
         public string ResourceProvider { get; set; }
         public string StepType { get; set; }
         public string StepImplementation { get; set; }
+
+        public dynamic ExecutionRequirement { get; set; }
     }
 
     public class EnvironmentParameter

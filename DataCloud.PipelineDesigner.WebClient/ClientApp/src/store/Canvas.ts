@@ -247,11 +247,20 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                             ((ele as ICanvasConnector).destShapeId === shapeToRemove.id || (ele as ICanvasConnector).sourceShapeId === shapeToRemove.id)))
             }
 
+            let remainingElements = state.currentRootShape.elements.filter(ele => elementsToRemove.indexOf(ele) < 0)
+
+
+            providers = state.providers;
+            if (remainingElements.length == 0) {
+                providers = [];
+            }
+
             return {
                 ...state,
-                currentRootShape: { ...state.currentRootShape, elements: state.currentRootShape.elements.filter(ele => elementsToRemove.indexOf(ele) < 0) },
+                currentRootShape: { ...state.currentRootShape, elements: remainingElements },
                 selectedElement: null,
-                selectedConnectionPoint: null
+                selectedConnectionPoint: null,
+                providers: providers
             };
         case 'UPDATE_ELEMENT':
             let existingElement = state.currentRootShape.elements.filter(x => x.id === action.element.id)[0];
@@ -466,7 +475,7 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
             return state;
         case 'REMOVE_TEMPLATE':
             templateGroup = state.templateGroups.filter(group => group.name === action.template.category)[0]
-            templateGroup.items = templateGroup.items.filter(obj => obj !== action.template);
+            templateGroup.items = templateGroup.items.filter(obj => obj.id !== action.template.id);
             let index = state.templateGroups.findIndex((group) => group.name === templateGroup.name);
 
             state.templateGroups[index] = templateGroup;

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static DataCloud.PipelineDesigner.Services.Constants;
+using Newtonsoft.Json.Linq;
 
 namespace DataCloud.PipelineDesigner.Services
 {
@@ -135,7 +136,8 @@ namespace DataCloud.PipelineDesigner.Services
                         ResourceProvider = step.ResourceProvider,
                         StepType = step.StepType,
                         StepImplementation = step.Implementation.Type,
-                        EnvironmentParameters = step.EnvParams?.Select(e => new EnvironmentParameter { Key = e.Key, Value = e.Value }).ToList()
+                        EnvironmentParameters = step.EnvParams?.Select(e => new EnvironmentParameter { Key = e.Key, Value = e.Value }).ToList(),
+                        ExecutionRequirement = GenerateExecutionRequirement(step.ExecRequirements)
                     }
                 };
             }
@@ -171,6 +173,45 @@ namespace DataCloud.PipelineDesigner.Services
             CanvasPosition nextPositon = new CanvasPosition { X = x, Y = y};
 
             return nextPositon;
+        }
+
+        private static dynamic GenerateExecutionRequirement(ExecutionRequirements[] e)
+        {
+
+            dynamic requ = new JObject();
+            dynamic requs = new JArray();
+
+            
+            foreach (RequirementsSubType requirement in e[0].SubTypeRequirements)
+            {
+                dynamic r = new JObject();
+
+                r.reqType = requirement.SubType;
+
+                foreach (var kv in requirement.Requirements)
+                {
+                    double number;
+
+                    var isDouble = Double.TryParse(kv.Value, out number);
+
+                    if (!isDouble)
+                    {
+                        r[kv.Key] = kv.Value;
+                    }
+                    else
+                    {
+                        r[kv.Key] = number;
+                    }
+                   
+                }
+
+                requs.Add(r);
+            }
+
+            requ.hardRequirements = requs;
+
+
+            return requ;
         }
 
 

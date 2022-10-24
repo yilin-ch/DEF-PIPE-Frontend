@@ -92,7 +92,7 @@ namespace DataCloud.PipelineDesigner.Services
         [Token(Example = "hardRequirements | softRequirements")]
         RequirementType,
 
-        [Token(Example = "horizontalScale | verticalScale | qualitativeRequirement | quantitativeRequirement")]
+        [Token(Example = "horizontalScale | verticalScale | qualitativeRequirement | quantitativeRequirement | ....")]
         RequirementSubType,
 
         [Token(Example = "quantitativeRequirement:")]

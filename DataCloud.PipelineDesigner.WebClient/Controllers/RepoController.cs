@@ -205,6 +205,10 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             }
         }
 
+        /// <summary>
+        /// Export pipeline in DSL
+        /// </summary>
+        /// <response code="200">DSL fromated pipeline</response>
         [HttpGet("export/{user}/{pipeline}")]
         public async Task<ApiResult<string>>  ExportDsl(String user, String pipeline)
         {
