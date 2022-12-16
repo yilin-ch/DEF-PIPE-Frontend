@@ -12,7 +12,8 @@ import {
     ICanvasShapeConnectionPoint,
     ICanvasElement,
     ICanvasConnectionPointType,
-    ISearchRepo
+    ISearchRepo,
+    ICanvasPosition
 } from '../../../models';
 import {CanvasService} from '../../../services/CanvasService';
 import {CanvasRenderer} from '../../../services/CanvasRenderer';
@@ -36,11 +37,17 @@ import {v4 as uuidv4} from 'uuid';
 import Konva from "konva";
 import {TemplateService} from "../../../services/TemplateService";
 import KeycloakService from "../../../services/KeycloakService";
+import { NumericLiteral } from 'typescript';
 
 interface MyState {
     value: string,
     suggestions: Array<ISearchRepo>,
-    selectedSuggestion: ISearchRepo
+    selectedSuggestion: ISearchRepo,
+    stageScale: number,
+    height: number,
+    width: number,
+    stageX: number,
+    stageY: number
 }
 
 type CanvasProps =
@@ -54,7 +61,12 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
         this.state = {
             value: '',
             suggestions: [],
-            selectedSuggestion: null
+            selectedSuggestion: null,
+            stageScale: 1,
+            height: window.innerHeight,
+            width: window.innerWidth,
+            stageX: 0,
+            stageY: 0
         };
         this.props.requestDSLs();
         this.props.requestTemplates();
@@ -475,6 +487,17 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                       onClick={(e) => this.onConnectorClick(e, connector)}></ Arrow>
     }
 
+
+    zoom(scale: number) {
+        const newScale = this.state.stageScale + scale
+        this.setState({
+            stageScale: newScale,
+        });
+    }
+
+
+    
+
     public render() {
 
         const {value, suggestions} = this.state;
@@ -484,14 +507,19 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
             value,
             onChange: this.onChange
         };
+;
 
         return (
             <React.Fragment>
                 <div id="canvas-container" className="canvas-container" tabIndex={1}
                      onKeyDown={(e: React.KeyboardEvent) => this.onKeyDown(e)} onDrop={(e) => this.onDrop(e)}
-                     onDragOver={(e) => e.preventDefault()} onMouseMove={(e) => this.onMouseMove(e)}>
-                    <Stage width={window.innerWidth} height={window.innerHeight}
-                           onClick={(e) => this.props.deselectElement()} style={this.stageStyle} onMou>
+                    onDragOver={(e) => e.preventDefault()} onMouseMove={(e) => this.onMouseMove(e)}>
+                    <Stage
+                        width={this.state.width / (this.state.stageScale *1.3)}
+                        height={this.state.height / (this.state.stageScale * 1.1)}
+                        scaleX={this.state.stageScale}
+                        scaleY={this.state.stageScale}
+                        onClick={(e) => this.props.deselectElement()} style={this.stageStyle} onMou>
                         <Layer listening={false}>
                             {CanvasRenderer.renderGrid()}
                         </Layer>
@@ -501,6 +529,10 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                         </Layer>
                     </Stage>
                     <ButtonGroup className="canvas-top-toolbar">
+                        <Button onClick={() => this.zoom(0.05)}><i className="bi bi-zoom-in"
+                            style={{ padding: 5 }} /></Button>
+                        <Button disabled={this.state.stageScale<0.5} onClick={() => this.zoom(-0.05)}><i className="bi bi-zoom-out"
+                            style={{ padding: 5 }} /></Button>
                         <Button onClick={() => this.toggleFindRepoModal()}><i className="bi bi-search"
                                                                               style={{padding: 5}}/></Button>
                         <Button onClick={() => this.exportCanvasAsJson()}>Export JSON</Button>
