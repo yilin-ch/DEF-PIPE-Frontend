@@ -331,6 +331,7 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                 templateGroups: templateService.getTemplateGroups(state.templates || [], action.value)
             };
         case 'SELECT_TEMPLATE':
+            console.log(state.templateGroups)
             return {
                 ...state,
                 selectedTemplate: action.template
@@ -453,14 +454,17 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
             }
             else {
                 let oldTemplateGroup = state.templateGroups.filter(group => group.items.some(template => template.id === action.template.id))[0];
-                oldTemplateGroup.items = oldTemplateGroup.items.filter(template => template.id !== action.template.id);
+                if (oldTemplateGroup) {
+                    oldTemplateGroup.items = oldTemplateGroup.items.filter(template => template.id !== action.template.id);
+                }
+
                 let newTemplateGroup = {
                     name: action.template.category,
                     items: [action.template]
                 };
 
                 let templateGroups = state.templateGroups;
-                if (oldTemplateGroup.items.length === 0) {
+                if (oldTemplateGroup?.items.length === 0) {
                     templateGroups = templateGroups.filter(group => group.name !== oldTemplateGroup.name);
                 }
                 templateGroups = templateGroups.concat(newTemplateGroup);

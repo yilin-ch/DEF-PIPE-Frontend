@@ -18,6 +18,7 @@ class TemplatePalettePane extends React.PureComponent<TemplatePaletteProps> {
     }
 
     onTemplateClicked(template: IAPiTemplate) {
+        console.log(this.props.templateGroups)
         this.props.selectTemplate(template);
     }
 
@@ -50,10 +51,11 @@ class TemplatePalettePane extends React.PureComponent<TemplatePaletteProps> {
         return (
             <React.Fragment>
                 <Input className="palette-searchbox" type="text" placeholder="Search components..." onChange={this.onFilterChanged.bind(this)} />
-
+                <Button className="addButton" block={true} onClick={(e) => this.onAddNewTemplate("New category")}>Add</Button>
                 {this.props.templateGroups ? this.props.templateGroups.map(group =>
                     <React.Fragment>
-                        <p className="palette-group-header">{group.name} <Button className="addButton" onClick={(e) => this.onAddNewTemplate(group.name)}>Add</Button></p>
+                        <p className="palette-group-header">{group.name}</p>
+                        <Button className="addButton"  onClick={(e) => this.onAddNewTemplate(group.name)}>Add</Button>
                         {group.items.map(item =>
                             <p className="palette-group-item" onClick={() => this.onTemplateClicked(item)}>
                                 {item.name} {this.props.selectedTemplate?.id == item.id ? <i className="bi bi-pencil" style={{ padding: 5 }} /> : ""}
