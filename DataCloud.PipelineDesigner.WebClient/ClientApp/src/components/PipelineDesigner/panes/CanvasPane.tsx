@@ -495,7 +495,12 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
         });
     }
 
-
+    existingName(): boolean {
+        if (this.props.repo?.find(r => r.name.toLowerCase() == this.saveAsName.toLowerCase())) {
+            return true;
+        };
+        return false;
+    }
     
 
     public render() {
@@ -617,14 +622,19 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                                 <Input type="text" name={"txt-template-category"} id={"txt-template-category"} defaultValue={this.saveAsCategory}
                                        onChange={(e) => {
                                            this.saveAsCategory = e.target.value
-                                       }}/>
+                                    }} />
+                                <span hidden={this.saveAsCategory!=""} style={{ color: "red" }}>Required</span>
+                                <br />
                             </FormGroup>
                             <FormGroup>
                                 <Label for={"txt-template-name"}>Name</Label>
                                 <Input type="text" name={"txt-template-name"} id={"txt-template-name"} defaultValue={this.saveAsName}
                                        onChange={(e) => {
                                            this.saveAsName = e.target.value
-                                       }}/>
+                                    }} />
+                                <span hidden={ this.saveAsName!=""} style={{ color: "red" }}>Required</span>
+                                <span hidden={ !this.existingName() } style={{ color: "red" }}>Name already used in another pipeline</span>
+                                <br />
                             </FormGroup>
                             <FormGroup>
                                 <Label for={"txt-template-description"}>Description</Label>
@@ -646,7 +656,9 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                             </FormGroup>
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="primary" onClick={(e) => this.saveAsRepo()}>Save</Button>
+                            <Button
+                                disabled={(this.existingName() || this.saveAsName == "" || this.saveAsCategory == "")}
+                                color="primary" onClick={(e) => this.saveAsRepo()}>Save</Button>
                             <Button color="secondary" onClick={(e) => this.toggleSaveAsRepoModal()}>Cancel</Button>
                         </ModalFooter>
                     </Modal>
