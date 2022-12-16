@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -77,7 +78,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel.DSL
                 string.Join(",\n", this.EnvParams?.Select(kv => "\t\t\t\t" + kv.Key + ": '" + kv.Value + "'").ToArray()) +
                 "\n\t\t\t}" : "") +
                 (this.ResourceProvider != null ? "\n\t\t\tresourceProvider: " + this.ResourceProvider.ToString() : "") +
-                (this.ExecRequirements != null ? "\n\t\t\texecutionRequirement: " + string.Join("\n", this.ExecRequirements?.Select(e => e)): "") ;
+                (this.ExecRequirements != null ? "\n\t\t\texecutionRequirement:" + string.Join("\n", this.ExecRequirements?.Select(e => e)): "") ;
                 //+ "\n\t\t\tprevious: [" + string.Join(", ", this.Previous?.Select(e => e)) + "]";
         }
     }
@@ -90,7 +91,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel.DSL
 
         public override string ToString()
         {
-            return "implementation: " + this.Type + " image:  '" + this.ImageName + "'";
+            return "implementation: " + this.Type + " image: '" + this.ImageName + "'";
         }
     }
 
@@ -125,9 +126,13 @@ namespace DataCloud.PipelineDesigner.WorkflowModel.DSL
 
     public class ResourceProvider
     {
+        [JsonProperty("provider")]
         public String Provider { get; set; }
+        [JsonProperty("name")]
         public String Name { get; set; }
+        [JsonProperty("providerLocation")]
         public String ProviderLocation { get; set; }
+        [JsonProperty("mappingLocation")]
         public String MappingLocation { get; set; }
 
         public override string ToString()

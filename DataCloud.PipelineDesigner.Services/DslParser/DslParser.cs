@@ -31,7 +31,8 @@ namespace DataCloud.PipelineDesigner.Services
 
         public static StringParser EscaptedTextContent =>
         Token.EqualTo(DSlToken.Text).Or(Token
-            .EqualTo(DSlToken.Colon))
+            .EqualTo(DSlToken.Colon)).Or(Token
+            .EqualTo(DSlToken.Slash))
         .Select(n => n.ToStringValue());
 
         public static StringParser String =>

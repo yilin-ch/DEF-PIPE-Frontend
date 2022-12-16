@@ -16,6 +16,7 @@ using MongoDB.Bson;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using DataCloud.PipelineDesigner.CanvasModel;
 using Newtonsoft.Json.Converters;
+using System.Linq;
 
 namespace DataCloud.PipelineDesigner.WebClient.Controllers
 {
@@ -193,7 +194,12 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
                 var d = dslService.DeserializeDsl(dsl);
                 var r = CanvasService.TransformDslToCanvas(d);
 
-                var template = new Template { Name = d.Pipeline.Name, Category = "Imported", Id = Guid.NewGuid().ToString(), CanvasTemplate = r };
+                var template = new Template { 
+                    Name = d.Pipeline.Name, 
+                    Category = "Imported", 
+                    Id = Guid.NewGuid().ToString(), 
+                    CanvasTemplate = r, 
+                    ResourceProviders = d.ResourceProvider};
 
                 var result = await userService.AddRepoAsync(template, user);
 
