@@ -32,6 +32,18 @@ namespace DataCloud.PipelineDesigner.WebClient
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(o => o.AddPolicy("AllowOrigin",
+                builder =>
+                {
+
+                    builder
+                         .AllowAnyMethod()
+                         .AllowAnyHeader()
+                         .WithOrigins(new[] { "https://*.euprojects.net" })
+                         .SetIsOriginAllowedToAllowWildcardSubdomains()
+                         .AllowCredentials();
+                }));
+
             services.AddControllersWithViews().AddNewtonsoftJson();
 
             services.Configure<DatabaseSettings>(
@@ -101,7 +113,7 @@ namespace DataCloud.PipelineDesigner.WebClient
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
+        {   
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
@@ -119,12 +131,13 @@ namespace DataCloud.PipelineDesigner.WebClient
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+           
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
             app.UseRouting();
-
+            app.UseCors("AllowOrigin");
+            app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
 
