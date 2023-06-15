@@ -190,13 +190,15 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                 connectionPoints: [{
                     id: '1',
                     position: {x: 0, y: 50},
-                    type: ICanvasConnectionPointType.input
+                    type: ICanvasConnectionPointType.input,
+                    condition: null
                 },
-                    {
-                        id: '2',
-                        position: {x: 200, y: 50},
-                        type: ICanvasConnectionPointType.output
-                    }],
+                {
+                    id: '2',
+                    position: {x: 200, y: 50},
+                    type: ICanvasConnectionPointType.output,
+                    condition: null
+                }],
                 properties: [],
                 width: 200,
                 height: 100
@@ -211,6 +213,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
     }
 
     saveAsRepo() {
+        console.log("saveAsRepo");
         this.props.addRepo({
             id: this.props.currentRepoEdit ? this.props.currentRepoEdit.id : uuidv4(),
             name: this.saveAsName,
@@ -223,12 +226,15 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                 connectionPoints: [{
                     id: '1',
                     position: {x: 0, y: 50},
-                    type: ICanvasConnectionPointType.input
+                    type: ICanvasConnectionPointType.input,
+                    condition: null
                 },
                     {
                         id: '2',
                         position: {x: 200, y: 50},
-                        type: ICanvasConnectionPointType.output
+                        type: ICanvasConnectionPointType.output,
+                        condition: null
+
                     }],
                 properties: [],
                 width: 200,
@@ -323,6 +329,10 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
         this.canvasService.exportAsDSL(this.props.currentRootShape);
     }
 
+    exportCanvasAsYAML() {
+        this.canvasService.exportAsYAML(this.props.currentRootShape);
+    }
+
     onDrop(e: React.DragEvent) {
         e.preventDefault();
         if (this.props.draggedTemplate) {
@@ -410,7 +420,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                     },
                     width: 20,
                     height: 10,
-                    connectionPoints: [{id: '0', position: {x: 10, y: 0}, type: ICanvasConnectionPointType.input}],
+                    connectionPoints: [{ id: '0', position: { x: 10, y: 0 }, type: ICanvasConnectionPointType.input, condition: null}],
                     type: ICanvasElementType.Shape,
                     properties: []
                 }
@@ -542,10 +552,10 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                                                                               style={{padding: 5}}/></Button>
                         <Button onClick={() => this.exportCanvasAsJson()}>Export JSON</Button>
                         <Button onClick={() => this.exportCanvasAsDSL()}>Export DSL</Button>
+                        <Button onClick={() => this.exportCanvasAsYAML()}>Export YAML</Button>
                         {/*<Button onClick={() => this.toggleSaveAsTemplateModal()}>Save as Template</Button>*/}
-                        {KeycloakService.getUsername() &&
                         <Button onClick={() => this.toggleSaveAsRepoModal()}><i className="bi bi-save"
-                                                                                style={{padding: 5}}/>Save</Button>}
+                                                                                style={{padding: 5}}/>Save</Button>
                         {this.props.currentRepoEdit &&
                         <Button onClick={() => this.props.cancelEditRepo()}><i className="bi bi-x-square-fill"
                                                                                 style={{padding: 5, color: "red"}}/>Cancel</Button>}

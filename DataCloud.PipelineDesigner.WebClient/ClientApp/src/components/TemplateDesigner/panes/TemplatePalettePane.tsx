@@ -36,10 +36,11 @@ class TemplatePalettePane extends React.PureComponent<TemplatePaletteProps> {
                 width: 150,
                 height: 100,
                 shape: "Rectangle",
+                conditional: "Other",
                 properties: [],
                 connectionPoints: [
-                    { id: uuidv4(), position: { x: 0, y: 50 }, type:  0 },
-                    { id: uuidv4(), position: { x: 150, y: 50 }, type: 1 }
+                    { id: uuidv4(), position: { x: 0, y: 50 }, type: 0, condition: null },
+                    { id: uuidv4(), position: { x: 150, y: 50 }, type: 1, condition: null }
                 ]
             },
             resourceProviders: []

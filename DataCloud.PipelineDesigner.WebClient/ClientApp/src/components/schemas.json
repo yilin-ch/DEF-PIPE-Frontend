@@ -355,5 +355,51 @@
     "required": [
       "providers"
     ]
+  },
+  "pipeline": {
+    "type": "object",
+    "title": "Pipeline",
+    "properties": {
+      "loop": {
+        "title": "Use Loop",
+        "type": "string",
+        "enum": [
+          "No",
+          "Yes"
+        ],
+        "propertyOrder": 1
+      },
+      "loopcondition": {
+        "title": "Loop Conditions",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "int",
+                "string",
+                "boolean"
+              ]
+            },
+            "condition": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "name",
+            "condition"
+          ]
+        }
+      }
+    },
+    "required": [
+      "loop"
+    ]
   }
 }

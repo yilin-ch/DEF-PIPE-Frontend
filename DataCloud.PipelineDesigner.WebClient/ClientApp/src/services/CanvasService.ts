@@ -37,6 +37,27 @@ export class CanvasService {
         xhr.send(data);
     }
 
+    exportAsYAML(rootShape: ICanvasShape, fileName: string = "pipeline-yaml.txt") {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/export/yaml", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var data = new Blob([xhr.responseText], { type: 'text/plain' });
+                var dataStr = window.URL.createObjectURL(data);
+
+                var downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", fileName);
+                document.body.appendChild(downloadAnchorNode); // required for firefox
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            }
+        };
+        var data = JSON.stringify(rootShape);
+        xhr.send(data);
+    }
+
     getDistance(pointA: ICanvasPosition, pointB: ICanvasPosition) {
         return Math.sqrt(Math.pow(pointA.x - pointB.x, 2) + Math.pow(pointA.y - pointB.y, 2));
     }

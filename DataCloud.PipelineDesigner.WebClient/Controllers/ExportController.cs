@@ -1,6 +1,7 @@
 ﻿using DataCloud.PipelineDesigner.CanvasModel;
 using DataCloud.PipelineDesigner.Services;
 using DataCloud.PipelineDesigner.Services.Interfaces;
+using DataCloud.PipelineDesigner.Services.Transformers;
 using DataCloud.PipelineDesigner.WorkflowModel.DSL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -17,12 +18,14 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
     [ApiController]
     public class ExportController : ControllerBase
     {
+        IYAMLService yamlService;
         IDSLService dslService;
         IWorkflowService workflowService;
 
         public ExportController()
         {
             //TODO: Update this to use dependency injection
+            yamlService = new YAMLService();
             dslService = new DSLService();
             workflowService = new WorkflowService();
         }
@@ -41,6 +44,23 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
                 var dsl = workflowService.TransformWorkflowToDsl(workflow, canvas.ResourceProviders);
 
                 return dslService.SerializeDsl(dsl);
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+        }
+
+        [HttpPost("yaml")]
+        public string ExportToYAML([FromBody] Canvas canvas)
+        {
+            try
+            {
+
+                var workflow = workflowService.TransformCanvasToWorkflow(canvas);
+                var yaml = workflowService.TransformWorkflowToYaml(workflow, canvas.Name);
+
+                return yamlService.SerializeYaml(yaml);
             }
             catch (Exception e)
             {

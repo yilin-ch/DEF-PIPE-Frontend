@@ -28,13 +28,11 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         IUserService userService;
         IPublicRepoService pRepoService;
         IWorkflowService workflowService;
-        private readonly IAuthorizationService authorizationService;
         IDSLService dslService;
-        public RepoController(IUserService uService, IPublicRepoService prService, IAuthorizationService authService)
+        public RepoController(IUserService uService, IPublicRepoService prService)
         {
             userService = uService;
             pRepoService = prService;
-            authorizationService = authService;
             workflowService = new WorkflowService();
             dslService = new DSLService();
         }
@@ -84,12 +82,8 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         public async Task<ApiResult<List<Template>>> GetAvailableRepo(String user)
         {
 
-            var authorizationResult = await authorizationService.AuthorizeAsync(User, user, "OwnershipPolicy");
 
-            if (!authorizationResult.Succeeded)
-            {
-                return ApiHelper.CreateFailedResult< List<Template>>("Forbiden");
-            }
+            
             try
             {
                 User userDB = await userService.GetRepoAsync(user);
@@ -112,6 +106,8 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         {
             try
             {
+                Console.WriteLine(template.Name);
+                Console.WriteLine(user);
                 var result = await userService.UpdateRepoAsync(template, user);
 
 
@@ -218,12 +214,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         [HttpGet("export/{user}/{pipeline}")]
         public async Task<ApiResult<string>>  ExportDsl(String user, String pipeline)
         {
-            var authorizationResult = await authorizationService.AuthorizeAsync(User, user, "OwnershipPolicy");
-
-            if (!authorizationResult.Succeeded)
-            {
-                return ApiHelper.CreateFailedResult<String>("Forbiden");
-            }
+            
             try
             {
                 var result = userService.GetRepoAsync(user, pipeline);

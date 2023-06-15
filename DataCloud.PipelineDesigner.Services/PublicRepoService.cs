@@ -66,7 +66,7 @@ namespace DataCloud.PipelineDesigner.Services
 
         public Task AddRepo (string user, string workflowName)
         {
-
+            Console.WriteLine("add public");
             PublicRepo pr = new PublicRepo{
                 User = user,
                 WorkflowName = workflowName,
@@ -82,7 +82,7 @@ namespace DataCloud.PipelineDesigner.Services
 
         public Task RemoveRepo(string user, string WorkflowName)
         {
-
+            Console.WriteLine("delete");
             return _publicRepo
                  .DeleteManyAsync(t => t.User == user && t.WorkflowName == WorkflowName);
         }

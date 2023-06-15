@@ -8,7 +8,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
     public class WorkflowAction: WorkflowElement
     {
         public override WorkflowElementType ElementType => WorkflowElementType.Action;
-        public string ID { get; set; }
+        public override string ID { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         //public WorkflowActionTemplate Template { get; set; }
@@ -19,6 +19,8 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
         //public string InjectedCode { get; set; }
         //public int ConcurrentInstances { get; set; }
         //public Guid HardwareConfiguration { get; set; }
+        public HashSet<string> Dependencies { get; set; }
+        public bool Subpipeline = false;
 
         public WorkflowAction(CanvasParameters canvasParameters)
         {
@@ -38,6 +40,26 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
 
             //Template = template ?? throw new Exception("WorkflowActionTemplate cannot be null");
            // Parameters = new Dictionary<string, string>();
+        }
+
+        public WorkflowAction(CanvasParameters canvasParameters, string canvasID)
+        {
+            if (canvasParameters != null)
+            {
+                Parameters = new WorkflowParameters
+                {
+                    Implementation = canvasParameters.Implementation,
+                    Image = canvasParameters.Image,
+                    EnvironmentParameters = canvasParameters.EnvironmentParameters.Select(ep => new EnvironmentParameter { Key = ep.Key, Value = ep.Value }).ToList(),
+                    ResourceProvider = canvasParameters.ResourceProvider,
+                };
+            }
+
+            this.ID = canvasID;
+            this.Dependencies = new HashSet<string>();
+
+            //Template = template ?? throw new Exception("WorkflowActionTemplate cannot be null");
+            // Parameters = new Dictionary<string, string>();
         }
     }
 

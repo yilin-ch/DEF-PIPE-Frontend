@@ -40,6 +40,7 @@ namespace DataCloud.PipelineDesigner.Services
 
         public Task<UpdateResult> UpdateRepoAsync(Template template, string user)
         {
+            Console.WriteLine("update");
 
             string jsonString = JsonConvert.SerializeObject(template);
 
@@ -53,6 +54,7 @@ namespace DataCloud.PipelineDesigner.Services
 
         public Task<UpdateResult> AddRepoAsync(Template template, string user)
         {
+            Console.WriteLine("add");
             DefaultContractResolver contractResolver = new DefaultContractResolver
             {
                 NamingStrategy = new CamelCaseNamingStrategy()

@@ -17,4 +17,10 @@ namespace DataCloud.PipelineDesigner.CanvasModel
         MultiLineText = 1,
         Select = 2,
     }
+
+    public enum CanvasShapeType
+    {
+        Conditional = 0,
+        Other = 1
+    }
 }
