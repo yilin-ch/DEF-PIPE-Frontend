@@ -3,7 +3,7 @@ services:
   def-pipe:
     build: .
     ports:
-      - "80:80"
+      - "8081:80"
       - "27017:27017"
     environment:
         MANGO_CONNECTION_STRING: mongodb://host.docker.internal:27017
