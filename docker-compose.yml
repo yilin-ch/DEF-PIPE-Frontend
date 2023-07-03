@@ -7,4 +7,3 @@ services:
       - "27017:27017"
     environment:
         MANGO_CONNECTION_STRING: mongodb://host.docker.internal:27017
-        KEYCLOAK_AUTHORITY: http://localhost:8080/auth
