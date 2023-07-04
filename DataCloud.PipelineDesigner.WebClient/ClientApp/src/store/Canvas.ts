@@ -18,7 +18,7 @@ import { TemplateService } from '../services/TemplateService';
 import { v4 as uuidv4 } from 'uuid';
 import { AppThunkAction } from '.';
 import { useParams } from 'react-router-dom';
-import KeycloakService from "../services/KeycloakService";
+//import KeycloakService from "../services/KeycloakService";
 import {act} from "react-dom/test-utils";
 
 // -----------------
@@ -149,7 +149,7 @@ export const actionCreators = {
                 method: 'GET',
                 headers: {
                     'Content-type': 'application/json',
-                    'Authorization': `Bearer ${KeycloakService.getToken()}`,
+//                    'Authorization': `Bearer ${KeycloakService.getToken()}`,
                 }})
                 .then(response => response.json() as Promise<ApiResult<Array<IAPiTemplate>>>)
                 .then(apiResult => {
@@ -302,6 +302,7 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                         id: uuidv4(),
                         sourceShapeId: state.selectedElement.id,
                         sourceConnectionPointId: state.selectedConnectionPoint.id,
+                        sourceConnectionPointCase: state.selectedConnectionPoint.case,
                         destShapeId: action.element.id,
                         destConnectionPointId: action.point.id,
                         type: ICanvasElementType.Connector

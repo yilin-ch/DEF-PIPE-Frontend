@@ -18,6 +18,9 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
         public bool IsSubpipeline;
         public ArgoYamlFlow subPipeline;
 
+        public bool IsConditional;
+        public Dictionary<string, ArgoYamlFlow> conditionPipelines { get; set; }
+
         public string Name { get; set; }
 
         public string TaskName { get; set; }

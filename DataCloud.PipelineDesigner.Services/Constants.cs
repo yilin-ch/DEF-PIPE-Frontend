@@ -19,6 +19,8 @@ namespace DataCloud.PipelineDesigner.Services
 
             public static Guid If => new Guid("e8a39e61-ad91-47b5-8a59-2464ce80f1d7");
 
+            public static String If_Name => "IF";
+
             public static Guid Loop => new Guid("3d422380-6adc-4cd8-8679-f5a6ac1cc9bb");
         }
 

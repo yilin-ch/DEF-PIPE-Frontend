@@ -34,9 +34,12 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
 
         public Dictionary<string, List<WorkflowElement>> SwitchCases { get; set; }
 
+        public HashSet<string> Dependencies { get; set; }
+
         public WorkflowSwitchControl()
         {
             SwitchCases = new Dictionary<string, List<WorkflowElement>>();
+            Dependencies = new HashSet<string>();
         }
     }
 }

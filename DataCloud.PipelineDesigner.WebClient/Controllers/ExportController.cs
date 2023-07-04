@@ -60,6 +60,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
                 var workflow = workflowService.TransformCanvasToWorkflow(canvas);
                 var yaml = workflowService.TransformWorkflowToYaml(workflow, canvas.Name);
 
+                Console.WriteLine("k");
                 return yamlService.SerializeYaml(yaml);
             }
             catch (Exception e)

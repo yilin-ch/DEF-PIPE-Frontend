@@ -46,7 +46,7 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
     };
 
     static getLoopConditionSchema(): Schema {
-        var schema: Schema = schemas["pipeline"] as Schema;
+        var schema: Schema = schemas["loopconditions"] as Schema;
         return schema;
     };
 
@@ -104,14 +104,7 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
                         </Input>
                         <Label>Exit Condition</Label>
                         <Input type="text" />
-                        {this.props.currentRootShape.elements.length > 0 ?
-                            <JSONEditor
-                                schema={PropertyPane.getLoopConditionSchema()}
-                                initialValue={{}}
-                                updateValue={() => {}}
-                                theme="bootstrap5"
-                                icon="bootstrap-icons" />
-                            : null}
+
                         { selectedShape.elements?.length > 0 ?
                             null
                             : <JSONEditor

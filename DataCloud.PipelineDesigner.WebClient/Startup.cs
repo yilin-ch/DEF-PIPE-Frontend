@@ -65,72 +65,72 @@ namespace DataCloud.PipelineDesigner.WebClient
                 configuration.RootPath = "ClientApp/build";
             });
 
-            services.AddAuthentication(options => { options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;/* Authentication options */ })
-                                                .AddJwtBearer(options =>
-                                                {
-                                                    options.RequireHttpsMetadata = false;
-                                                    options.Authority = Environment.GetEnvironmentVariable("KEYCLOAK_AUTHORITY");
-                                                    options.TokenValidationParameters =
-                                                        new TokenValidationParameters
-                                                        {
-                                                            ValidateAudience = false,
-                                                            NameClaimType = "preferred_username"
-                                                        };
-                                                });
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("OwnershipPolicy", policy =>
-                    policy.Requirements.Add(new OwnershipRequirement()));
-            });
+            //services.AddAuthentication(options => { options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;/* Authentication options */ })
+            //                                    .AddJwtBearer(options =>
+            //                                    {
+            //                                        options.RequireHttpsMetadata = false;
+            //                                        options.Authority = Environment.GetEnvironmentVariable("KEYCLOAK_AUTHORITY");
+            //                                        options.TokenValidationParameters =
+            //                                            new TokenValidationParameters
+            //                                            {
+            //                                                ValidateAudience = false,
+            //                                                NameClaimType = "preferred_username"
+            //                                            };
+            //                                    });
+            //services.AddAuthorization(options =>
+            //{
+            //    options.AddPolicy("OwnershipPolicy", policy =>
+            //        policy.Requirements.Add(new OwnershipRequirement()));
+            //});
 
-            services.AddSingleton<IAuthorizationHandler, OwnershipAuthHandler>();
+            //services.AddSingleton<IAuthorizationHandler, OwnershipAuthHandler>();
 
-            services.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Version = "v1",
-                    Title = "DEF-PIPE",
-                    Description = "For the protected end points, you need to genereate an access token (e.g. using postman) and provide it by opening \"Authorize\"",
+            //services.AddSwaggerGen(options =>
+            //{
+            //    options.SwaggerDoc("v1", new OpenApiInfo
+            //    {
+            //        Version = "v1",
+            //        Title = "DEF-PIPE",
+            //        Description = "For the protected end points, you need to genereate an access token (e.g. using postman) and provide it by opening \"Authorize\"",
                    
                     
-                });
-                options.OperationFilter<SwaggerAuthOperationFilter>();
-                
-                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-                {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header,
-                    Description = "Enter you your Keyclaok bearer token in the format bellow (don't forget the \"Bearer\")\n\n Bearer YOUR_ACCESS_TOKEN",
-                });
-                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-            });
+            //    });
+            //    options.OperationFilter<SwaggerAuthOperationFilter>();
+
+            //    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+            //    {
+            //        Name = "Authorization",
+            //        Type = SecuritySchemeType.ApiKey,
+            //        Scheme = "Bearer",
+            //        BearerFormat = "JWT",
+            //        In = ParameterLocation.Header,
+            //        Description = "Enter you your Keyclaok bearer token in the format bellow (don't forget the \"Bearer\")\n\n Bearer YOUR_ACCESS_TOKEN",
+            //    });
+            //    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            //    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+            //});
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {   
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-                c.RoutePrefix = "docs";
-            });
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+            //app.UseSwagger();
+            //app.UseSwaggerUI(c =>
+            //{
+            //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+            //    c.RoutePrefix = "docs";
+            //});
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
+            //else
+            //{
+            //    app.UseExceptionHandler("/Error");
+            //    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            //    app.UseHsts();
+            //}
 
            
             app.UseStaticFiles();
@@ -138,8 +138,8 @@ namespace DataCloud.PipelineDesigner.WebClient
 
             app.UseRouting();
             app.UseCors("AllowOrigin");
-            app.UseAuthentication();
-            app.UseAuthorization();
+            //app.UseAuthentication();
+            //app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

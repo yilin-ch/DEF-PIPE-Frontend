@@ -7,7 +7,7 @@ import {
     ApiResult, ISearchRepo
 } from '../models';
 import { v4 as uuidv4 } from 'uuid';
-import KeycloakService from './KeycloakService';
+//import KeycloakService from './KeycloakService';
 
 export class TemplateService {
     static saveTemplateTimeoutHandle = null;
@@ -101,7 +101,7 @@ export class TemplateService {
             method: 'GET',
             headers: {
                 'Content-type': 'application/json',
-                'Authorization': `Bearer ${KeycloakService.getToken()}`,
+                //'Authorization': `Bearer ${KeycloakService.getToken()}`,
             }
         })
             .then(response => response.json() as Promise<ApiResult<Array<ISearchRepo>>>)
@@ -116,7 +116,7 @@ export class TemplateService {
             method: 'GET',
             headers: {
                 'Content-type': 'application/json',
-                'Authorization': `Bearer ${KeycloakService.getToken()}`,
+                //'Authorization': `Bearer ${KeycloakService.getToken()}`,
             }
         })
             .then(response => response.json() as Promise<ApiResult<IAPiTemplate>>)

@@ -11,7 +11,6 @@ import {
 } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import './NavMenu.css';
-import KeycloakService from "../services/KeycloakService";
 
 export default class NavMenu extends React.PureComponent<{}, { isOpen: boolean }> {
     public state = {
@@ -42,15 +41,11 @@ export default class NavMenu extends React.PureComponent<{}, { isOpen: boolean }
                                         nav
                                     >
                                         <i className="bi bi-person-fill" style={{padding: 5}}/>
-                                        {KeycloakService.isLoggedIn() ?
-                                            <a>{KeycloakService.getUsername()}</a>
-                                            : null}
+                                        {null}
                                     </DropdownToggle>
                                     <DropdownMenu right>
-                                        <DropdownItem onClick={()=> KeycloakService.isLoggedIn() ? KeycloakService.doLogout(): KeycloakService.doLogin()}>
-                                            {KeycloakService.isLoggedIn() ?
-                                                "Logout"
-                                                : "Login"}
+                                        <DropdownItem onClick={() => {}}>
+                                            login
                                         </DropdownItem>
                                     </DropdownMenu>
                                 </UncontrolledDropdown>

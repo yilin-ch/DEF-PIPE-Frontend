@@ -28,6 +28,8 @@ class PalettePane extends React.PureComponent<PaletteProps> {
             type: ICanvasElementType.Shape,
             width: template.canvasTemplate.width,
             height: template.canvasTemplate.height,
+            conditional: template.canvasTemplate.conditional,
+            condition: template.canvasTemplate.condition,
             shape: template.canvasTemplate.shape,
             position: {x: 500, y: 500},
             canHaveChildren: template.canvasTemplate.isContainer,

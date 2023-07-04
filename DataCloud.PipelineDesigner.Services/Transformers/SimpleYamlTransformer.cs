@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DataCloud.PipelineDesigner.Services.Interfaces;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DataCloud.PipelineDesigner.Services.Transformers
 {
@@ -14,6 +15,7 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
         public ArgoYamlFlow yaml { get; set; }
 
         private int taskNum;
+        private int dagNum;
         private Dictionary<string, YamlStep> IDtoStep;
         private HashSet<string> templateNames;
         private StringBuilder stepTemplates;
@@ -38,11 +40,13 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
             yamlBuilder.AppendLine("kind: Workflow");
             yamlBuilder.AppendLine("metadata:");
             yamlBuilder.AppendLine(Identation(0) + "name: " + yaml.Name);
+            Console.WriteLine("k1");
         }
 
         private void GenerateSpec(StringBuilder yamlBuilder, ArgoYamlFlow yaml, int level = 0)
         {
             taskNum = 0;
+            dagNum = 0;
             IDtoStep = new Dictionary<string, YamlStep>();
             templateNames = new HashSet<string>();
 
@@ -54,6 +58,7 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
             GenerateName(yamlBuilder, level + 1, "main-workflow");
 
             // generate dag
+            Console.WriteLine("k2");
             yamlBuilder.Append(GenerateDAG(yaml, level + 2));
             
             yamlBuilder.AppendLine();
@@ -68,10 +73,12 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
             // allocate each step name a task name and a template name
             foreach (var step in yaml.Steps)
             {
+                Console.WriteLine("k3");
                 IDtoStep[step.ID] = step;
                 taskNum++;
                 step.TaskName = "task-" + taskNum;
 
+                Console.WriteLine("k4");
                 int nameNum = 1;
                 string nameOption = step.Name.ToLower();
                 if (templateNames.Contains(step.Name.ToLower()))
@@ -82,10 +89,12 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
                     }
                 step.TemplateName = nameOption;
                 templateNames.Add(step.TemplateName);
+                Console.WriteLine("k5");
             }
             // create tasks in dag
             foreach (var step in yaml.Steps)
             {
+                Console.WriteLine("l");
                 GenerateStep(dagBuilder, step, level + 2, IDtoStep);
                 stepTemplates.Append(GenerateTemplate(step, 1));
                 stepTemplates.AppendLine();
@@ -110,6 +119,33 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
             yamlBuilder.AppendLine(Identation(level + 1) + "template: " + step.TemplateName);
         }
 
+        private StringBuilder GenerateSteps(YamlStep step, int level)
+        {
+            bool first = true;
+            StringBuilder stepsBuilder = new StringBuilder();
+            stepsBuilder.AppendLine(Identation(level) + "steps:");
+            foreach (var pair in step.conditionPipelines)
+            {
+                if (first)
+                {
+                    stepsBuilder.AppendLine(Identation(level) + "- - name: dag-" + dagNum);
+                    first = false;
+                }
+                else
+                    stepsBuilder.AppendLine(Identation(level + 1) + "- name: dag-" + dagNum);
+                stepsBuilder.AppendLine(Identation(level + 2) + "template: dag-" + dagNum);
+                stepsBuilder.AppendLine(Identation(level + 2) + "when: \"" + pair.Key + "\"");
+
+                StringBuilder dagBuilder = new StringBuilder();
+                GenerateName(dagBuilder, level - 1, "dag-" + dagNum);
+                dagNum++;
+                dagBuilder.Append(GenerateDAG(pair.Value, level));
+                dagBuilder.AppendLine();
+                stepTemplates.Append(dagBuilder);
+            }
+            return stepsBuilder;
+        }
+
         private StringBuilder GenerateTemplate(YamlStep step, int level)
         {
 
@@ -119,6 +155,11 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
             if (step.IsSubpipeline)
             {
                 templateBuilder.Append(GenerateDAG(step.subPipeline, level + 1));
+            }
+
+            else if (step.IsConditional)
+            {
+                templateBuilder.Append(GenerateSteps(step, level + 1));
             }
 
             else

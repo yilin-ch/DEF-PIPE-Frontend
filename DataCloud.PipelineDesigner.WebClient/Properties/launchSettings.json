@@ -28,8 +28,8 @@
       "launchBrowser": true,
       "launchUrl": "tcp://127.0.0.1:2375",
       "environmentVariables": {},
-      "publishAllPorts": true,
-      "useSSL": true
+      "useSSL": true,
+      "publishAllPorts": true
     }
   }
 }

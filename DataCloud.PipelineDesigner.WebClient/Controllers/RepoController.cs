@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace DataCloud.PipelineDesigner.WebClient.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/repo")]
     [ApiController]
     public class RepoController : ControllerBase

@@ -36,7 +36,7 @@ import * as Autosuggest from "react-autosuggest";
 import {v4 as uuidv4} from 'uuid';
 import Konva from "konva";
 import {TemplateService} from "../../../services/TemplateService";
-import KeycloakService from "../../../services/KeycloakService";
+//import KeycloakService from "../../../services/KeycloakService";
 import { NumericLiteral } from 'typescript';
 
 interface MyState {
@@ -70,7 +70,8 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
         };
         this.props.requestDSLs();
         this.props.requestTemplates();
-        this.props.requestRepo(KeycloakService.getUsername());
+        this.props.requestRepo("default_user");
+        //this.props.requestRepo(KeycloakService.getUsername());
     }
 
     canvasService: CanvasService = new CanvasService();
@@ -396,6 +397,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                     if (point) {
                         let connector: ICanvasConnector = {
                             sourceConnectionPointId: this.props.selectedConnectionPoint.id,
+                            sourceConnectionPointCase: this.props.selectedConnectionPoint.case,
                             sourceShapeId: this.props.selectedElement.id,
                             destConnectionPointId: point.id,
                             destShapeId: ele.id,
@@ -426,6 +428,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                 }
                 let connector: ICanvasConnector = {
                     sourceConnectionPointId: this.props.selectedConnectionPoint.id,
+                    sourceConnectionPointCase: this.props.selectedConnectionPoint.case,
                     sourceShapeId: this.props.selectedElement.id,
                     destConnectionPointId: '0',
                     destShapeId: destShape.id,
