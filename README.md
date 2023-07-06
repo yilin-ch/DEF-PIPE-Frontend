@@ -4,6 +4,8 @@ This project is a continuation of the work based on https://github.com/DataCloud
 
 The objective of this project is to add a functionality that transforms defined Big Data pipelines into YAML files, which can be executed by Argo Workflow. Additionally, it aims to increase the complexity of the pipelines.
 
+The application is now deployed on GKE(Google Kubernetes Engine), and can be accessed at http://35.228.73.7:8081.
+
 ## Completed Tasks
 
 1. Implemented the export of all pipelines, including pipelines with multiple inputs/outputs and subpipelines.
