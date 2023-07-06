@@ -9,6 +9,8 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
 	public class ArgoYamlFlow
 	{
         public string Name { get; set; }
+        public bool IsLoop;
+        public string LoopCondition;
         public YamlStep[] Steps { get; set; }
 
     }
@@ -19,6 +21,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
         public ArgoYamlFlow subPipeline;
 
         public bool IsConditional;
+        public YamlStep ActionForConditional;
         public Dictionary<string, ArgoYamlFlow> conditionPipelines { get; set; }
 
         public string Name { get; set; }
@@ -26,11 +29,15 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
         public string TaskName { get; set; }
         public string TemplateName { get; set; }
 
+        public string Condition { get; set; }
+
         public string Implementation { get; set; }
 
         public string ID { get; set; }
 
         public string Image { get; set; }
+
+        public string Additional { get; set; }
 
         public Dictionary<string, string> EnvParams { get; set; }
 

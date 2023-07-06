@@ -4,5 +4,7 @@ services:
     build: .
     ports:
       - "80:80"
+      - "27017:27017"
     environment:
-        MANGO_CONNECTION_STRING: mongodb://host.docker.internal:27016
+        MANGO_CONNECTION_STRING: mongodb+srv://yilinc:D3TUtlhcZLWTG4TU@def-pipe-data-cluster.zvmn2sb.mongodb.net/?retryWrites=true&w=majority
+        KEYCLOAK_AUTHORITY: http://localhost:8080/auth

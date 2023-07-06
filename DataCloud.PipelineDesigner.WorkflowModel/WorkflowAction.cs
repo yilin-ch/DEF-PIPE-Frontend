@@ -21,6 +21,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
         //public Guid HardwareConfiguration { get; set; }
         public HashSet<string> Dependencies { get; set; }
         public bool Subpipeline = false;
+        public string Condition { get; set; }
 
         public WorkflowAction(CanvasParameters canvasParameters)
         {
@@ -30,6 +31,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
                 {
                     Implementation = canvasParameters.Implementation,
                     Image = canvasParameters.Image,
+                    Additional = canvasParameters.Additional,
                     EnvironmentParameters = canvasParameters.EnvironmentParameters?.Select(ep => new EnvironmentParameter { Key = ep.Key, Value = ep.Value }).ToList(),
                     ResourceProvider = canvasParameters.ResourceProvider,
                     StepType = canvasParameters.StepType,
@@ -50,6 +52,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
                 {
                     Implementation = canvasParameters.Implementation,
                     Image = canvasParameters.Image,
+                    Additional = canvasParameters.Additional,
                     EnvironmentParameters = canvasParameters.EnvironmentParameters.Select(ep => new EnvironmentParameter { Key = ep.Key, Value = ep.Value }).ToList(),
                     ResourceProvider = canvasParameters.ResourceProvider,
                 };
@@ -67,6 +70,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
     {
         public string Implementation { get; set; }
         public string Image { get; set; }
+        public string Additional { get; set; }
         public List<EnvironmentParameter> EnvironmentParameters { get; set; }
         public string ResourceProvider { get; set; }
         public string StepType { get; set; }

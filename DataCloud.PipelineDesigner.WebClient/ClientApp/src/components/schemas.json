@@ -24,6 +24,11 @@
         "title": "Image",
         "type": "string"
       },
+      "additional": {
+        "title": "Additional",
+        "type": "string",
+        "format":  "textarea"
+      },
       "environmentParameters": {
         "title": "Env. Parameters",
         "type": "array",
@@ -310,6 +315,7 @@
       "stepImplementation",
       "implementation",
       "image",
+      "additional",
       "environmentParameters",
       "resourceProvider",
       "executionRequirement"

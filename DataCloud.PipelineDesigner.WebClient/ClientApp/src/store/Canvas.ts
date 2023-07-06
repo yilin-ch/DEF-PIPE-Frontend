@@ -176,7 +176,7 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
             currentRepoEdit: null,
             tempRootShape: null,
             tempshapeExpandStack: [],
-            username: null,
+            username: "root",
             templateGroups: templateService.getTemplateGroups([]),
             repoGroups: templateService.getTemplateGroups([]),
             selectedTemplate: null,

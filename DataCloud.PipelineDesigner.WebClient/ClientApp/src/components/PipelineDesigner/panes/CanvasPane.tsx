@@ -70,7 +70,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
         };
         this.props.requestDSLs();
         this.props.requestTemplates();
-        this.props.requestRepo("default_user");
+        this.props.requestRepo("root");
         //this.props.requestRepo(KeycloakService.getUsername());
     }
 
@@ -163,6 +163,8 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                 width: r.canvasTemplate.width,
                 height: r.canvasTemplate.height,
                 shape: r.canvasTemplate.shape,
+                conditional: r.canvasTemplate.conditional,
+                condition: r.canvasTemplate.condition,
                 position: {x: 500, y: 500},
                 canHaveChildren: r.canvasTemplate.isContainer,
                 elements: r.canvasTemplate.elements || []
@@ -359,6 +361,8 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
             width: template.canvasTemplate.width,
             height: template.canvasTemplate.height,
             shape: template.canvasTemplate.shape,
+            conditional: template.canvasTemplate.conditional,
+            condition: template.canvasTemplate.condition,
             position: dropPosition
         };
 

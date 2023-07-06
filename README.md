@@ -8,8 +8,8 @@ The objective of this project is to add a functionality that transforms defined 
 
 1. Implemented the export of all pipelines, including pipelines with multiple inputs/outputs and subpipelines.
 2. Added the export of parameters such as environment variables and container images in the generated YAML file.
+3. Design and implement support for loops and conditionals within the pipelines.
 
 ## Remaining Tasks
 
 1. Include the export of additional parameters such as execution requirements and resource providers.
-2. Design and implement support for loops and conditionals within the pipelines.

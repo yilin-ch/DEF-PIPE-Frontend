@@ -39,7 +39,7 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
             yamlBuilder.AppendLine("apiVersion: argoproj.io/v1alpha1");
             yamlBuilder.AppendLine("kind: Workflow");
             yamlBuilder.AppendLine("metadata:");
-            yamlBuilder.AppendLine(Identation(0) + "name: " + yaml.Name);
+            yamlBuilder.AppendLine(Identation(0) + "generateName: " + yaml.Name);
             Console.WriteLine("k1");
         }
 
@@ -92,21 +92,23 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
                 Console.WriteLine("k5");
             }
             // create tasks in dag
+            bool omitDependency = true;
             foreach (var step in yaml.Steps)
             {
                 Console.WriteLine("l");
-                GenerateStep(dagBuilder, step, level + 2, IDtoStep);
+                GenerateStep(dagBuilder, step, level + 2, IDtoStep, omitDependency);
                 stepTemplates.Append(GenerateTemplate(step, 1));
                 stepTemplates.AppendLine();
+                omitDependency = false;
             }
 
             return dagBuilder;
         }
 
-        private void GenerateStep(StringBuilder yamlBuilder, YamlStep step, int level, Dictionary<string, YamlStep> IDtoStep)
+        private void GenerateStep(StringBuilder yamlBuilder, YamlStep step, int level, Dictionary<string, YamlStep> IDtoStep, bool omitDependency = false)
         {
             GenerateName(yamlBuilder, level, IDtoStep[step.ID].TaskName);
-            if (step.Dependencies != null && step.Dependencies.Any())
+            if (step.Dependencies != null && step.Dependencies.Any() && !omitDependency)
             {
                 List<string> dependencies = new List<string>(step.Dependencies);
                 yamlBuilder.Append(Identation(level + 1) + "dependencies: [" + IDtoStep[dependencies[0]].TaskName);
@@ -119,11 +121,44 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
             yamlBuilder.AppendLine(Identation(level + 1) + "template: " + step.TemplateName);
         }
 
-        private StringBuilder GenerateSteps(YamlStep step, int level)
+        private StringBuilder GenerateLoopSteps(ArgoYamlFlow yaml, int level)
         {
-            bool first = true;
             StringBuilder stepsBuilder = new StringBuilder();
             stepsBuilder.AppendLine(Identation(level) + "steps:");
+            stepsBuilder.AppendLine(Identation(level) + "- - name: dag-" + dagNum);
+            stepsBuilder.AppendLine(Identation(level + 2) + "template: dag-" + dagNum);
+            stepsBuilder.AppendLine(Identation(level + 2) + "withParam: \'" + yaml.LoopCondition + "\'");
+            StringBuilder dagBuilder = new StringBuilder();
+            GenerateName(dagBuilder, level - 1, "dag-" + dagNum);
+            dagNum++;
+            dagBuilder.Append(GenerateDAG(yaml, level));
+            dagBuilder.AppendLine();
+            stepTemplates.Append(dagBuilder);
+            return stepsBuilder;
+        }
+
+        private StringBuilder GenerateConditionalSteps(YamlStep step, int level)
+        {
+            StringBuilder stepsBuilder = new StringBuilder();
+            stepsBuilder.AppendLine(Identation(level) + "steps:");
+
+            // Generate the conditional step 
+            int nameNum = 1;
+            string nameOption = step.ActionForConditional.Name.ToLower();
+            if (templateNames.Contains(step.Name.ToLower()))
+                while (templateNames.Contains(nameOption))
+                {
+                    nameOption = step.Name.ToLower() + nameNum;
+                    nameNum++;
+                }
+            step.ActionForConditional.TemplateName = nameOption;
+            templateNames.Add(nameOption);
+            stepTemplates.Append(GenerateTemplate(step.ActionForConditional, 1));
+            stepsBuilder.AppendLine(Identation(level) + "- - name: " + nameOption);
+            stepsBuilder.AppendLine(Identation(level + 2) + "template: " + step.ActionForConditional.TemplateName);
+
+            // Generate its branches
+            bool first = true;
             foreach (var pair in step.conditionPipelines)
             {
                 if (first)
@@ -134,7 +169,8 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
                 else
                     stepsBuilder.AppendLine(Identation(level + 1) + "- name: dag-" + dagNum);
                 stepsBuilder.AppendLine(Identation(level + 2) + "template: dag-" + dagNum);
-                stepsBuilder.AppendLine(Identation(level + 2) + "when: \"" + pair.Key + "\"");
+                if (pair.Value.Steps.First().Condition != null && pair.Value.Steps.First().Condition != "")
+                    stepsBuilder.AppendLine(Identation(level + 2) + "when: \"" + pair.Value.Steps.First().Condition + "\"");
 
                 StringBuilder dagBuilder = new StringBuilder();
                 GenerateName(dagBuilder, level - 1, "dag-" + dagNum);
@@ -154,12 +190,17 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
 
             if (step.IsSubpipeline)
             {
-                templateBuilder.Append(GenerateDAG(step.subPipeline, level + 1));
+                if (!step.subPipeline.IsLoop)
+                    templateBuilder.Append(GenerateDAG(step.subPipeline, level + 1));
+                else
+                {
+                    templateBuilder.Append(GenerateLoopSteps(step.subPipeline, level + 1));
+                }
             }
 
             else if (step.IsConditional)
             {
-                templateBuilder.Append(GenerateSteps(step, level + 1));
+                templateBuilder.Append(GenerateConditionalSteps(step, level + 1));
             }
 
             else
@@ -213,8 +254,20 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
             builder.AppendLine(Identation(level) + "container:");
             builder.AppendLine(Identation(level + 1) + "image: " + step.Image);
             // some commands
-            builder.AppendLine(Identation(level + 1) + "command: [sh, -c]");
-            builder.AppendLine(Identation(level + 1) + "args: [\"echo Env param is $env\"]");
+            if (step.Additional != null && step.Additional != "")
+            {
+                string[] lines = step.Additional.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                foreach (string line in lines)
+                {
+                    builder.AppendLine(Identation(level + 1) + line);
+                }
+            }
+            else
+            {
+                builder.AppendLine(Identation(level + 1) + "command: [sh, -c]");
+                builder.AppendLine(Identation(level + 1) + "args: [\"echo Env param is $env\"]");
+            }
+            
             // env parameters
             if (step.EnvParams?.Count > 0)
                 GenerateEnvParams(builder, step.EnvParams, level + 1);

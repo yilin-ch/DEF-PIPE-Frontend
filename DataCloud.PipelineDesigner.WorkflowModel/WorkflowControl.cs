@@ -10,6 +10,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
         public Guid? InputDataSetId { get; set; }
         public override WorkflowElementType ElementType => WorkflowElementType.Control;
         public abstract WorkflowControlType ControlType { get; }
+        public WorkflowAction WorkflowControlAction { get; set; }
 
         public List<WorkflowElement> Elements { get; set; }
     }

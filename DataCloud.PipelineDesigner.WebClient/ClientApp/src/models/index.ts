@@ -28,6 +28,8 @@ export interface ICanvasShape extends ICanvasElement {
     shape?: string;
     conditional?: string;
     condition?: string;
+    loop?: string;
+    loopCondition?: string;
     templateId?: string;
     parameters?: object;
     properties: Array<ICanvasElementProperty>;

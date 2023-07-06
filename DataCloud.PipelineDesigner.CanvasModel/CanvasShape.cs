@@ -16,6 +16,8 @@ namespace DataCloud.PipelineDesigner.CanvasModel
         public int Height { get; set; }
         public string Conditional { get; set; }
         public string Condition { get; set; }
+        public string Loop { get; set; }
+        public string LoopCondition { get; set; }
         public List<CanvasElement> Elements { get; set; }
         public CanvasShapeTemplate Template { get; set; }
         public string TemplateId { get; set; }

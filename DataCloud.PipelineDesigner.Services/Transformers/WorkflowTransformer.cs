@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using static System.Collections.Specialized.BitVector32;
 
 namespace DataCloud.PipelineDesigner.Services
@@ -34,14 +35,23 @@ namespace DataCloud.PipelineDesigner.Services
                     var canvasShape = JsonConvert.DeserializeObject<CanvasShape>(JsonConvert.SerializeObject(item));
                     newCanvas.Elements.Add(canvasShape);
                     if (canvasShape.Elements.Count > 0)
+                    {
                         canvas.Add(JsonConvert.DeserializeObject<Canvas>(JsonConvert.SerializeObject(item)));
+                        Console.WriteLine(canvasShape.Loop);
+                        Console.WriteLine(canvasShape.LoopCondition);
+                    }
+                        
                 }
                 else
                     newCanvas.Elements.Add(JsonConvert.DeserializeObject<CanvasConnector>(JsonConvert.SerializeObject(item)));
             }
             var workflow = GenerateWorkflow(newCanvas);
             workflow.Name = currentCanvas.Name;
+            workflow.Loop = currentCanvas.Loop;
+            workflow.LoopCondition = currentCanvas.LoopCondition;
             workflows.Add(workflow);
+            Console.WriteLine("workflow" + workflow.Loop);
+            Console.WriteLine("workflow" + workflow.LoopCondition);
 
             return GenerateWorkflows(workflows, canvas);
         }
@@ -81,8 +91,8 @@ namespace DataCloud.PipelineDesigner.Services
                     workflow.DataSets.Add(MapToWorkflowDataset(nextShape));
                     MapNextShape(workflow, workflowElements, canvas, nextShape);
                 }
-                // Change If_Name to If later
-                else if (nextShape.Name?.ToLower() == Constants.BuiltInTemplateIDs.If_Name.ToString().ToLower())
+                // Change Type_Name to Type later
+                else if (nextShape.Conditional?.ToLower() == Constants.BuiltInTemplateIDs.Type_Name.ToString().ToLower())
                 {
                     var workflowControl = MapToWorkflowSwitchControlforYaml(workflow, canvas, nextShape);
                     if (currentShape.Name?.ToLower() != Constants.BuiltInTemplateIDs.Start_Name.ToString().ToLower())
@@ -128,6 +138,8 @@ namespace DataCloud.PipelineDesigner.Services
                 workflowAction.Subpipeline = true;
             workflowAction.ID = canvasShape.ID;
             workflowAction.Title = canvasShape.Name;
+            workflowAction.Condition = canvasShape.Condition;
+            Console.WriteLine(canvasShape.Parameters.Image);
             workflowAction.InputDataSetId = FindInputDataset(canvas, canvasShape);
             workflowAction.OutputDataSetId = FindOutputDataset(canvas, canvasShape);
 
@@ -140,6 +152,9 @@ namespace DataCloud.PipelineDesigner.Services
 
             workflowAction.ID = canvasShape.ID;
             workflowAction.Title = canvasShape.Name;
+            workflowAction.Condition = canvasShape.Condition;
+            Console.WriteLine(canvasShape.Parameters.Image);
+            Console.WriteLine(canvasShape.Parameters.Additional);
             workflowAction.InputDataSetId = FindInputDataset(canvas, canvasShape);
             workflowAction.OutputDataSetId = FindOutputDataset(canvas, canvasShape);
 
@@ -226,38 +241,41 @@ namespace DataCloud.PipelineDesigner.Services
         public WorkflowSwitchControl MapToWorkflowSwitchControlforYaml(Workflow workflow, Canvas canvas, CanvasShape canvasShape)
         {
             // Change If_Name to If later 
-            if (canvasShape.Name.ToLower() != Constants.BuiltInTemplateIDs.If_Name.ToString().ToLower())
+            if (canvasShape.Conditional.ToLower() != Constants.BuiltInTemplateIDs.Type_Name.ToString().ToLower())
                 return null;
 
             WorkflowSwitchControl workflowControl = new WorkflowSwitchControl();
             workflowControl.ID = canvasShape.ID;
             workflowControl.InputDataSetId = FindInputDataset(canvas, canvasShape);
-            workflowControl.SwitchCases.Add("true", new List<WorkflowElement>());
+            workflowControl.SwitchCases.Add("first", new List<WorkflowElement>());
             workflowControl.Elements = new List<WorkflowElement>();
+
+            var workflowControlAction = MapToWorkflowAction(canvas, canvasShape);
+            workflowControl.WorkflowControlAction = workflowControlAction;
 
             Console.WriteLine(canvasShape.Condition);
             var nextOutputConnectors = FindOutputConnectorsFromShape(canvas, canvasShape);
             if (nextOutputConnectors.Count > 0)
             {
                 var firstCaseShape = canvas.Elements.First(e => e.ID == nextOutputConnectors[0].DestShapeId) as CanvasShape;
-                var firstCaseAction = MapToWorkflowAction(canvas, firstCaseShape);
+                var firstCaseAction = MapToWorkflowAction(canvas, firstCaseShape, canvasShape);
                 // Todo: consider consecutive ifs.
                 firstCaseAction.InputDataSetId = workflowControl.InputDataSetId;
                 
-                workflowControl.SwitchCases["true"].Add(firstCaseAction);
+                workflowControl.SwitchCases["first"].Add(firstCaseAction);
                 // Todo: change condition based on the connector
-                MapNextShape(workflow, workflowControl.SwitchCases["true"], canvas, firstCaseShape);
+                MapNextShape(workflow, workflowControl.SwitchCases["first"], canvas, firstCaseShape);
             }
 
             if (nextOutputConnectors.Count > 1)
             {
                 var secondCaseShape = canvas.Elements.First(e => e.ID == nextOutputConnectors[1].DestShapeId) as CanvasShape;
-                var secondCaseAction = MapToWorkflowAction(canvas, secondCaseShape);
+                var secondCaseAction = MapToWorkflowAction(canvas, secondCaseShape, canvasShape);
                 secondCaseAction.InputDataSetId = workflowControl.InputDataSetId;
 
-                workflowControl.SwitchCases.Add("false", new List<WorkflowElement>());
-                workflowControl.SwitchCases["false"].Add(secondCaseAction);
-                MapNextShape(workflow, workflowControl.SwitchCases["false"], canvas, secondCaseShape);
+                workflowControl.SwitchCases.Add("second", new List<WorkflowElement>());
+                workflowControl.SwitchCases["second"].Add(secondCaseAction);
+                MapNextShape(workflow, workflowControl.SwitchCases["second"], canvas, secondCaseShape);
             }
 
             return workflowControl;
@@ -375,12 +393,7 @@ namespace DataCloud.PipelineDesigner.Services
                         workflowToStep.Add(step, workflowNum);
                     }
 
-                    step.ID = (element as WorkflowAction).ID;
-                    step.Name = (element as WorkflowAction).Title.Replace(' ', '-');
-                    step.Implementation = (element as WorkflowAction).Parameters?.Implementation;
-                    step.Image = (element as WorkflowAction).Parameters?.Image;
-                    step.ResourceProvider = (element as WorkflowAction).Parameters?.ResourceProvider;
-                    step.EnvParams = (element as WorkflowAction).Parameters?.EnvironmentParameters.ToDictionary((ep) => ep.Key, (ep) => ep.Value);
+                    FillStepDetails(step, (element as WorkflowAction));
                     if ((element as WorkflowAction).Dependencies != null && (element as WorkflowAction).Dependencies.Count > 0)
                     {
                         step.Dependencies = new HashSet<string>((element as WorkflowAction).Dependencies);
@@ -390,11 +403,12 @@ namespace DataCloud.PipelineDesigner.Services
 
                     steps.Add(step);
                 }
+                
                 if (element.ElementType == WorkflowElementType.Control)
                     if ((element as WorkflowControl).ControlType == WorkflowControlType.Switch)
                     {
                         Console.WriteLine("a");
-                        step.Name = "if";
+                        step.Name = "condition";
                         step.ID = (element as WorkflowSwitchControl).ID;
                         step.IsConditional = true;
                         step.conditionPipelines = new Dictionary<string, ArgoYamlFlow>();
@@ -413,6 +427,12 @@ namespace DataCloud.PipelineDesigner.Services
                             step.Previous = (element as WorkflowSwitchControl).Dependencies.First();
                         }
                         Console.WriteLine("d");
+
+                        YamlStep actionForConditional = new YamlStep();
+                        WorkflowAction action = (element as WorkflowSwitchControl).WorkflowControlAction;
+                        FillStepDetails(actionForConditional, action);
+                        step.ActionForConditional = actionForConditional;
+
                         steps.Add(step);
                     }
             }
@@ -422,6 +442,11 @@ namespace DataCloud.PipelineDesigner.Services
             {
                 ArgoYamlFlow subPipeline = new ArgoYamlFlow();
                 subPipeline.Steps = GenerateYamlPipeline(workflows, pair.Value).ToArray();
+                subPipeline.IsLoop = int.Parse(workflows[pair.Value].Loop) == 1;
+                if (subPipeline.IsLoop)
+                    subPipeline.LoopCondition = workflows[pair.Value].LoopCondition;
+                Console.WriteLine("YamlWorkflow " + subPipeline.IsLoop);
+                Console.WriteLine("YamlWorkflow" + subPipeline.LoopCondition);
                 pair.Key.subPipeline = subPipeline;
             }
 
@@ -443,7 +468,7 @@ namespace DataCloud.PipelineDesigner.Services
             List<YamlStep> steps = new List<YamlStep>();
             foreach (WorkflowElement element in workflowElements)
             {
-                Console.WriteLine("b1");
+                //Console.WriteLine("b1");
                 YamlStep step = new YamlStep();
                 if (element.ElementType == WorkflowElementType.Action)
                 {
@@ -456,13 +481,8 @@ namespace DataCloud.PipelineDesigner.Services
                     }
 
                     Console.WriteLine("b3");
-                    step.ID = (element as WorkflowAction).ID;
-                    step.Name = (element as WorkflowAction).Title.Replace(' ', '-');
-                    step.Implementation = (element as WorkflowAction).Parameters?.Implementation;
-                    step.Image = (element as WorkflowAction).Parameters?.Image;
-                    step.ResourceProvider = (element as WorkflowAction).Parameters?.ResourceProvider;
-                    step.EnvParams = (element as WorkflowAction).Parameters?.EnvironmentParameters.ToDictionary((ep) => ep.Key, (ep) => ep.Value);
-                    Console.WriteLine("b4");
+                    FillStepDetails(step, (element as WorkflowAction));
+                    Console.WriteLine(step.Condition);
                     if ((element as WorkflowAction).Dependencies != null && (element as WorkflowAction).Dependencies.Count > 0)
                     {
                         step.Dependencies = new HashSet<string>((element as WorkflowAction).Dependencies);
@@ -479,7 +499,8 @@ namespace DataCloud.PipelineDesigner.Services
                     if ((element as WorkflowControl).ControlType == WorkflowControlType.Switch)
                     {
                         Console.WriteLine("b6");
-                        step.Name = "if";
+                        step.Name = "condition";
+                        step.ID = (element as WorkflowSwitchControl).ID;
                         step.IsConditional = true;
                         Console.WriteLine("b7");
                         foreach (var pair in (element as WorkflowSwitchControl).SwitchCases)
@@ -496,12 +517,30 @@ namespace DataCloud.PipelineDesigner.Services
                             step.Previous = (element as WorkflowSwitchControl).Dependencies.First();
                         }
                         Console.WriteLine("b9");
+
+                        YamlStep actionForConditional = new YamlStep();
+                        WorkflowAction action = (element as WorkflowSwitchControl).WorkflowControlAction;
+                        FillStepDetails(actionForConditional, action);
+                        step.ActionForConditional = actionForConditional;
+
                         steps.Add(step);
                     }
                 }
                 
             }
             return steps;
+        }
+
+        private void FillStepDetails(YamlStep step, WorkflowAction workflowAction)
+        {
+            step.ID = workflowAction.ID;
+            step.Name = workflowAction.Title.Replace(' ', '-');
+            step.Condition = workflowAction.Condition;
+            step.Implementation = workflowAction.Parameters?.Implementation;
+            step.Image = workflowAction.Parameters?.Image;
+            step.Additional = workflowAction.Parameters?.Additional;
+            step.ResourceProvider = workflowAction.Parameters?.ResourceProvider;
+            step.EnvParams = workflowAction.Parameters?.EnvironmentParameters.ToDictionary((ep) => ep.Key, (ep) => ep.Value);
         }
     }
 }
