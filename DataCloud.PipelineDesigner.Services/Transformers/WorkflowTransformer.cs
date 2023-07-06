@@ -132,16 +132,23 @@ namespace DataCloud.PipelineDesigner.Services
             WorkflowAction workflowAction = new WorkflowAction(canvasShape.Parameters, canvasShape.ID);
 
             // Change Start_Name to Start later
+            Console.WriteLine("MA1");
             if (prevShape.Name?.ToLower() != Constants.BuiltInTemplateIDs.Start_Name.ToString().ToLower())
                 workflowAction.Dependencies.Add(prevShape.ID);
+            Console.WriteLine("MA2");
             if (canvasShape.Elements.Count > 0)
                 workflowAction.Subpipeline = true;
+            Console.WriteLine("MA3");
             workflowAction.ID = canvasShape.ID;
             workflowAction.Title = canvasShape.Name;
-            workflowAction.Condition = canvasShape.Condition;
-            Console.WriteLine(canvasShape.Parameters.Image);
+            Console.WriteLine("MA4");
+            if (canvasShape.Condition != null)
+                workflowAction.Condition = canvasShape.Condition;
+            //Console.WriteLine(canvasShape.Parameters.Image);
+            Console.WriteLine("MA5");
             workflowAction.InputDataSetId = FindInputDataset(canvas, canvasShape);
             workflowAction.OutputDataSetId = FindOutputDataset(canvas, canvasShape);
+            Console.WriteLine("MA6");
 
             return workflowAction;
         }
@@ -150,11 +157,14 @@ namespace DataCloud.PipelineDesigner.Services
         {
             WorkflowAction workflowAction = new WorkflowAction(canvasShape.Parameters);
 
+            if (canvasShape.Elements.Count > 0)
+                workflowAction.Subpipeline = true;
             workflowAction.ID = canvasShape.ID;
             workflowAction.Title = canvasShape.Name;
-            workflowAction.Condition = canvasShape.Condition;
-            Console.WriteLine(canvasShape.Parameters.Image);
-            Console.WriteLine(canvasShape.Parameters.Additional);
+            if (canvasShape.Condition != null)
+                workflowAction.Condition = canvasShape.Condition;
+            //Console.WriteLine(canvasShape.Parameters.Image);
+            //Console.WriteLine(canvasShape.Parameters.Additional);
             workflowAction.InputDataSetId = FindInputDataset(canvas, canvasShape);
             workflowAction.OutputDataSetId = FindOutputDataset(canvas, canvasShape);
 
@@ -440,11 +450,19 @@ namespace DataCloud.PipelineDesigner.Services
             // Todo: find a more sophisticated way to match each substep with each workflow 
             foreach (var pair in workflowToStep)
             {
+                Console.WriteLine("pair1");
                 ArgoYamlFlow subPipeline = new ArgoYamlFlow();
                 subPipeline.Steps = GenerateYamlPipeline(workflows, pair.Value).ToArray();
-                subPipeline.IsLoop = int.Parse(workflows[pair.Value].Loop) == 1;
-                if (subPipeline.IsLoop)
-                    subPipeline.LoopCondition = workflows[pair.Value].LoopCondition;
+                Console.WriteLine(workflows[pair.Value].Loop);
+                if (workflows[pair.Value].Loop != null)
+                {
+                    subPipeline.IsLoop = int.Parse(workflows[pair.Value].Loop) == 1;
+                    Console.WriteLine("pair3");
+                    if (subPipeline.IsLoop)
+                        subPipeline.LoopCondition = workflows[pair.Value].LoopCondition;
+                }
+
+                Console.WriteLine("pair4");
                 Console.WriteLine("YamlWorkflow " + subPipeline.IsLoop);
                 Console.WriteLine("YamlWorkflow" + subPipeline.LoopCondition);
                 pair.Key.subPipeline = subPipeline;

@@ -9,7 +9,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
 	public class ArgoYamlFlow
 	{
         public string Name { get; set; }
-        public bool IsLoop;
+        public bool IsLoop = false;
         public string LoopCondition;
         public YamlStep[] Steps { get; set; }
 

@@ -17,6 +17,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
             Elements = new List<WorkflowElement>();
             DataSets = new List<WorkflowDataSet>();
             Parameters = new Dictionary<string, string>();
+            Loop = "0";
         }
     }
 }
