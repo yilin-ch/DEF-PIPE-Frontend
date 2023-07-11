@@ -6,5 +6,5 @@ services:
       - "80:80"
       - "27017:27017"
     environment:
-        MANGO_CONNECTION_STRING: mongodb+srv://yilinc:D3TUtlhcZLWTG4TU@def-pipe-data-cluster.zvmn2sb.mongodb.net/?retryWrites=true&w=majority
+        MANGO_CONNECTION_STRING: YOUR_MONGO_CONNECTION_STRING
         KEYCLOAK_AUTHORITY: http://localhost:8080/auth
