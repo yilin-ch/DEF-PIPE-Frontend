@@ -29,12 +29,14 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         IPublicRepoService pRepoService;
         IWorkflowService workflowService;
         IDSLService dslService;
+        IYAMLService yamlService;
         public RepoController(IUserService uService, IPublicRepoService prService)
         {
             userService = uService;
             pRepoService = prService;
             workflowService = new WorkflowService();
             dslService = new DSLService();
+            yamlService = new YAMLService();
         }
 
         /// <summary>
@@ -211,7 +213,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         /// Export pipeline in DSL
         /// </summary>
         /// <response code="200">DSL fromated pipeline</response>
-        [HttpGet("export/{user}/{pipeline}")]
+        [HttpGet("exportdsl/{user}/{pipeline}")]
         public async Task<ApiResult<string>>  ExportDsl(String user, String pipeline)
         {
             
@@ -236,6 +238,37 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
                 return ApiHelper.CreateFailedResult<String>(e.Message);
             }
         
+        }
+
+        /// <summary>
+        /// Export pipeline in DSL
+        /// </summary>
+        /// <response code="200">DSL fromated pipeline</response>
+        [HttpGet("exportyaml/{user}/{pipeline}")]
+        public async Task<ApiResult<string>> ExportYAML(String user, String pipeline)
+        {
+
+            try
+            {
+                var result = userService.GetRepoAsync(user, pipeline);
+                var template = BsonSerializer.Deserialize<Template>(result);
+                var canvasTemplate = (IDictionary<string, Object>)template.CanvasTemplate;
+                var objectElements = JsonConvert.SerializeObject(canvasTemplate["elements"]);
+                //var resourcesProviders = (IDictionary<string, Object>)template.ResourceProviders;
+                var objectResourceProviders = JsonConvert.SerializeObject(template.ResourceProviders);
+                List<CanvasElement> elements = JsonConvert.DeserializeObject<List<CanvasElement>>(objectElements);
+                List<CanvasProvider> providers = BsonSerializer.Deserialize<List<CanvasProvider>>(objectResourceProviders);
+                Canvas c = new Canvas { Name = template.Name, Elements = elements, ResourceProviders = providers };
+                var workflow = workflowService.TransformCanvasToWorkflow(c);
+                var yaml = workflowService.TransformWorkflowToYaml(workflow, c.Name);
+
+                return ApiHelper.CreateSuccessResult(yamlService.SerializeYaml(yaml));
+            }
+            catch (Exception e)
+            {
+                return ApiHelper.CreateFailedResult<String>(e.Message);
+            }
+
         }
     }
 }
