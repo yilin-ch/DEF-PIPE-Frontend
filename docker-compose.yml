@@ -1,10 +1,11 @@
-version: "3.9"
+version: "3.7"
 services:
   def-pipe:
+    container_name: def_pipe_test
+    image: def_pipe_test
     build: .
     ports:
-      - "80:80"
-      - "27017:27017"
+      - "8082:80"
     environment:
-        MANGO_CONNECTION_STRING: YOUR_MONGO_CONNECTION_STRING
+        MANGO_CONNECTION_STRING: mongodb://datacloud_mongodb_students:27017
         KEYCLOAK_AUTHORITY: http://localhost:8080/auth
