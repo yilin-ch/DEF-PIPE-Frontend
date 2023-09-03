@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+  def-pipe:
+    container_name: def-pipe-test
+    image: def-pipe-test
+    build: .
+    ports:
+      - "8082:80"
+    environment:
+        MANGO_CONNECTION_STRING: mongodb+srv://yilinc:D3TUtlhcZLWTG4TU@def-pipe-data-cluster.zvmn2sb.mongodb.net/?retryWrites=true&w=majority
+        KEYCLOAK_AUTHORITY: http://localhost:8080/auth

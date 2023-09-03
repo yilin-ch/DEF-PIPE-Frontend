@@ -1,0 +1,138 @@
+﻿html, body {
+    height: 100%;
+}
+
+#root, .designer-container, .designer-pane {
+    height: 100%;
+}
+
+.app-container {
+    position: fixed;
+    top: 57px;
+    bottom: 0;
+}
+
+.designer-pane {
+    overflow: auto;
+}
+
+.palette-pane-container {
+    padding: 0;
+    border-right: solid 1px #ccc;
+    background-color: #fff;
+}
+.palette-searchbox {
+    border: none;
+    outline: none;
+    border-bottom: solid 1px #eee;
+    padding: 25px 10px;
+}
+.palette-group-header {
+    padding: 10px 0;
+    margin: 10px;
+    border-bottom: solid 2px #efefef;
+    font-weight: bold;
+}
+
+.palette-group-username {
+    padding: 10px 0;
+    text-align: center;
+    border-top: solid 3px #000000;
+    border-bottom: solid 2px #efefef;
+    font-weight: bold;
+}
+
+.palette-group-item {
+    padding: 10px;
+    margin: 0;
+    cursor: pointer;
+}
+    .palette-group-item:hover {
+        background-color: #efefef;
+    }
+
+.canvas-pane-container {
+    background-color: #fafafa;
+    padding: 0;
+}
+
+.canvas-container:focus {
+    outline: none;
+}
+.canvas-top-toolbar {
+    position: fixed;
+    top: 70px;
+    right: 450px;
+}
+    .canvas-top-toolbar button {
+        border-left: solid 1px #aaa;
+    }
+        .canvas-top-toolbar button:first-child {
+            border-left: none;
+        }
+
+.canvas-breadcrumb {
+    position: absolute;
+    top: 10px;
+    left: 15%;
+}
+
+.breadcrumb{
+    display: flex;
+    flex-wrap: wrap;
+    padding: .75rem 1rem;
+    margin-bottom: 1rem;
+    list-style: none;
+    border-radius: .25rem;
+    background-color: #e9ecef;
+}
+
+.property-pane-container {
+    border-left: solid 1px #ccc;
+    background-color: #fff;
+}
+.property-pane-container .form-group {
+    background-color: #efefef;
+    padding: 10px;
+    margin-top: 10px;
+}
+.property-pane-container .checkbox-label {
+    margin-left: 22px;
+    margin-top: 10px;
+}
+
+.property-pane-header {
+    border-bottom: solid 2px #efefef;
+    padding: 10px 0;
+}
+.property-pane-subheader {
+    color: #bbb;
+}
+
+.addButton {
+    float: right;
+}
+
+.removeButton {
+    float: right;
+    fill: darkred
+}
+
+.saveButton {
+    float: right;
+    fill: darkgreen
+}
+
+.nav-tabs li {
+    cursor: pointer
+}
+
+.global-nav-link:active {
+    border-bottom: solid 2px green;
+}
+
+.column {
+    float: left;
+    width: 50%;
+    margin: 0px;
+}

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="JsonHelper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataCloud.PipelineDesigner.CanvasModel\DataCloud.PipelineDesigner.CanvasModel.csproj" />
+    <ProjectReference Include="..\DataCloud.PipelineDesigner.Repositories\DataCloud.PipelineDesigner.Repositories.csproj" />
+    <ProjectReference Include="..\DataCloud.PipelineDesigner.WorkflowModel\DataCloud.PipelineDesigner.WorkflowModel.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Routing.Abstractions" Version="2.2.0" />
+    <PackageReference Include="superpower" Version="3.0.0" />
+  </ItemGroup>
+
+</Project>
