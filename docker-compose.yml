@@ -1,10 +1,10 @@
-version: "3.9"
+version: "3.7"
 services:
   def-pipe:
+    container_name: def_pipe_test2
+    image: def_pipe_test2
     build: .
     ports:
-      - "8081:80"
-      - "27017:27017"
+      - "8082:80"
     environment:
-        MANGO_CONNECTION_STRING: mongodb://host.docker.internal:27017
-        KEYCLOAK_AUTHORITY: http://localhost:8080/auth
+        MANGO_CONNECTION_STRING: mongodb://datacloud_mongodb_students:27017

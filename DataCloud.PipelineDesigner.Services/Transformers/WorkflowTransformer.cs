@@ -49,11 +49,10 @@ namespace DataCloud.PipelineDesigner.Services
 
             Workflow workflow = new Workflow();
 
-            // Change Start_Name to Start later
             var startElement = canvas.Elements
                 .Where(e => e.Type == CanvasElementType.Shape)
                 .Select(e => e as CanvasShape)
-                .First(e => e.Name.ToLower() == Constants.BuiltInTemplateIDs.Start_Name.ToLower());
+                .First(e => e.TemplateId.ToLower() == Constants.BuiltInTemplateIDs.Start.ToLower());
 
             workflow.Parameters = new Dictionary<string, string>(startElement.PropertiesDict);
 
@@ -70,8 +69,7 @@ namespace DataCloud.PipelineDesigner.Services
             foreach (var connector in connectors)
             {
                 var nextShape = canvas.Elements?.First(e => e.ID == connector.DestShapeId) as CanvasShape;
-                //Change ENd_Name to End later
-                if (nextShape.Name?.ToLower() == Constants.BuiltInTemplateIDs.End_Name.ToString().ToLower())
+                if (nextShape.TemplateId?.ToLower() == Constants.BuiltInTemplateIDs.End.ToString().ToLower())
                 {
                     continue;
                 }
@@ -87,16 +85,7 @@ namespace DataCloud.PipelineDesigner.Services
                 }
                 else
                 {
-                    if (workflowElements.Exists(e => e.ID == nextShape.ID))
-                    {
-                        WorkflowAction action = workflowElements.First(e => e.ID == nextShape.ID) as WorkflowAction;
-                        if (action != null)
-                            if (currentShape.Name?.ToLower() != Constants.BuiltInTemplateIDs.Start_Name.ToString().ToLower())
-                                // Change Start_Name to Start later
-                                action.Dependencies.Add(currentShape.ID);
-                    }
-                    else
-                        workflowElements.Add(MapToWorkflowAction(canvas, nextShape, currentShape));
+                    workflowElements.Add(MapToWorkflowAction(canvas, nextShape));
                     MapNextShape(workflow, workflowElements, canvas, nextShape);
                 }
             }
@@ -111,22 +100,6 @@ namespace DataCloud.PipelineDesigner.Services
                 .ToList();
         }
 
-        private WorkflowAction MapToWorkflowAction(Canvas canvas, CanvasShape canvasShape, CanvasShape prevShape)
-        {
-            WorkflowAction workflowAction = new WorkflowAction(canvasShape.Parameters, canvasShape.ID);
-
-            // Change Start_Name to Start later
-            if (prevShape.Name?.ToLower() != Constants.BuiltInTemplateIDs.Start_Name.ToString().ToLower())
-                workflowAction.Dependencies.Add(prevShape.ID);
-            if (canvasShape.Elements.Count > 0)
-                workflowAction.Subpipeline = true;
-            workflowAction.ID = canvasShape.ID;
-            workflowAction.Title = canvasShape.Name;
-            workflowAction.InputDataSetId = FindInputDataset(canvas, canvasShape);
-            workflowAction.OutputDataSetId = FindOutputDataset(canvas, canvasShape);
-
-            return workflowAction;
-        }
 
         private WorkflowAction MapToWorkflowAction(Canvas canvas, CanvasShape canvasShape)
         {
@@ -298,71 +271,5 @@ namespace DataCloud.PipelineDesigner.Services
 
             return pipeline;
         }
-
-        public ArgoYamlFlow GenerateYaml(List<Workflow> workflows, string name)
-        {
-            int workflowNum = 0;
-            ArgoYamlFlow yaml = new ArgoYamlFlow();
-
-            yaml.Name = name.Trim().Replace(" ", "_").ToLower();
-            yaml.Steps = GenerateYamlPipeline(workflows, workflowNum).ToArray();
-
-            Console.WriteLine(yaml.Steps.Length);
-
-            return yaml;
-        }
-
-        private List<YamlStep> GenerateYamlPipeline(List<Workflow> workflows, int workflowNum)
-        {
-            List<YamlStep> steps = new List<YamlStep>();
-            Dictionary<YamlStep, int> workflowToStep = new Dictionary<YamlStep, int>();
-
-            foreach (WorkflowElement element in workflows[workflowNum].Elements)
-            {
-                YamlStep step = new YamlStep();
-                if (element.ElementType == WorkflowElementType.Action)
-                {
-                    step.IsSubpipeline = (element as WorkflowAction).Subpipeline;
-                    if (step.IsSubpipeline)
-                    {
-                        workflowNum++;
-                        workflowToStep.Add(step, workflowNum);
-                    }
-                    step.ID = (element as WorkflowAction).ID;
-                    step.Name = (element as WorkflowAction).Title.Replace(' ', '-');
-                    step.Implementation = (element as WorkflowAction).Parameters?.Implementation;
-                    step.Image = (element as WorkflowAction).Parameters?.Image;
-                    step.ResourceProvider = (element as WorkflowAction).Parameters?.ResourceProvider;
-                    step.EnvParams = (element as WorkflowAction).Parameters?.EnvironmentParameters.ToDictionary((ep) => ep.Key, (ep) => ep.Value);
-                    if ((element as WorkflowAction).Dependencies != null && (element as WorkflowAction).Dependencies.Count > 0)
-                    {
-                        step.Dependencies = new HashSet<string>((element as WorkflowAction).Dependencies);
-                        // Need to add all dependencies
-                        step.Previous = (element as WorkflowAction).Dependencies.First();
-                    }
-
-                    steps.Add(step);
-                }
-            }
-
-            foreach(var pair in workflowToStep)
-            {
-                ArgoYamlFlow subPipeline = new ArgoYamlFlow();
-                subPipeline.Steps = GenerateYamlPipeline(workflows, pair.Value).ToArray();
-                pair.Key.subPipeline = subPipeline;
-            }
-
-            foreach(var step in steps)
-            {
-                if (step.IsSubpipeline)
-                {
-                    Console.WriteLine(step.Name);
-                    Console.WriteLine(step.subPipeline);
-                }
-                    
-            }
-
-            return steps;
-        } 
     }
 }

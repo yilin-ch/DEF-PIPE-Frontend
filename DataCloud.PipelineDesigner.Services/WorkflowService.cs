@@ -27,10 +27,5 @@ namespace DataCloud.PipelineDesigner.Services
         {
             return workflowTransformer.GenerateDsl(workflow, providers);    
         }
-
-        public ArgoYamlFlow TransformWorkflowToYaml(List<Workflow> workflow, string name)
-        {
-            return workflowTransformer.GenerateYaml(workflow, name);
-        }
     }
 }

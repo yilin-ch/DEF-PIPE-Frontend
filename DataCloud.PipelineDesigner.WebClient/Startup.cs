@@ -68,7 +68,6 @@ namespace DataCloud.PipelineDesigner.WebClient
             services.AddAuthentication(options => { options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;/* Authentication options */ })
                                                 .AddJwtBearer(options =>
                                                 {
-                                                    options.RequireHttpsMetadata = false;
                                                     options.Authority = Environment.GetEnvironmentVariable("KEYCLOAK_AUTHORITY");
                                                     options.TokenValidationParameters =
                                                         new TokenValidationParameters
@@ -138,6 +137,7 @@ namespace DataCloud.PipelineDesigner.WebClient
 
             app.UseRouting();
             app.UseCors("AllowOrigin");
+            app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
 

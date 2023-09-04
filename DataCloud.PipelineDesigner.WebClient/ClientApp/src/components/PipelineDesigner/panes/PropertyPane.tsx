@@ -45,11 +45,6 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
         return schema;
     };
 
-    static getLoopConditionSchema(): Schema {
-        var schema: Schema = schemas["pipeline"] as Schema;
-        return schema;
-    };
-
     private updatePropertyValue = (value: any, isValid: boolean) => {
         this.setState({
             updateValue: value
@@ -97,21 +92,6 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
                             <div contentEditable="true" onKeyDown={e => e.keyCode == 13 ?? e.currentTarget.blur} onBlur={e => this.updateStepName(e.currentTarget.textContent)}>{selectedShape.name}</div>
                         </h3>
                         <p className="property-pane-subheader">ID: {selectedShape.id}</p>
-                        <Label>Loop Pipeline</Label>
-                        <Input type="select">
-                            <option value="0">No</option>
-                            <option value="1">Yes</option>
-                        </Input>
-                        <Label>Exit Condition</Label>
-                        <Input type="text" />
-                        {this.props.currentRootShape.elements.length > 0 ?
-                            <JSONEditor
-                                schema={PropertyPane.getLoopConditionSchema()}
-                                initialValue={{}}
-                                updateValue={() => {}}
-                                theme="bootstrap5"
-                                icon="bootstrap-icons" />
-                            : null}
                         { selectedShape.elements?.length > 0 ?
                             null
                             : <JSONEditor

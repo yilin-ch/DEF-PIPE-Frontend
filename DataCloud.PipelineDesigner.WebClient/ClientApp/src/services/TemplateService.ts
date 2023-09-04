@@ -57,8 +57,8 @@ export class TemplateService {
         }, 500);
     }
 
-    public saveRepo(repo: IAPiTemplate, username: string) {
-        console.log("username:" + username);
+    public saveRepo(repo: IAPiTemplate, username : string) {
+	console.log("username:" + username);
         TemplateService.saveTemplateTimeoutHandle = setTimeout(() => {
             TemplateService.saveTemplateTimeoutHandle = null;
             fetch(`/api/repo/` + username, {
@@ -66,7 +66,7 @@ export class TemplateService {
                 body: JSON.stringify(repo),
                 headers: {
                     'Content-Type': 'application/json',
-                    
+                    'Authorization': `Bearer ${KeycloakService.getToken()}`,
                 }
             })
         }, 500);
@@ -78,7 +78,7 @@ export class TemplateService {
                 method: "DELETE",
                 headers: {
                     'Content-Type': 'application/json',
-                    
+                    'Authorization': `Bearer ${KeycloakService.getToken()}`,
                 }
             })
         }, 500);

@@ -11,11 +11,7 @@ namespace DataCloud.PipelineDesigner.Services
         {
             public static String Start => "WORK_START";
 
-            public static String Start_Name => "START";
-
             public static String End => "WORK_END";
-
-            public static String End_Name => "END";
 
             public static Guid If => new Guid("e8a39e61-ad91-47b5-8a59-2464ce80f1d7");
 

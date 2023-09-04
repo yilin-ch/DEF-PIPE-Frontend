@@ -26,7 +26,6 @@ export interface ICanvasShape extends ICanvasElement {
     width: number;
     height: number;
     shape?: string;
-    conditional?: string;
     templateId?: string;
     parameters?: object;
     properties: Array<ICanvasElementProperty>;
@@ -39,9 +38,8 @@ export interface ICanvasShape extends ICanvasElement {
 
 export interface ICanvasShapeConnectionPoint {
     id: string;
-    position: ICanvasPosition;
-    type: ICanvasConnectionPointType;
-    condition?: string;
+    position: ICanvasPosition,
+    type: ICanvasConnectionPointType
 }
 
 export interface ICanvasConnector extends ICanvasElement {
@@ -75,7 +73,6 @@ export interface ICanvasShapeTemplate {
     width: number;
     height: number;
     shape?: string;
-    conditional?: string;
     properties: Array<ICanvasElementProperty>;
     parameters?: object;
     connectionPoints: Array<ICanvasShapeConnectionPoint>;

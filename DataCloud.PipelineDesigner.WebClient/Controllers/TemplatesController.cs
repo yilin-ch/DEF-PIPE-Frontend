@@ -35,7 +35,6 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         {
             try
             {
-                Console.WriteLine("write a template");
                 await templateService.AddOrUpdateTemplateAsync(template);
 
                 return ApiHelper.CreateSuccessResult(template);

@@ -369,7 +369,6 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                 selectedTemplate: action.template
             };
         case 'ADD_REPO':
-            console.log("canvas_add_repo");
             let repoGroup = state.repoGroups.filter(group => group.name === action.repo.category)[0];
             if (repoGroup) {
                 repoGroup.items = repoGroup.items || [];
@@ -388,7 +387,8 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
             let addUpdatedGroups = state.repoGroups;
             addUpdatedGroups[addGroupIndex] = repoGroup;
 
-            templateService.saveRepo(action.repo, "root");
+	    templateService.saveRepo(action.repo, KeycloakService.getUsername());
+            console.log(KeycloakService.getUsername());
 
             return {
                 ...state,
@@ -432,7 +432,8 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
 
             removeUpdatedGroup[deleteGroupIndex].items = newGroup;
 
-            templateService.deleteRepo(action.repo.id, state.username);
+	    templateService.deleteRepo(action.repo.id, KeycloakService.getUsername());
+	    console.log(KeycloakService.getUsername());
 
             return {
                 ...state,

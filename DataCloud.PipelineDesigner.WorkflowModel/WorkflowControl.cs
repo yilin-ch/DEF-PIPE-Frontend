@@ -6,7 +6,7 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
 {
     public abstract class WorkflowControl : WorkflowElement
     {
-        public override string ID { get; set; }
+        public string ID { get; set; }
         public Guid? InputDataSetId { get; set; }
         public override WorkflowElementType ElementType => WorkflowElementType.Control;
         public abstract WorkflowControlType ControlType { get; }
@@ -22,14 +22,11 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
 
     public class WorkflowParallelControl: WorkflowControl
     {
-        public override string ID { get; set; }
         public override WorkflowControlType ControlType => WorkflowControlType.Parallel;
     }
 
     public class WorkflowSwitchControl : WorkflowControl
     {
-        public override string ID { get; set; }
-
         public override WorkflowControlType ControlType => WorkflowControlType.Switch;
 
         public Dictionary<string, List<WorkflowElement>> SwitchCases { get; set; }
