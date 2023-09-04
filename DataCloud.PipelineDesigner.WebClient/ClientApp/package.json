@@ -1,0 +1,68 @@
+{
+  "name": "datacloud.pipelinedesigner.webclient",
+  "version": "0.1.0",
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-scripts/scripts/start.js",
+    "build": "node node_modules/react-scripts/scripts/build.js",
+    "test": "cross-env CI=true react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "lint": "eslint ./src/**/*.ts ./src/**/*.tsx"
+  },
+  "dependencies": {
+    "@react-keycloak/web": "^3.4.0",
+    "bootstrap": "5.1.1",
+    "bootstrap-icons": "1.5.0",
+    "connected-react-router": "^6.9.2",
+    "history": "^5.3.0",
+    "jquery": "^3.6.0",
+    "keycloak-js": "^18.0.0",
+    "konva": "^8.3.5",
+    "merge": "^2.1.1",
+    "popper.js": "^1.16.1",
+    "react": "^18.0.0",
+    "react-autosuggest": "^10.1.0",
+    "react-contexify": "^5.0.0",
+    "react-dom": "^18.0.0",
+    "react-konva": "^18.0.0-0",
+    "react-redux": "^8.0.1",
+    "react-router": "^6.3.0",
+    "react-router-dom": "^6.3.0",
+    "react-schema-based-json-editor": "^8.3.0",
+    "react-scripts": "^5.0.1",
+    "reactstrap": "^9.0.2",
+    "redux": "^4.2.0",
+    "redux-thunk": "^2.4.1",
+    "svgo": "^2.8.0",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/history": "^5.0.0",
+    "@types/jest": "^27.4.1",
+    "@types/node": "^17.0.25",
+    "@types/react": "^18.0.6",
+    "@types/react-dom": "^18.0.2",
+    "@types/react-redux": "^7.1.24",
+    "@types/react-router": "^5.1.18",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/reactstrap": "^8.7.2",
+    "@typescript-eslint/parser": "*",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.13.0",
+    "eslint-plugin-flowtype": "*",
+    "eslint-plugin-import": "*",
+    "eslint-plugin-jsx-a11y": "*",
+    "eslint-plugin-react": "*",
+    "nan": "^2.15.0",
+    "typescript": "^4.6.3"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}
