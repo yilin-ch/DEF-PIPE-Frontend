@@ -45,6 +45,12 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
         return schema;
     };
 
+    static getLoopConditionSchema(): Schema {
+        var schema: Schema = schemas["pipeline"] as Schema;
+        var schema: Schema = schemas["loopconditions"] as Schema;
+        return schema;
+    };
+
     private updatePropertyValue = (value: any, isValid: boolean) => {
         this.setState({
             updateValue: value
@@ -81,6 +87,18 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
         this.props.updateElement(element)
     }
 
+    private updateLoopPipeline(loop: string) {
+        var element = (this.props.selectedElement as ICanvasShape);
+        element.loop = loop;
+        this.props.updateElement(element)
+    }
+
+    private updateLoopCondition(loopCondition: string) {
+        var element = (this.props.selectedElement as ICanvasShape);
+        element.loopCondition = loopCondition;
+        this.props.updateElement(element)
+    }
+
     public render() {
         let selectedShape = this.props.selectedElement && this.props.selectedElement.type === ICanvasElementType.Shape ? (this.props.selectedElement as ICanvasShape) : null;
         console.log(selectedShape?.elements)
@@ -92,6 +110,13 @@ class PropertyPane extends React.Component<PropertyPaneProps, MyState> {
                             <div contentEditable="true" onKeyDown={e => e.keyCode == 13 ?? e.currentTarget.blur} onBlur={e => this.updateStepName(e.currentTarget.textContent)}>{selectedShape.name}</div>
                         </h3>
                         <p className="property-pane-subheader">ID: {selectedShape.id}</p>
+                        <Label>Loop Pipeline</Label>
+                        <Input type="select" onChange={e => this.updateLoopPipeline(e.target.value)}>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </Input>
+                        <Label>Loop Condition</Label>
+                        <Input type="text" onChange={e => this.updateLoopCondition(e.target.value)} />
                         { selectedShape.elements?.length > 0 ?
                             null
                             : <JSONEditor

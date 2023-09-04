@@ -14,5 +14,7 @@ namespace DataCloud.PipelineDesigner.Services.Interfaces
         List<Workflow> TransformCanvasToWorkflow(Canvas canvas);
 
         Dsl TransformWorkflowToDsl(List<Workflow> workflow, List<CanvasProvider> providers);
+
+        ArgoYamlFlow TransformWorkflowToYaml(List<Workflow> workflow, string name);
     }
 }

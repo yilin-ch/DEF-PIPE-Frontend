@@ -28,6 +28,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         IUserService userService;
         IPublicRepoService pRepoService;
         IWorkflowService workflowService;
+        IYAMLService yamlService;
         private readonly IAuthorizationService authorizationService;
         IDSLService dslService;
         public RepoController(IUserService uService, IPublicRepoService prService, IAuthorizationService authService)
@@ -37,6 +38,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
             authorizationService = authService;
             workflowService = new WorkflowService();
             dslService = new DSLService();
+            yamlService = new YAMLService();
         }
 
         /// <summary>
@@ -245,6 +247,37 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
                 return ApiHelper.CreateFailedResult<String>(e.Message);
             }
         
+        }
+
+        /// <summary>
+        /// Export pipeline in YAML
+        /// </summary>
+        /// <response code="200">DSL fromated pipeline</response>
+        [HttpGet("exportyaml/{user}/{pipeline}")]
+        public async Task<ApiResult<string>> ExportYAML(String user, String pipeline)
+        {
+
+            try
+            {
+                var result = userService.GetRepoAsync(user, pipeline);
+                var template = BsonSerializer.Deserialize<Template>(result);
+                var canvasTemplate = (IDictionary<string, Object>)template.CanvasTemplate;
+                var objectElements = JsonConvert.SerializeObject(canvasTemplate["elements"]);
+                //var resourcesProviders = (IDictionary<string, Object>)template.ResourceProviders;
+                var objectResourceProviders = JsonConvert.SerializeObject(template.ResourceProviders);
+                List<CanvasElement> elements = JsonConvert.DeserializeObject<List<CanvasElement>>(objectElements);
+                List<CanvasProvider> providers = BsonSerializer.Deserialize<List<CanvasProvider>>(objectResourceProviders);
+                Canvas c = new Canvas { Name = template.Name, Elements = elements, ResourceProviders = providers };
+                var workflow = workflowService.TransformCanvasToWorkflow(c);
+                var yaml = workflowService.TransformWorkflowToYaml(workflow, c.Name);
+
+                return ApiHelper.CreateSuccessResult(yamlService.SerializeYaml(yaml));
+            }
+            catch (Exception e)
+            {
+                return ApiHelper.CreateFailedResult<String>(e.Message);
+            }
+
         }
     }
 }

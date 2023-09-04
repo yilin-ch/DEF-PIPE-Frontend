@@ -302,6 +302,7 @@ export const reducer: Reducer<CanvasState> = (state: CanvasState | undefined, in
                         id: uuidv4(),
                         sourceShapeId: state.selectedElement.id,
                         sourceConnectionPointId: state.selectedConnectionPoint.id,
+                        sourceConnectionPointCase: state.selectedConnectionPoint.case,
                         destShapeId: action.element.id,
                         destConnectionPointId: action.point.id,
                         type: ICanvasElementType.Connector

@@ -6,6 +6,8 @@ namespace DataCloud.PipelineDesigner.CanvasModel
     public class Canvas
     {
         public string Name { get; set; }
+        public string Loop { get; set; }
+        public string LoopCondition { get; set; }
         public List<CanvasElement> Elements { get; set; }
 
         public List<CanvasProvider> ResourceProviders { get; set; }

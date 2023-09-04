@@ -162,6 +162,8 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                 width: r.canvasTemplate.width,
                 height: r.canvasTemplate.height,
                 shape: r.canvasTemplate.shape,
+                conditional: r.canvasTemplate.conditional,
+                condition: r.canvasTemplate.condition,
                 position: {x: 500, y: 500},
                 canHaveChildren: r.canvasTemplate.isContainer,
                 elements: r.canvasTemplate.elements || []
@@ -348,6 +350,8 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
             width: template.canvasTemplate.width,
             height: template.canvasTemplate.height,
             shape: template.canvasTemplate.shape,
+            conditional: template.canvasTemplate.conditional,
+            condition: template.canvasTemplate.condition,
             position: dropPosition
         };
 
@@ -386,6 +390,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                     if (point) {
                         let connector: ICanvasConnector = {
                             sourceConnectionPointId: this.props.selectedConnectionPoint.id,
+                            sourceConnectionPointCase: this.props.selectedConnectionPoint.case,
                             sourceShapeId: this.props.selectedElement.id,
                             destConnectionPointId: point.id,
                             destShapeId: ele.id,
@@ -416,6 +421,7 @@ class CanvasPane extends React.PureComponent<CanvasProps, MyState> {
                 }
                 let connector: ICanvasConnector = {
                     sourceConnectionPointId: this.props.selectedConnectionPoint.id,
+                    sourceConnectionPointCase: this.props.selectedConnectionPoint.case,
                     sourceShapeId: this.props.selectedElement.id,
                     destConnectionPointId: '0',
                     destShapeId: destShape.id,

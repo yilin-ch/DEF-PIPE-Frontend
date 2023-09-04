@@ -7,5 +7,6 @@ namespace DataCloud.PipelineDesigner.WorkflowModel
     public abstract class WorkflowElement
     {
         public abstract WorkflowElementType ElementType { get; }
+        public abstract string ID { get; set; }
     }
 }

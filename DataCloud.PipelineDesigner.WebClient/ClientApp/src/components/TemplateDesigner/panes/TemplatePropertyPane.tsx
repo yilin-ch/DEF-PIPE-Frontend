@@ -52,6 +52,18 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
 
         this.props.updateTemplate(updatedTemplate);
     }
+    onTypeChange(e: React.ChangeEvent<HTMLInputElement>) {
+        let updatedTemplate = { ...this.props.selectedTemplate };
+        updatedTemplate.canvasTemplate.conditional = e.target.value;
+
+        this.props.updateTemplate(updatedTemplate);
+    }
+    onConditionChange(e: React.ChangeEvent<HTMLInputElement>) {
+        let updatedTemplate = { ...this.props.selectedTemplate };
+        updatedTemplate.canvasTemplate.condition = e.target.value;
+
+        this.props.updateTemplate(updatedTemplate);
+    }
 
     onPropertyNameChange(e: React.ChangeEvent<HTMLInputElement>, prop: ICanvasElementProperty) {
         let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
@@ -97,6 +109,21 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
         let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
         let pointToBeUpdated = updatedTemplate.canvasTemplate.connectionPoints.filter(x => x.id === point.id)[0]
         pointToBeUpdated.type = parseInt(e.target.value);
+
+        this.props.updateTemplate(updatedTemplate);
+    }
+
+    onConnectionPointChangeCondition(e: React.ChangeEvent<HTMLInputElement>, point: ICanvasShapeConnectionPoint) {
+        let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
+        let pointToBeUpdated = updatedTemplate.canvasTemplate.connectionPoints.filter(x => x.id === point.id)[0]
+        pointToBeUpdated.condition = e.target.value;
+        this.props.updateTemplate(updatedTemplate);
+    }
+
+    onConnectionPointChangeCase(e: React.ChangeEvent<HTMLInputElement>, point: ICanvasShapeConnectionPoint) {
+        let updatedTemplate = { ...this.props.selectedTemplate } as IAPiTemplate;
+        let pointToBeUpdated = updatedTemplate.canvasTemplate.connectionPoints.filter(x => x.id === point.id)[0]
+        pointToBeUpdated.case = e.target.value;
 
         this.props.updateTemplate(updatedTemplate);
     }
@@ -169,6 +196,15 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
                     <option value="0">Input</option>
                     <option value="1">Output</option>
                 </Input>
+
+                <Label for={point.id + '_condition'}>Condition</Label>
+                <Input type="text" name={point.id + '_condition'} id={point.id + '_condition'} value={point.condition} onChange={(e) => this.onConnectionPointChangeCondition(e, point)} />
+
+                <Label for={point.id + '_case'}>Case</Label>
+                <Input type="select" name={point.id + '_case'} id={point.id + '_case'} value={point.case} onChange={(e) => this.onConnectionPointChangeCase(e, point)}>
+                    <option value="1">Case-If</option>
+                    <option value="0">Case-Else</option>
+                </Input>
             </FormGroup>
         </React.Fragment >
     }
@@ -208,6 +244,13 @@ class TemplatePropertyPane extends React.PureComponent<TemplatePropertyPaneProps
                                         <Input type="text" name={this.props.selectedTemplate.id + '_name'} id={this.props.selectedTemplate.id + '_name'} value={this.props.selectedTemplate.name} onChange={(e) => this.onNameChange(e)} />
                                         <Label for={this.props.selectedTemplate.id + '_type'}>Category</Label>
                                         <Input type="text" name={this.props.selectedTemplate.id + '_type'} id={this.props.selectedTemplate.id + '_type'} value={this.props.selectedTemplate.category} onChange={(e) => this.onCategoryChange(e)} />
+                                        <Label for={this.props.selectedTemplate.id + '_functiontype'}>Type</Label>
+                                        <Input type="select" name={this.props.selectedTemplate.id + '_functiontype'} id={this.props.selectedTemplate.id + '_functiontype'} value={this.props.selectedTemplate.canvasTemplate.conditional} onChange={(e) => this.onTypeChange(e)}>
+                                            <option>Other</option>
+                                            <option>Conditional</option>
+                                        </Input>
+                                        <Label for={this.props.selectedTemplate.id + '_condition'}>Condition</Label>
+                                        <Input type="text" name={this.props.selectedTemplate.id + '_condition'} id={this.props.selectedTemplate.id + '_condition'} value={this.props.selectedTemplate.canvasTemplate.condition} onChange={(e) => this.onConditionChange(e)} />
                                         <Label for={this.props.selectedTemplate.id + '_shape'}>Shape</Label>
                                         <Input type="select" name={this.props.selectedTemplate.id + '_shape'} id={this.props.selectedTemplate.id + '_shape'} value={this.props.selectedTemplate.canvasTemplate.shape} onChange={(e) => this.onShapeChange(e)}>
                                             <option>Rectangle</option>
