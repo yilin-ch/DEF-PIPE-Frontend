@@ -18,17 +18,18 @@
     "DataCloud.PipelineDesigner.WebClient": {
       "commandName": "Project",
       "commandLineArgs": "--dev",
+      "applicationUrl": "http://local.dev:5001;http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "http://local.dev:5001;http://localhost:5000"
+      }
     },
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
       "launchUrl": "tcp://127.0.0.1:2375",
-      "publishAllPorts": true,
-      "useSSL": true
+      "environmentVariables": {},
+      "useSSL": true,
+      "publishAllPorts": true
     }
   }
 }
