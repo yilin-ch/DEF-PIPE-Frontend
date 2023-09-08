@@ -8,3 +8,4 @@ services:
       - "8082:80"
     environment:
         MANGO_CONNECTION_STRING: mongodb://datacloud_mongodb_students:27017
+        KEYCLOAK_AUTHORITY: http://localhost:8080/auth
