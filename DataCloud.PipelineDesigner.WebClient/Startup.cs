@@ -69,6 +69,7 @@ namespace DataCloud.PipelineDesigner.WebClient
                                                 .AddJwtBearer(options =>
                                                 {
                                                     options.Authority = Environment.GetEnvironmentVariable("KEYCLOAK_AUTHORITY");
+                                                    options.RequireHttpsMetadata = false;
                                                     options.TokenValidationParameters =
                                                         new TokenValidationParameters
                                                         {
