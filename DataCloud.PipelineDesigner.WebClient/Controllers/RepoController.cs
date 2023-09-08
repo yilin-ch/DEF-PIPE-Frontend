@@ -220,12 +220,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         [HttpGet("export/{user}/{pipeline}")]
         public async Task<ApiResult<string>>  ExportDsl(String user, String pipeline)
         {
-            var authorizationResult = await authorizationService.AuthorizeAsync(User, user, "OwnershipPolicy");
 
-            if (!authorizationResult.Succeeded)
-            {
-                return ApiHelper.CreateFailedResult<String>("Forbiden");
-            }
             try
             {
                 var result = userService.GetRepoAsync(user, pipeline);
