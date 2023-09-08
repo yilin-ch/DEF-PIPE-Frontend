@@ -66,7 +66,6 @@ export class TemplateService {
                 body: JSON.stringify(repo),
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${KeycloakService.getToken()}`,
                 }
             })
         }, 500);
@@ -78,7 +77,6 @@ export class TemplateService {
                 method: "DELETE",
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${KeycloakService.getToken()}`,
                 }
             })
         }, 500);
@@ -101,7 +99,6 @@ export class TemplateService {
             method: 'GET',
             headers: {
                 'Content-type': 'application/json',
-                'Authorization': `Bearer ${KeycloakService.getToken()}`,
             }
         })
             .then(response => response.json() as Promise<ApiResult<Array<ISearchRepo>>>)
@@ -116,7 +113,6 @@ export class TemplateService {
             method: 'GET',
             headers: {
                 'Content-type': 'application/json',
-                'Authorization': `Bearer ${KeycloakService.getToken()}`,
             }
         })
             .then(response => response.json() as Promise<ApiResult<IAPiTemplate>>)

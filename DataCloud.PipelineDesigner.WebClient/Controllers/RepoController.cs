@@ -28,14 +28,12 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         IUserService userService;
         IPublicRepoService pRepoService;
         IWorkflowService workflowService;
-        IYAMLService yamlService;
-        private readonly IAuthorizationService authorizationService;
         IDSLService dslService;
-        public RepoController(IUserService uService, IPublicRepoService prService, IAuthorizationService authService)
+        IYAMLService yamlService;
+        public RepoController(IUserService uService, IPublicRepoService prService)
         {
             userService = uService;
             pRepoService = prService;
-            authorizationService = authService;
             workflowService = new WorkflowService();
             dslService = new DSLService();
             yamlService = new YAMLService();
@@ -85,13 +83,11 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         [HttpGet("{user}")]
         public async Task<ApiResult<List<Template>>> GetAvailableRepo(String user)
         {
-	    Console.WriteLine(user);
 
-            var authorizationResult = await authorizationService.AuthorizeAsync(User, user, "OwnershipPolicy");
 
+            
             try
-            {   
-		Console.WriteLine("auth success!");
+            {
                 User userDB = await userService.GetRepoAsync(user);
                 return ApiHelper.CreateSuccessResult(userDB.Templates);
             }
@@ -110,10 +106,10 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         [HttpPost("{user}")]
         public async Task<ApiResult<Template>> AddOrUpdateRepoAsync([FromBody] Template template, string user)
         {
-	    Console.WriteLine(template.Name);
-            Console.WriteLine(user);
             try
             {
+                Console.WriteLine(template.Name);
+                Console.WriteLine(user);
                 var result = await userService.UpdateRepoAsync(template, user);
 
 
@@ -220,7 +216,7 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         [HttpGet("export/{user}/{pipeline}")]
         public async Task<ApiResult<string>>  ExportDsl(String user, String pipeline)
         {
-
+            
             try
             {
                 var result = userService.GetRepoAsync(user, pipeline);
