@@ -1,8 +1,8 @@
 version: "3.7"
 services:
   def-pipe:
-    container_name: def_pipe_test2
-    image: def_pipe_test2
+    container_name: def_pipe_test3
+    image: def_pipe_test3
     build: .
     ports:
       - "8082:80"
