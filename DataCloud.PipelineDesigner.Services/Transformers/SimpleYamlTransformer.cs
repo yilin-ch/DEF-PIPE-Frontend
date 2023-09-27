@@ -234,7 +234,7 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
             foreach (var e in envs)
             {
                 builder.AppendLine(Identation(level) + "- name: " + e.Key);
-                builder.AppendLine(Identation(level + 1) + "value: " + e.Value);
+                builder.AppendLine(Identation(level + 1) + "value: \"" + e.Value + "\"");
             }
         }
 
@@ -264,8 +264,24 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
             }
             else
             {
+                bool first = true;
                 builder.AppendLine(Identation(level + 1) + "command: [sh, -c]");
-                builder.AppendLine(Identation(level + 1) + "args: [\"echo Env param is $env\"]");
+                foreach (var e in step.EnvParams)
+                {
+                    if (first)
+                    {
+                        builder.Append(Identation(level + 1) + "args: [\"echo \'Echoing the envParam " + e.Key + ": $" + e.Key + "\'");
+                        first = false;
+                    }
+                    else
+                    {
+                        builder.AppendLine();
+                        builder.Append(Identation(level + 4) + "&& echo \'Echoing the envParam " + e.Key + ": $" + e.Key + "\'");
+                    }
+                }
+                builder.Append("\"]");
+                builder.AppendLine();
+                //builder.AppendLine(Identation(level + 1) + "args: [\"echo Env param is $env\"]");
             }
 
             // env parameters
