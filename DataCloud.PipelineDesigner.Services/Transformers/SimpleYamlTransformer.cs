@@ -39,6 +39,7 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
             yamlBuilder.AppendLine("apiVersion: argoproj.io/v1alpha1");
             yamlBuilder.AppendLine("kind: Workflow");
             yamlBuilder.AppendLine("metadata:");
+            // todo: convert illegal yaml name (ones that indludes '_', '.')
             yamlBuilder.AppendLine(Identation(0) + "generateName: " + yaml.Name);
             Console.WriteLine("k1");
         }
