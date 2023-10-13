@@ -213,13 +213,13 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         /// Export pipeline in DSL
         /// </summary>
         /// <response code="200">DSL fromated pipeline</response>
-        [HttpGet("export/{user}/{pipeline}")]
-        public async Task<ApiResult<string>>  ExportDsl(String user, String pipeline)
+        [HttpGet("export/{user}/{id}")]
+        public async Task<ApiResult<string>>  ExportDsl(String user, String id)
         {
             
             try
             {
-                var result = userService.GetRepoAsync(user, pipeline);
+                var result = userService.GetRepoAsync(user, id);
                 var template = BsonSerializer.Deserialize<Template>(result);
                 var canvasTemplate = (IDictionary<string, Object>)template.CanvasTemplate;
                 var objectElements = JsonConvert.SerializeObject(canvasTemplate["elements"]);
@@ -244,13 +244,13 @@ namespace DataCloud.PipelineDesigner.WebClient.Controllers
         /// Export pipeline in YAML
         /// </summary>
         /// <response code="200">DSL fromated pipeline</response>
-        [HttpGet("exportyaml/{user}/{pipeline}")]
-        public async Task<ApiResult<string>> ExportYAML(String user, String pipeline)
+        [HttpGet("exportyaml/{user}/{id}")]
+        public async Task<ApiResult<string>> ExportYAML(String user, String id)
         {
 
             try
             {
-                var result = userService.GetRepoAsync(user, pipeline);
+                var result = userService.GetRepoAsync(user, id);
                 var template = BsonSerializer.Deserialize<Template>(result);
                 var canvasTemplate = (IDictionary<string, Object>)template.CanvasTemplate;
                 var objectElements = JsonConvert.SerializeObject(canvasTemplate["elements"]);

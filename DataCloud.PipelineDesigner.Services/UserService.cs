@@ -82,11 +82,11 @@ namespace DataCloud.PipelineDesigner.Services
             return _user.Find(u => u.Username == user).FirstOrDefaultAsync();
         }
 
-        public BsonDocument GetRepoAsync(string user, string pipeline)
+        public BsonDocument GetRepoAsync(string user, string id)
         {
             var u = _user.Find(u => u.Username == user).FirstOrDefault();
 
-            var p = u.Templates.Find(t => t.Name == pipeline);
+            var p = u.Templates.Find(t => t.Id == id);
 
             return p.ToBsonDocument();
         }
