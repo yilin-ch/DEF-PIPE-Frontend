@@ -39,7 +39,7 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
             yamlBuilder.AppendLine("apiVersion: argoproj.io/v1alpha1");
             yamlBuilder.AppendLine("kind: Workflow");
             yamlBuilder.AppendLine("metadata:");
-            // todo: convert illegal yaml name (ones that indludes '_', '.')
+            // todo: convert illegal yaml name (ones that indludes '_', '.', space)
             yamlBuilder.AppendLine(Identation(0) + "generateName: " + yaml.Name);
             Console.WriteLine("k1");
         }
@@ -267,22 +267,26 @@ namespace DataCloud.PipelineDesigner.Services.Transformers
             {
                 bool first = true;
                 builder.AppendLine(Identation(level + 1) + "command: [sh, -c]");
-                foreach (var e in step.EnvParams)
+                if (step.EnvParams != null && step.Additional != "")
                 {
-                    if (first)
+                    foreach (var e in step.EnvParams)
                     {
-                        builder.Append(Identation(level + 1) + "args: [\"echo \'Echoing the envParam " + e.Key + ": $" + e.Key + "\'");
-                        first = false;
+                        if (first)
+                        {
+                            builder.Append(Identation(level + 1) + "args: [\"echo \'Echoing the envParam " + e.Key + ": $" + e.Key + "\'");
+                            first = false;
+                        }
+                        else
+                        {
+                            builder.AppendLine();
+                            builder.Append(Identation(level + 4) + "&& echo \'Echoing the envParam " + e.Key + ": $" + e.Key + "\'");
+                        }
                     }
-                    else
-                    {
-                        builder.AppendLine();
-                        builder.Append(Identation(level + 4) + "&& echo \'Echoing the envParam " + e.Key + ": $" + e.Key + "\'");
-                    }
+                    builder.Append("\"]");
+                    builder.AppendLine();
+                    //builder.AppendLine(Identation(level + 1) + "args: [\"echo Env param is $env\"]");
                 }
-                builder.Append("\"]");
-                builder.AppendLine();
-                //builder.AppendLine(Identation(level + 1) + "args: [\"echo Env param is $env\"]");
+
             }
 
             // env parameters
